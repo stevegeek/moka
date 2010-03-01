@@ -212,8 +212,12 @@ function copyr($dirsource, $dirdest, $silence = false)
                     if (!rename($projectPath.'/'.[$target bootstrapFile], $filename))
                         throw new \ObjPHP\CountableException("The main bootstrap file '".$projectPath.[$target bootstrapFile]."' could not be renamed. Make sure you have write permissions.");
 
+                    chmod($filename, 0755);
+
                     if (!rename($projectPath.'/'.[$target debugBootstrapFile], $filename."-debug"))
                         throw new \ObjPHP\CountableException("The debug bootstrap file '".$projectPath.[$target debugBootstrapFile]."' could not be renamed. Make sure you have write permissions.");
+
+                    chmod($filename."-debug", 0755);
 
                     [$target setDebugBootstrapFile:$projectName."-debug"];
                 }
