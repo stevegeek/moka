@@ -1,0 +1,25 @@
+#!/usr/bin/php
+<?php
+/*
+ * ##ProjectName##-debug
+ * ##ProjectName##
+ *
+ * Copyright ##Copyright##
+ * ##Author## <##AuthorEmail##>
+ * Created ##Date##
+ */
+const _DEBUG_ = true;
+
+define('OBJPHP_INCLUDE_PATH', getenv('OBJPHP'));
+define('OBJPHP_APP_PATH', __DIR__);
+
+set_include_path( OBJPHP_INCLUDE_PATH . PATH_SEPARATOR . OBJPHP_INCLUDE_PATH."/Moka/"  . PATH_SEPARATOR. OBJPHP_APP_PATH);
+
+include_once 'Objective-PHP/runtime.php';
+
+// Create a runtime and bootstrap by loading main.op
+$pp = new ObjPHP\PreProcessor();
+if( $source = $pp->loadObjPHPFile("main.op", false) )
+    $pp->run($source);
+
+/*DEBUG*/printf("Tokenized in %.3f s. Parsed in %.3f s. Executed in %.3f s.\n",$pp->Tokenizer()->getTime(), $pp->Parser()->getTime(), $pp->getTime());

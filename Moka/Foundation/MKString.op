@@ -1,0 +1,110 @@
+<?php
+/*
+ * MKString.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
+ *
+ * Moka/Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moka/Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@import <Foundation/MKObject.op>
+
+// Constants
+const MKCaseInsensitiveSearch = 1;
+const MKLiteralSearch         = 2;
+const MKBackwardsSearch       = 4;
+const MKAnchoredSearch        = 8;
+const MKNumericSearch         = 64;
+
+// String
+@implementation MKString : MKObject
+{
+    @protected string string;
+}
+
+- (id)initWithString:aString
+{
+    if ($self = [super init])
+    {
+        $self->string = $aString;
+    }
+    return $self;
+}
+
++ (string)string
+{
+    return [[MKString alloc] init];
+}
+
+- (int) length
+{
+    return strlen($self->string);
+}
+
+- (MKString)characterAtIndex:(unsigned int)anIndex
+{
+    return $self->string[anIndex];
+}
+
+- (string)description
+{
+    return $self->string;
+}
+
+- (MKString)copy
+{
+    return [[MKString alloc] initWithString:$self->string];
+}
+
+- (MKString)capitalizedString
+{
+    return [[MKString alloc] initWithString:ucwords($self->string)];
+}
+
+- (MKString)lowercaseString
+{
+    return [[MKString alloc] initWithString:strtolower($self->string)];
+}
+
+- (MKString)uppercaseString
+{
+    return [[MKString alloc] initWithString:strtoupper($self->string)];
+}
+
+- (double)doubleValue
+{
+    return (float)$self->string;
+}
+
+- (boolean)boolValue
+{
+    // FIXME: from CAPP
+    //var replaceRegExp = new RegExp("^\\s*[\\+,\\-]*0*");
+    //return RegExp("^[Y,y,t,T,1-9]").test(self.replace(replaceRegExp, ''));
+}
+
+- (float)floatValue
+{
+    return (float)$self->string;
+}
+
+- (int)intValue
+{
+    return (integer)$self->string;
+}
+
+
+@end

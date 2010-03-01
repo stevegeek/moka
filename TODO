@@ -1,0 +1,52 @@
+TODO/Roadmap
+============
+
+Beta 1: (Initial release)
+------
+* Trace output needs to not dump the objects
+* Trace needs to output OP file name
+* If compiling dynamic imports need to be handled differently.
+* What about deploying after compile?
+
+Beta 2: (Language feature additions)
+------
+* @accessor(OPTIONS) - @property - @synthesize  : http://www.cocoacast.com/?q=node/103
+* @"blah" parses to instant a MKString
+* @<int> or @<float> becomes a MKNumber
+* add @inteface syntax support?
+* Variable argument length methods (method:param ...)
+
+Beta 3: (Framework Feature Additions)
+-------
+* MKLog %@ for [obj description]
+* KVC and observers
+* Archiving (Coding) - For encode/decode/save/restore objects see __set_state() and var_export§
+* Optimise compile (remove unused methods etc)
+* deploy command for objphp (compile, optimize, remove debug info)
+
+Beta 4: (Framework Feature Additions)
+-------
+* pList parsing
+* Bundles
+* translation / (i18n / l10n)
+
+Version 1:
+----------
+* Create better command line parser
+
+
+Bugs:
+-----
+* ivars can be declared in a single line but accessors will not apply to all : `int a, b @accessors;
+  will only generate get/set methods for b.
+* in import $rel (relative) is a bit counter intuitive . if rel is true then we load the
+    file relative to the working directory, else its in Moka. But it could mean rel to Moka.
+    Rename it to something like relativeToWorkingDirectory
+* the runtime global is DANGEROUS N STUPID, FIX ME
+* [$objphp doPlugin:$cmd withParameters:array_slice($args, array_search('0', array_keys($args)))]; DOESNT PARSE!
+* When something cant be delivered exception doesnt cause fail. (at least from runtime import)
+
+* $this Points To PreProcessor Object when Not Compliled. Code is preprocessed by the PreProcessor. The resulting PHP is eval'd in the
+method `run()` in the PreProcessor. This however means that `$this` is defined
+and points to the PreProcessor object. This is only true in 'root level' code, ie code not in any
+method or function. In compiled code this will not be the case and $this will not be defined.

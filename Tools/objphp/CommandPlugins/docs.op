@@ -1,0 +1,76 @@
+<?php
+/*
+ * docs.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Objective-PHP <http://www.atimport.net/>.
+ *
+ * Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// docs: generate docs
+@implementation docs : MKObject <ICommandPlugin>
+
+- (void)help
+{
+?>
+    format: docs
+        Options:
+            -v, --verbose: Enable verbose output
+            -s, --silent : Silence output
+            -h, --help   : This help
+<?php
+}
+
+- (void)doWithParameters:(MKDictionary)params
+{
+    $outputMode = 1;
+
+    // parse args
+    if ([$params count])
+    {
+        // 0 is command name
+        foreach ([$params _PHParray] as $argname => $argval)
+        {
+            if ($argname === 's' || $argname === 'silent')
+            {
+                $outputMode = 0;
+                MKLog("Output Silenced");
+            }
+            else if ($argname === 'v' || $argname === 'verbose')
+            {
+                MKLog("Verbose output enabled");
+                $outputMode = 2;
+            }
+            else if ($argname === 'h' || $argname === 'help')
+            {
+                [$self help];
+            }
+        }
+
+        try
+        {
+
+        } catch( ObjPHP\CountableException $e )
+        {
+            MKLog("Exception thrown by documentation generator: ".$e->getMessage());
+        }
+    }
+}
+
+@end
+
+
+[$self addPlugin:[[docs alloc] init] withName:"docs"];

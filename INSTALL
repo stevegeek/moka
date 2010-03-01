@@ -1,0 +1,4 @@
+Installation Instructions
+=========================
+
+* Create environment variable OBJPHP and point it to your root Moka installation

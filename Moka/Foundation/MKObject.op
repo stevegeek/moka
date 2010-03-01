@@ -1,0 +1,323 @@
+<?php
+/*
+ * MKObject.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
+ *
+ * Moka/Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moka/Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// MKObject - Root object - This is the root object for Objective-PHP.
+
+// http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html
+// Root class
+// only one instance of meta classes is allowed (at least in smalltalk 80 oo model)
+
+@protocol MKObject
+//autorelease
++ class;
++ conformsToProtocol:protocol;
++ description;
+/*
+hash
+isEqual:
+isKindOfClass:
+isMemberOfClass:
+isProxy
+performSelector:
+performSelector:withObject:
+performSelector:withObject:withObject:
+release
+respondsToSelector:
+retain
+retainCount
+self
+superclass
+zone*/
+@end
+
+// This is mainly a wrapper around Object for now
+@implementation MKObject <MKObject>
+
++ initialize
+{
+    // nothing
+}
+
++ (id)alloc
+{
+    $n = [$this name];
+    $n = '_opClass_'.$n;  // FIXME: String should come from a API call
+    return $n::getInstance()->factory();
+}
+
++ (id)allocWithZone:ignored
+{
+    return [$this alloc];
+}
+
++ (Class)class
+{
+    return $this;
+}
+
++ (BOOL)conformsToProtocol:(Protocol *)aProtocol
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (id)copyWithZone:ignored
+{
+    return [$this copy];
+}
+
++ (MKString *)description
+{
+    return [$this name];
+}
+
++ (IMP)instanceMethodForSelector:(SEL)aSelector
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (MKMethodSignature *)instanceMethodSignatureForSelector:(SEL)aSelector
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (BOOL)isSubclassOfClass:(Class)aClass
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (void)load
+{
+}
+
++ (id)mutableCopyWithZone:ignored
+{
+    return [$this copy];
+}
+
++ (id)new
+{
+    $n = [$this name];
+    $n = '_opClass_'.$n;  // FIXME: String should come from a API call
+    $obj = $n::getInstance()->factory();
+    return [$obj init];
+}
+
++ (BOOL)resolveClassMethod:(SEL)name
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (BOOL)resolveInstanceMethod:(SEL)name
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (void)setVersion:(MKInteger)aVersion
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (Class)superclass
+{
+    return $this->super_class;
+}
+
++ (MKInteger)version
+{
+    return $this->version;
+}
+
+- (id)autoContentAccessingProxy
+{
+}
+
+- (id)awakeAfterUsingCoder:(MKCoder *)aDecoder
+{
+}
+
+- (Class)classForCoder
+{
+}
+
+- (id)copy
+{
+}
+
+- (void)dealloc
+{
+}
+
+- (void)doesNotRecognizeSelector:(SEL)aSelector
+{
+}
+
+- (void)finalize
+{
+}
+
+- (id)forwardingTargetForSelector:(SEL)aSelector
+{
+}
+
+- (void)forwardInvocation:(MKInvocation *)anInvocation
+{
+}
+
+- (id)init
+{
+    return $self;
+}
+
+- (IMP)methodForSelector:(SEL)aSelector
+{
+}
+
+- (MKMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+{
+}
+
+- (id)mutableCopy
+{
+}
+
+- (id)replacementObjectForCoder:(MKCoder *)aCoder
+{
+}
+
+- free
+{
+
+}
+
+// + name is added automatically by parser
+- name
+{
+    return [$self->isa name];
+}
+
++ conformsTo:protocolObject
+{
+    MKLog("~ ".__METHOD__." unimplemented!");
+}
+
+- (void)forward:(SEL)aSelector :(marg_list)args
+{
+    MKLog( "'$aSelector' could not be delivered" );
+}
+
+@end
+
+/*
+MKPortCoder
+
+- (id)replacementObjectForPortCoder:(MKPortCoder *)aCoder
+
+*/
+
+/*
+MKArchiver
+
+- (Class)classForArchiver
+{
+}
+
+- (id)replacementObjectForArchiver:(MKArchiver *)anArchiver
+*/
+
+/*
+MKClassDescription.h
+
+- (MKClassDescription *)classDescription
+{
+}
+
+- (MKArray *)attributeKeys
+{
+    throw new NotImplementedException($_cmd);
+}
+
+- (MKString *)inverseForRelationshipKey:(MKString *)relationshipKey
+{
+}
+
+- (MKArray *)toManyRelationshipKeys
+- (MKArray *)toOneRelationshipKeys
+*/
+/*
+MKRunLoop
+
++ (void)cancelPreviousPerformRequestsWithTarget:(id)aTarget
+{
+    throw new NotImplementedException($_cmd);
+}
+
++ (void)cancelPreviousPerformRequestsWithTarget:(id)aTarget selector:(SEL)aSelector object:(id)anArgument
+{
+    throw new NotImplementedException($_cmd);
+}
+
+- (void)performSelector:(SEL)aSelector withObject:(id)anArgument afterDelay:(MKTimeInterval)delay
+
+- (void)performSelector:(SEL)aSelector withObject:(id)anArgument afterDelay:(MKTimeInterval)delay inModes:(MKArray *)modes
+*/
+
+/*
+MKObjectScripting.h
+
+- (id)newScriptingObjectOfClass:(Class)class forValueForKey:(MKString *)key withContentsValue:(id)contentsValue properties:(MKDictionary *)properties
+
+- (MKDictionary *)scriptingProperties
+
+- (id)scriptingValueForSpecifier:(MKScriptObjectSpecifier *)objectSpecifier
+
+- (void)setScriptingProperties:(MKDictionary *)properties
+*/
+
+/*
+MKThread
+
+- (void)performSelector:(SEL)aSelector onThread:(MKThread *)thr withObject:(id)arg waitUntilDone:(BOOL)wait
+
+- (void)performSelector:(SEL)aSelector onThread:(MKThread *)thr withObject:(id)arg waitUntilDone:(BOOL)wait modes:(MKArray *)array
+
+- (void)performSelectorInBackground:(SEL)aSelector withObject:(id)arg
+
+- (void)performSelectorOnMainThread:(SEL)aSelector withObject:(id)arg waitUntilDone:(BOOL)wait
+
+- (void)performSelectorOnMainThread:(SEL)aSelector withObject:(id)arg waitUntilDone:(BOOL)wait modes:(MKArray *)array
+*/
+
+/*
+MKScriptClassDescription.h
+- (FourCharCode)classCode
+{
+}
+- (MKString *)className
+{
+}
+
+- (id)copyScriptingValue:(id)value forKey:(MKString *)key withProperties:(MKDictionary *)properties
+{
+}
+*/
+
+@import <Foundation/Protocol.op>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>TargetName</key>
+	<string>mvc</string>
+	<key>RenameBootstrapFile</key>
+	<false/>
+	<key>BootstrapFile</key>
+	<string>index.php</string>
+	<key>DebugBootstrapFile</key>
+	<string>index-debug.php</string>
+	<key>AppFile</key>
+	<string>FrontController.op</string>
+</dict>
+</plist>

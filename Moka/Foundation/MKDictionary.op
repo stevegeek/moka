@@ -1,0 +1,77 @@
+<?php
+/*
+ * MKDictionary.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
+ *
+ * Moka/Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moka/Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@import <Foundation/MKObject.op>
+
+@implementation MKDictionary : MKObject
+{
+    @protected assoc_array = array();
+}
+
+- (id)init
+{
+    if ($self = [super init])
+    {
+    }
+    return $self;
+}
+
+- (id)initWithPHPArray:(PHPArray)ar
+{
+    if ($self = [super init])
+    {
+        $self->assoc_array = $ar;
+    }
+    return $self;
+}
+
++ (id)dictionary
+{
+    return [[MKDictionary alloc] init];
+}
+
++ (id)dictionaryWithPHPArray:ar
+{
+    return [[MKDictionary alloc] initWithPHPArray:$ar];
+}
+
+- (int)count
+{
+    return count($self->assoc_array);
+}
+
+- (void)setObject:obj forKey:key
+{
+    $self->assoc_array[$key] = $obj;
+}
+
+- (id)objectForKey:key
+{
+    return $self->assoc_array[$key];
+}
+
+- (array)_PHParray
+{
+    return $self->assoc_array;
+}
+
+@end

@@ -1,0 +1,281 @@
+<?php
+/*
+ * gen.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Objective-PHP <http://www.atimport.net/>.
+ *
+ * Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// recursive copy doesnt exist in php...
+function copyr($dirsource, $dirdest, $silence = false)
+{
+    // all subdirectories and contents:
+    if (is_dir($dirsource))
+        $dir_handle = opendir($dirsource);
+    if (!$silence) echo "Make Directory: $dirdest\n";
+    mkdir($dirdest."/", 0755);
+    while ($file = readdir($dir_handle))
+    {
+        if($file != "." && $file != "..")
+        {
+            if (!is_dir($dirsource."/".$file))
+            {
+                copy ($dirsource."/".$file, $dirdest."/".$file);
+                if (!$silence) echo "Copy '$dirsource'/$file --> $dirdest/$file\n";
+            }
+            else
+                copyr($dirsource."/".$file, $dirdest."/".$file);
+        }
+    }
+    closedir($dir_handle);
+    return true;
+}
+
+// Targets
+@implementation Target : MKObject
+{
+    SimpleXML pList;
+    // FIXME: so many accessors!
+    String    path              @accessors;
+    String    filePath          @accessors;
+    String    name              @accessors;
+    BOOL      renameBootstrap   @accessors;
+    String    bootstrapFile     @accessors;
+    String    debugBootstrapFile @accessors;
+    String    appFile           @accessors;
+}
+
+- (id)initWithPath:path andPlist:plist
+{
+    if ($self = [super init])
+    {
+        $self->path                 = $path;
+        $self->filePath             = $path.'/files';
+
+        // FIXME: plist support does exist yet, here use simple and horrible hack
+        $self->pList = simplexml_load_file($plist);
+
+        $self->renameBootstrap      = (isset($self->pList->dict->true))?(true):(false);
+        $self->name                 = (string)$self->pList->dict->string[0];
+        $self->bootstrapFile        = (string)$self->pList->dict->string[1];
+        $self->debugBootstrapFile   = (string)$self->pList->dict->string[2];
+        $self->appFile              = (string)$self->pList->dict->string[3];
+    }
+    return $self;
+}
+
+@end
+
+// gen plugin
+@implementation gen : MKObject <ICommandPlugin>
+{
+    MKDictionary targets;
+}
+
+- (void)init
+{
+    if ($self = [super init])
+    {
+        $self->targets = [MKDictionary dictionary];
+        foreach (new DirectoryIterator(OBJPHP_TOOL_PATH.'/Targets/') as $fileInfo)
+        {
+            if ($fileInfo->isDir() && !$fileInfo->isDot())
+            {
+                $target = [[Target alloc] initWithPath:$fileInfo->getPathname() andPlist:$fileInfo->getPathname()."/TargetConfig.plist"];
+                [$self->targets setObject:$target forKey:[$target name]];
+            }
+        }
+    }
+
+    return $self;
+}
+
+- (void)help
+{
+?>
+    format: gen <Options> -t=<ProjectType> <ProjectName>
+        Options:
+            -t, --type=<type>       : Project type (Default : console)
+            -a, --author=<name>     : Project Author (Optional, can be set with env var OBJPHP_PROJECT_AUTHOR)
+            -e, --email=<email>     : Author Email (Optional, can be set with env var OBJPHP_PROJECT_EMAIL)
+            -c, --copyright=<msg>   : Copyright message (Optional, can be set with env var OBJPHP_PROJECT_COPYRIGHT)
+            -l, --list              : List available project types
+            -f, --force             : Force overwrite of existing project
+            -s, --silent            : Silence output
+            -h, --help              : This help
+<?php
+}
+
+- (void)doWithParameters:(MKDictionary)params
+{
+    $force = false;
+    $silence = false;
+    $projectPath = "Untitled";
+    $projectType = "console";
+
+    $author         = getenv('OBJPHP_PROJECT_AUTHOR');
+    $copyright      = getenv('OBJPHP_PROJECT_COPYRIGHT');
+    $authorEmail    = getenv('OBJPHP_PROJECT_EMAIL');
+
+    // parse args
+    if ([$params count])
+    {
+        // 0 is command name
+        foreach ([$params _PHParray] as $argname => $argval)
+        {
+            if ($argname === 1)
+            {
+                $projectPath = $argval;
+                continue;
+            }
+            else if ($argname === 's' || $argname === 'silent')
+            {
+                $silence = true;
+                MKLog("Output Silenced");
+            }
+            else if ($argname === 'h' || $argname === 'help')
+            {
+                [$self help];
+            }
+            else if ($argname === 'l' || $argname === 'list')
+            {
+                $listTypes = true;
+            }
+            else if ($argname === 't' || $argname === 'type')
+            {
+                $projectType = $argval;
+            }
+            else if ($argname === 'a' || $argname === 'author')
+            {
+                $author = $argval;
+            }
+            else if ($argname === 'e' || $argname === 'email')
+            {
+                $authorEmail = $argval;
+            }
+            else if ($argname === 'c' || $argname === 'copyright')
+            {
+                $copyright = $argval;
+            }
+            else if ($argname === 'f' || $argname === 'force')
+            {
+                $force = true;
+            }
+        }
+
+        if (isset($listTypes))
+        {
+            echo "Project types available: ";
+            // FIXME: use enumerator
+            if ([$self->targets count])
+                foreach([$this->targets _PHParray] as $p)
+                    echo [$p name].", ";
+            echo "\n";
+            return;
+        }
+
+        try
+        {
+            // check if exists and if --force
+            if ((file_exists($projectPath) && $force) || !file_exists($projectPath))
+            {
+                $target = [$self->targets objectForKey:$projectType];
+
+                $projectName = strrpos($projectPath, '/'); // FIXME : what if they put the last /
+                if ($projectName === false)
+                    $projectName = $projectPath;
+                else
+                    $projectName = substr($projectPath, $projectName);
+
+                echo "Generate project '$projectName' of type '$projectType' in '$projectPath'\n";
+
+                copyr([$target filePath], $projectPath, $silence);
+                // do bootstrap
+                if ([$target renameBootstrap])
+                {
+                    if (!$silence) echo "Rename bootstrap files to '$projectName'\n";
+                    $filename = "$projectPath/$projectName";
+                    if (!rename($projectPath.'/'.[$target bootstrapFile], $filename))
+                        throw new \ObjPHP\CountableException("The main bootstrap file '".$projectPath.[$target bootstrapFile]."' could not be renamed. Make sure you have write permissions.");
+
+                    if (!rename($projectPath.'/'.[$target debugBootstrapFile], $filename."-debug"))
+                        throw new \ObjPHP\CountableException("The debug bootstrap file '".$projectPath.[$target debugBootstrapFile]."' could not be renamed. Make sure you have write permissions.");
+
+                    [$target setDebugBootstrapFile:$projectName."-debug"];
+                }
+                else
+                    $filename = "$projectPath/".[$target bootstrapFile];
+
+                if ($fileContents = file_get_contents($filename))
+                {
+                    if (!$silence) echo "Prepare '$filename'\n";
+                    $fileContents = str_replace("##ProjectName##", $projectName, $fileContents);
+                    $fileContents = str_replace("##Copyright##", $copyright, $fileContents);
+                    $fileContents = str_replace("##Author##", $author, $fileContents);
+                    $fileContents = str_replace("##AuthorEmail##", $authorEmail, $fileContents);
+                    $fileContents = str_replace("##Date##", strftime("%c"), $fileContents);
+                    if (!file_put_contents($filename, $fileContents))
+                        throw new \ObjPHP\CountableException("The bootstrap file '$filename' could not be written. Make sure you have write permissions.");
+                }
+                else
+                    throw new \ObjPHP\CountableException("The bootstrap file '$filename' could not be read. Make sure you have read permissions.");
+
+                $filename = "$projectPath/".[$target debugBootstrapFile];
+                if ($fileContents = file_get_contents($filename))
+                {
+                    if (!$silence) echo "Prepare '$filename'\n";
+                    $fileContents = str_replace("##ProjectName##", $projectName, $fileContents);
+                    $fileContents = str_replace("##Copyright##", $copyright, $fileContents);
+                    $fileContents = str_replace("##Author##", $author, $fileContents);
+                    $fileContents = str_replace("##AuthorEmail##", $authorEmail, $fileContents);
+                    $fileContents = str_replace("##Date##", strftime("%c"), $fileContents);
+                    if (!file_put_contents($filename, $fileContents))
+                        throw new \ObjPHP\CountableException("The debug bootstrap file '$filename' could not be written. Make sure you have write permissions.");
+                }
+                else
+                    throw new \ObjPHP\CountableException("The debug bootstrap file '$filename' could not be read. Make sure you have read permissions.");
+
+                // do appfile
+                $filename  = "$projectPath/".[$target appFile];
+                if ($fileContents = file_get_contents($filename))
+                {
+                    if (!$silence) echo "Prepare '$filename'\n";
+                    $fileContents = str_replace("##ProjectName##", $projectName, $fileContents);
+                    $fileContents = str_replace("##Copyright##", $copyright, $fileContents);
+                    $fileContents = str_replace("##Author##", $author, $fileContents);
+                    $fileContents = str_replace("##AuthorEmail##", $authorEmail, $fileContents);
+                    $fileContents = str_replace("##Date##", strftime("%c"), $fileContents);
+                    if (!file_put_contents($filename, $fileContents))
+                        throw new \ObjPHP\CountableException("The main app file '$filename' could not be written. Make sure you have write permissions.");
+                }
+                else
+                    throw new \ObjPHP\CountableException("The main app file '$filename' could not be read. Make sure you have read permissions.");
+            }
+            else
+                throw new \ObjPHP\CountableException("The project '$projectPath' already exists. Use -f or --force to overwrite the existing files.");
+        }
+        catch( ObjPHP\CountableException $e )
+        {
+            MKLog("Exception thrown by gen command : ".$e->getMessage());
+        }
+    }
+}
+
+@end
+
+
+[$self addPlugin:[[gen alloc] init] withName:"gen"];

@@ -1,0 +1,185 @@
+<?php
+/*
+ * test.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Objective-PHP <http://www.atimport.net/>.
+ *
+ * Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// This implements our unit test plugin
+// Example Usage: ./objphp test Tests/Objective-PHP/Protocol.op <optional test method>
+
+// This protocol must be implemented by objects>?
+@protocol ITestable
+- (bool)runTests;
+- (bool)runTest:name;
+@end
+
+// All tests inherit this
+@implementation UnitTest : MKObject <ITestable>
+
+- (bool)runTests
+{
+    MKLog("Begin ".[$self name]);
+
+    // call each method that has 'test' in the name
+    foreach($self->isa->dispatchTable as $methodName => $method)
+    {
+        try
+        {
+            if (strstr($methodName, 'test') === false)
+                continue;
+            MKLog("Method '".\ObjPHP\selectorFromMethodName($methodName)."' - ");
+            \ObjPHP\objphp_msgSend( $self, $methodName, array());
+            MKLog("Success");
+        }
+        catch(\ObjPHP\ParseException $e)
+        {
+            MKLog("Failed\n---\n".$e->getFormattedError());
+        }
+        catch(\ObjPHP\CountableException $e)
+        {
+            MKLog("Failed\n---\n".$e->getMessage());
+        }
+
+    }
+}
+
+- (bool)runTest:name
+{
+
+    $methodName = \ObjPHP\methodNameFromSelector('test'.$name);
+    if (array_key_exists($methodName, $self->isa->dispatchTable))
+    {
+        MKLog("Begin ".[$self name]);
+
+        try
+        {
+            MKLog("Method 'test".$name."' - ");
+            \ObjPHP\objphp_msgSend( $self, $methodName, array());
+            MKLog("Success");
+        }
+        catch(\ObjPHP\ParseException $e)
+        {
+            MKLog("Failed\n---\n".$e->getFormattedError());
+        }
+        catch(\ObjPHP\CountableException $e)
+        {
+            MKLog("Failed\n---\n".$e->getMessage());
+        }
+    }
+    else
+    {
+        MKLog("Failed\n---\nMethod with name 'test$name' not found in '".[$self name]."'.");
+    }
+
+}
+
+- (bool)assertTrue:test
+{
+    return ($test)?(true):(false);
+}
+
+- (bool)assertFalse:test
+{
+    return (!$test)?(true):(false);
+}
+
+- (bool)assert:test1 equals:test2
+{
+    return ($test1 === $test2);
+}
+
+@end
+
+// the test plugin
+@implementation test : MKObject <ICommandPlugin>
+
+- (void)help
+{
+?>
+    format: test <Options> <FileToTest> <OptionalFunctionName>
+        Options:
+            -v, --verbose: Enable verbose output
+            -s, --silent: Silence output
+<?php
+}
+
+- (void)doWithParameters:(MKDictionary)params
+{
+    $op_mode = 1;
+    // parse args
+    if ([$params count])
+    {
+        // 0 is command name
+        foreach ([$params _PHParray] as $argname => $argval)
+        {
+            if ($argname === 1)
+            {
+                $filename = $argval;
+                continue;
+            }
+            else if ($argname === 2)
+            {
+                $funcname = $argval;
+                continue;
+            }
+
+            if ($argname === 's' || $argname === 'silent')
+            {
+                $op_mode = 0;
+                MKLog("Output Silenced");
+            }
+            else if ($argname === 'v' || $argname === 'verbose')
+            {
+                MKLog("Verbose output enabled");
+                $op_mode = 2;
+            }
+        }
+
+        try
+        {
+            // check that test file exists
+            $info = new SplFileInfo($filename);
+            if (!$info->isFile() && !$info->isLink() )
+                throw new \ObjPHP\CountableException("File under test '$filename' could not be found.");
+
+            @import $filename
+
+            $className = $info->getbaseName('.op'); // CHANGE TO .op
+
+            $opName = '_opClass_'.$className;
+
+            $IUT = [[$opName::getInstance() alloc] init];
+
+            if (isset($funcname))
+                [$IUT runTest:$funcname];
+            else
+                [$IUT runTests];
+
+        }
+        catch( ObjPHP\CountableException $e )
+        {
+            MKLog("Exception thrown by test framework: ".$e->getMessage());
+        }
+    }
+}
+
+@end
+
+[$self addPlugin:[[test alloc] init] withName:"test"];
+

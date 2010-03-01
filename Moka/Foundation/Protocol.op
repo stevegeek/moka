@@ -1,0 +1,66 @@
+<?php
+/*
+ * Protocol.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
+ *
+ * Moka/Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moka/Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// Protocol - Protocol Object - This is the protocol object for Objective-PHP.
+
+// http://www.cilinder.be/docs/next/NeXTStep/3.3/nd/GeneralRef/15_RunTime/Classes/Protocol.htmld/index.html
+// http://www.opensource.apple.com/source/gcc/gcc-1640/libobjc/Protocol.m
+
+@import <Foundation/MKObject.op>
+
+@implementation Protocol : MKObject
+
++ alloc
+{
+    $n = [$this name];
+    $n = '_opClass_'.$n; // FIXME: String should come from a API call
+    return $n::getInstance()->factory();
+}
+
+// +conformsTo is part of Object
+- (BOOL)conformsTo:(Protocol)protocolObj
+{
+    if ([$self name] === [$protocolObj name])
+        return YES;
+
+    foreach($self->isa->getProtocols() as $p)
+    {
+        if ([$p conformsTo:$protocolObj])
+            return YES;
+    }
+
+    return NO;
+}
+
++ descriptionForInstanceMethod
+{
+    MKLog("~ ".__METHOD__." unimplemented!");
+}
+
++ descriptionForClassMethod
+{
+    MKLog("~ ".__METHOD__." unimplemented!");
+}
+
+// + name is added automatically by parser
+
+@end

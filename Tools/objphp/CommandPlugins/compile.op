@@ -1,0 +1,141 @@
+<?php
+/*
+ * compile.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Objective-PHP <http://www.atimport.net/>.
+ *
+ * Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// compile plugin
+@implementation compile : MKObject <ICommandPlugin>
+
+- (void)help
+{
+?>
+    format: compile <Options> <InputFile> <InputFile> ... -o=<OutputFilename>
+        Options:
+            -o, --output=<file> : Outputfile
+            -b, --hashbang      : Add "#!/usr/bin/php" to top of file
+            -f, --force         : Force overwrite of existing output file
+            -v, --verbose       : Enable verbose output
+            -s, --silent        : Silence output
+            -h, --help          : This help
+<?php
+}
+
+- (void)doWithParameters:(MKDictionary)params
+{
+    $op_mode = 1;
+    $force = false;
+    $hashbang = false;
+    $outputFilename = false;
+    $inputFiles = array();
+    // parse args
+    if ([$params count])
+    {
+        // 0 is command name
+        foreach ([$params _PHParray] as $argname => $argval)
+        {
+            if ($argname === 0)
+            {
+            }
+            else if ($argname === 'o' || $argname === 'output')
+            {
+                $outputFilename = $argval;
+            }
+            else if ($argname === 's' || $argname === 'silent')
+            {
+                $op_mode = 0;
+                MKLog("Output Silenced");
+            }
+            else if ($argname === 'v' || $argname === 'verbose')
+            {
+                MKLog("Verbose output enabled");
+                $op_mode = 2;
+            }
+            else if ($argname === 'f' || $argname === 'force')
+            {
+                MKLog("Output force enabled");
+                $force = true;
+            }
+            else if ($argname === 'h' || $argname === 'help')
+            {
+                [$self help];
+            }
+            else if ($argname === 'b' || $argname === 'hashbang')
+            {
+                $hashbang = true;
+            }
+            else if (is_int($argname))
+            {
+                $inputFiles[] = $argval;
+            }
+        }
+
+        try
+        {
+            if (is_string($outputFilename))
+            {
+                // check if exists and if --force
+                if ((file_exists($outputFilename) && $force) || !file_exists($outputFilename))
+                {
+                    if (count($inputFiles))
+                    {
+                        $processor = new \ObjPHP\PreProcessor();
+                        $source = "<?php\n//Generated: ".strftime("%c")."\ndefine('OBJPHP_INCLUDE_PATH', exec('echo \$OBJPHP'));\nset_include_path( OBJPHP_INCLUDE_PATH . PATH_SEPARATOR . OBJPHP_INCLUDE_PATH.\"/Moka/\"  . PATH_SEPARATOR. __DIR__);\ninclude_once 'Objective-PHP/runtime.php';";
+                        if ($op_mode > 0)
+                            MKLog("Output file: $outputFilename");
+                        foreach($inputFiles as $fileName)
+                        {
+                            if ($op_mode > 0)
+                                MKLog("Compiling: $fileName");
+
+                            if ($code = $processor->loadObjPHPFile($fileName, true))
+                            {
+                                $source .= "\n//Compiled: $fileName\n".$code;
+                            }
+                            else
+                                throw new \ObjPHP\CountableException("Compilation Failure.");
+                        }
+
+                        if ($op_mode > 1)
+                            MKLog("Total Compile Time: ".$processor->Parser()->getTime());
+
+                        // write out result
+                        if (file_put_contents($outputFilename, (($hashbang)?("#!/usr/bin/php\n"):("")).$source, FILE_TEXT) === false)
+                            throw new \ObjPHP\CountableException("The output file is not writable. Check that the drive is not read-only.");
+                    }
+                    else
+                        throw new \ObjPHP\CountableException("No input files where specified. Use -h to get help on this command.");
+                }
+                else
+                    throw new \ObjPHP\CountableException("The output file already exists. Use -f or --force to overwrite the existing file.");
+             }
+             else
+                throw new \ObjPHP\CountableException("No output file specified! Use -o= or --output= to specify the output filename.");
+
+        } catch( \ObjPHP\CountableException $e )
+        {
+            MKLog("Exception thrown by compiler: ".$e->getMessage());
+        }
+    }
+}
+
+@end
+
+
+[$self addPlugin:[[compile alloc] init] withName:"compile"];

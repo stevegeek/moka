@@ -1,0 +1,410 @@
+<?php
+/*
+ * MKArray.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
+ *
+ * Moka/Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moka/Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@import <Foundation/MKObject.op>
+
+const MKBinarySearchingFirstEqual       = 0;
+const MKBinarySearchingLastEqual        = 1;
+const MKBinarySearchingInsertionIndex   = 2;
+
+@implementation MKArray : MKObject
+{
+    @protected _array = array();
+}
+
+//Creates and returns an empty array.
++ (id)array
+{
+    return [[$this alloc] init];
+}
+
+//Creates and returns an array containing the objects in another given array.
++ (id)arrayWithArray:(MKArray *)anArray
+{
+    return [[$this alloc] initWithArray:$anArray];
+}
+
+//Creates and returns an array containing the contents of the file specified by a given path.
++ (id)arrayWithContentsOfFile:(MKString *)aPath
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Creates and returns an array containing the contents specified by a given URL.
++ (id)arrayWithContentsOfURL:(MKURL *)aURL
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Creates and returns an array containing a given object.
++ (id)arrayWithObject:(id)anObject
+{
+    return [[$this alloc] initWithObject:$anObject];
+}
+
+/* VAR ARGS NOT SUPPORTED YET
+//Creates and returns an array containing the objects in the argument list.
++ (id)arrayWithObjects:(id)firstObj, ...
+{
+}
+*/
+
+//Creates and returns an array that includes a given number of objects from a given C array.
++ (id)arrayWithObjects:(const id *)objects count:(MKUInteger)count
+{
+    return [[$this alloc] initWithPHPArray:$objects count:$count];
+}
+
+//Returns a new array that is a copy of the receiver with a given object added to the end.
+- (MKArray *)arrayByAddingObject:(id)anObject
+{
+    //Returns a new array that is a copy of the receiver with a given object added to the end.
+}
+
+//Returns a new array that is a copy of the receiver with the objects contained in another array added to the end.
+- (MKArray *)arrayByAddingObjectsFromArray:(MKArray *)otherArray
+{
+}
+
+//Constructs and returns an MKString object that is the result of interposing a given separator between the elements of the receiver’s array.
+- (MKString *)componentsJoinedByString:(MKString *)separator
+{
+}
+
+//Returns a Boolean value that indicates whether a given object is present in the receiver.
+- (BOOL)containsObject:(id)anObject
+{
+}
+
+//Returns the number of objects currently in the receiver.
+- (MKUInteger)count
+{
+}
+
+//Returns a string that represents the contents of the receiver, formatted as a property list.
+- (MKString *)description
+{
+}
+
+//Returns a string that represents the contents of the receiver, formatted as a property list.
+- (MKString *)descriptionWithLocale:(id)locale
+{
+}
+
+//Returns a string that represents the contents of the receiver, formatted as a property list.
+- (MKString *)descriptionWithLocale:(id)locale indent:(MKUInteger)level
+{
+}
+
+//Executes a given block using the objects in the receiver at the specified indexes.
+- (void)enumerateObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)block
+{
+}
+
+//Executes a given block using each object in the receiver, starting with the first object and continuing through the array to the last object.
+- (void)enumerateObjectsUsingBlock:(void /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)block
+{
+}
+
+//Executes a given block using each object in the receiver.
+- (void)enumerateObjectsWithOptions:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)block
+{
+}
+
+//Copies the objects contained in the receiver that fall within the specified range to aBuffer.
+- (void)getObjects:(id *)aBuffer range:(MKRange)aRange
+{
+}
+
+//Returns the indexes, from a given set of indexes, of objects in the receiver that pass a test in a given Block for a given set of enumeration options.
+- (MKIndexSet *)indexesOfObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+{
+}
+
+//Returns the indexes of objects in the receiver that pass a test in a given Block.
+- (MKIndexSet *)indexesOfObjectsPassingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+{
+}
+
+//Returns the indexes of objects in the receiver that pass a test in a given Block for a given set of enumeration options.
+- (MKIndexSet *)indexesOfObjectsWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+{
+}
+
+//Returns the lowest index whose corresponding array value is equal to a given object.
+- (MKUInteger)indexOfObject:(id)anObject
+{
+}
+
+//Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
+- (MKUInteger)indexOfObject:(id)anObject inRange:(MKRange)range
+{
+}
+
+//Returns the index, within a specified range, of an object compared with elements in the receiver using a given MKComparator block.
+- (MKUInteger)indexOfObject:(id)obj inSortedRange:(MKRange)r options:(MKBinarySearchingOptions)opts usingComparator:(MKComparator)cmp
+{
+}
+
+//Returns the index, from a given set of indexes, of the first object in the receiver that passes a test in a given Block for a given set of enumeration options.
+- (MKUInteger)indexOfObjectAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+{
+}
+
+//Returns the lowest index whose corresponding array value is identical to a given object.
+- (MKUInteger)indexOfObjectIdenticalTo:(id)anObject
+{
+}
+
+//Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
+- (MKUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(MKRange)range
+{
+}
+
+//Returns the index of the first object in the receiver that passes a test in a given Block.
+- (MKUInteger)indexOfObjectPassingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+{
+}
+
+//Returns the index of the first object in the receiver that passes a test in a given Block for a given set of enumeration options.
+- (MKUInteger)indexOfObjectWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+{
+}
+
+- (array)PHParray
+{
+    return $self->_array;
+}
+
+- (id)init
+{
+    if ($self = [super init])
+    {
+    }
+    return $self;
+}
+
+- (id)initWithPHPArray:(PHPArray)ar
+{
+    if ($self = [super init])
+    {
+        $self->_array = $ar;
+    }
+    return $self;
+}
+
+- (id)initWithPHPArray:(PHPArray)ar count:cnt
+{
+    if ($self = [super init])
+    {
+        $self->_array = array_slice($ar, 0, $cnt);
+    }
+    return $self;
+}
+
+//Initializes a newly allocated array by placing in it the objects contained in a given array.
+- (id)initWithArray:(MKArray *)anArray
+{
+    return [$self initWithPHPArray:[$anArray PHParray]];
+}
+
+//Initializes a newly allocated array using anArray as the source of data objects for the array.
+- (id)initWithArray:(MKArray *)array copyItems:(BOOL)flag
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Initializes a newly allocated array with the contents of the file specified by a given path.
+- (id)initWithContentsOfFile:(MKString *)aPath
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Initializes a newly allocated array with the contents of the location specified by a given URL.
+- (id)initWithContentsOfURL:(MKURL *)aURL
+{
+    throw new NotImplementedException($_cmd);
+}
+
+/*
+Initializes a newly allocated array by placing in it the objects in the argument list.
+- (id)initWithObjects:(id)firstObj, ...
+{
+}
+*/
+
+//Initializes a newly allocated array to include a given number of objects from a given C array.
+- (id)initWithObjects:(const id *)objects count:(MKUInteger)count
+{
+    return [[$this alloc] initWithPHPArray:$objects count:$count];
+}
+
+//Compares the receiving array to another array.
+- (BOOL)isEqualToArray:(MKArray *)otherArray
+{
+    return (count(array_diff($self->_array, [$otherArray PHParray])))?(YES):(NO);
+}
+
+//Sends to each object in the receiver the message identified by a given selector, starting with the first object and continuing through the array to the last object.
+- (void)makeObjectsPerformSelector:(SEL)aSelector
+{
+    if (count($self->_array))
+        foreach ($self->_array as $obj)
+            \ObjPHP\objphp_msgSend($obj, $aSelector, array());
+}
+
+//Sends the aSelector message to each object in the array, starting with the first object and continuing through the array to the last object.
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)anObject
+{
+    if (count($self->_array))
+        foreach ($self->_array as $obj)
+            \ObjPHP\objphp_msgSend($obj, $aSelector, array($anObject));
+}
+
+//Returns the object located at index.
+- (id)objectAtIndex:(MKUInteger)index
+{
+    return $self->_array[$index];
+}
+
+//Returns an enumerator object that lets you access each object in the receiver.
+- (MKEnumerator *)objectEnumerator
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns an array containing the objects in the receiver at the indexes specified by a given index set.
+- (MKArray *)objectsAtIndexes:(MKIndexSet *)indexes
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns an enumerator object that lets you access each object in the receiver, in reverse order.
+- (MKEnumerator *)reverseObjectEnumerator
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Analyzes the receiver and returns a “hint” that speeds the sorting of the array when the hint is supplied to sortedArrayUsingFunction:context:hint: (page 50).
+- (MKData *)sortedArrayHint
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns an array that lists the receiver’s elements in ascending order, as determined by the comparison method specified by a given MKComparator Block.
+- (MKArray *)sortedArrayUsingComparator:(MKComparator)cmptr
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns a new array that lists the receiver’s elements in ascending order as defined by the comparison function comparator.
+- (MKArray *)sortedArrayUsingFunction:(func/*MKInteger (*)(id, id, void *)*/)comparator context:(void *)context
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns a new array that lists the receiver’s elements in ascending order as defined by the comparison function comparator.
+- (MKArray *)sortedArrayUsingFunction:(func/*MKInteger (*)(id, id, void *)*/)comparator context:(void *)context hint:(MKData *)hint
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns an array that lists the receiver’s elements in ascending order, as determined by the comparison method specified by a given selector.
+- (MKArray *)sortedArrayUsingSelector:(SEL)comparator
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns an array that lists the receiver’s elements in ascending order, as determined by the comparison method specified by a given MKComparator Block.
+- (MKArray *)sortedArrayWithOptions:(MKSortOptions)opts usingComparator:(MKComparator)cmptr
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns a new array containing the receiver’s elements that fall within the limits specified by a given range.
+- (MKArray *)subarrayWithRange:(MKRange)range
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Writes the contents of the receiver to a file at a given path.
+- (BOOL)writeToFile:(MKString *)path atomically:(BOOL)flag
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Writes the contents of the receiver to the location specified by a given URL.
+- (BOOL)writeToURL:(MKURL *)aURL atomically:(BOOL)flag
+{
+    throw new NotImplementedException($_cmd);
+}
+
+@end
+
+/*
+MKSortDescriptor
+
+//Returns a copy of the receiver sorted as specified by a given array of sort descriptors.
+- (MKArray *)sortedArrayUsingDescriptors:(MKArray *)sortDescriptors
+{
+}
+*/
+
+/*
+MKKeyValueCoding
+
+Invokes setValue:forKey: on each of the receiver's items using the specified value and key.
+- (void)setValue:(id)value forKey:(MKString *)key
+
+Returns an array containing the results of invoking valueForKey: using key on each of the receiver's objects.
+- (id)valueForKey:(MKString *)key
+*/
+
+/*
+MKPathUtilities
+
+Returns an array containing all the pathname elements in the receiver that have filename extensions from a given array.
+- (MKArray *)pathsMatchingExtensions:(MKArray *)filterTypes
+*/
+
+/*
+MKPredicate
+//Evaluates a given predicate against each object in the receiver and returns a new array containing the objects for which the predicate returns true.
+- (MKArray *)filteredArrayUsingPredicate:(MKPredicate *)predicate
+{
+}
+*/
+
+/*
+MKKeyValueObserving.h
+
+- (void)addObserver:(MKObject *)observer forKeyPath:(MKString *)keyPath options:(MKKeyValueObservingOptions)options context:(void *)context
+- (void)addObserver:(MKObject *)anObserver toObjectsAtIndexes:(MKIndexSet *)indexes forKeyPath:(MKString *)keyPath options:(MKKeyValueObservingOptions)options
+context:(void *)context
+
+Raises an exception.
+- (void)removeObserver:(MKObject *)observer forKeyPath:(MKString *)keyPath
+
+Removes anObserver from all key value observer notifications associated with the specified keyPath relative to the receiver’s objects at indexes.
+- (void)removeObserver:(MKObject *)anObserver fromObjectsAtIndexes:(MKIndexSet *)indexes forKeyPath:(MKString *)keyPath
+
+*/

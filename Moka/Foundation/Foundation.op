@@ -1,0 +1,43 @@
+<?php
+/*
+ * Foundation.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
+ *
+ * Moka/Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moka/Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// Include base Moka
+@import <Foundation/MKObject.op>
+@import <Foundation/MKLog.op>
+@import <Foundation/MKArray.op>
+@import <Foundation/MKString.op>
+@import <Foundation/MKDictionary.op>
+@import <Foundation/MKKeyedArchiver.op>
+
+// Foundation functions
+
+// 'Selector' is used in cocoa to mean the SEL compile time object of a method name.
+// So the following function converts from a SEL to a string of the method name.
+function MKStringFromSelector($methodName)
+{
+    return \ObjPHP\selectorFromMethodName($methodName);
+}
+// and vice versa
+function MKSelectorFromString($sel) // return method name from a selector string
+{
+    return \ObjPHP\methodNameFromSelector($sel);
+}

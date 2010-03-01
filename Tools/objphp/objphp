@@ -1,0 +1,37 @@
+#!/usr/bin/php
+<?php
+/*
+ * objphp
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Objective-PHP <http://www.atimport.net/>.
+ *
+ * Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+define('OBJPHP_INCLUDE_PATH', getenv('OBJPHP'));
+define('OBJPHP_TOOL_PATH', OBJPHP_INCLUDE_PATH.'/Tools/objphp');
+
+// FIXME: maybe dont add OBJPHP_TOOL_PATH to inc path n simply cat it where needed
+set_include_path( OBJPHP_INCLUDE_PATH . PATH_SEPARATOR . OBJPHP_INCLUDE_PATH."/Moka/"  . PATH_SEPARATOR. OBJPHP_TOOL_PATH);
+
+include_once 'Objective-PHP/runtime.php';
+
+// Create a runtime and bootstrap by loading main.op
+$pp = new ObjPHP\PreProcessor();
+if( $source = $pp->loadObjPHPFile("main.op", false) )
+    $pp->run($source);
+
+printf("-Tokenized in %.3f s. Parsed in %.3f s. Executed in %.3f s.-\n",$pp->Tokenizer()->getTime(), $pp->Parser()->getTime(), $pp->getTime());
