@@ -1,0 +1,300 @@
+<HTML>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<TITLE>Docs - Getting Started</TITLE>
+
+	<style type="text/css">
+	body {
+  		margin-top: 1.0em;
+  		background-color: #fff;
+		font-family: "Helvetica,Arial,FreeSans";
+  		color: #000;
+    }
+    #container {
+        margin: 0 auto;
+        width: 700px;
+        background-color: #fff;
+  		color: #000;
+  		text-align: justify;
+    }
+    #content {
+       float:right;
+       left: 150px;
+       width: 520px;
+    }
+    .mainnav {
+        text-align:center;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #ccc;
+    }
+    .menu {
+        float:left;
+        width: 150px;
+        text-align:center;
+        font-family:  "Helvetica,Arial,FreeSans";
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .menu ul
+    {
+        margin:0;
+        padding:0;
+    }
+    .menu ul li{
+        margin:0;
+        padding:0;
+        padding: 5px;
+        text-align:left;
+        list-style:none;
+    }
+	h1 { text-align: center; font-size: 3em; color: #000; margin-bottom: 3px; }
+	h1 .small { font-size: 0.4em; }
+	h1 a { text-decoration: none; }
+	h2 { font-size: 1.5em; color: #000; }
+	h3 { text-align: left; color: #000; }
+    a { color: #1b56de; }
+    .description {  text-align: justify; font-size: 1em;
+        padding-bottom:10px;
+        margin-bottom: 22px;
+        margin-top: 5px;
+        font-style: italic;
+        width:320px;
+     }
+    .download { float: right;background-color: #ccc; -moz-border-radius: 5px; -webkit-border-radius: 5px; border: 1px solid #000; padding: 2px;}
+	pre { background: #ddd; color: #000; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+	</style>
+
+</head>
+<body>
+    <a href="http://github.com/stevegeek/moka"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+    <div id="container">
+    <!--
+            <nav>
+                <p class="mainnav"><a href="index.html">Home</a> - <a href="FAQ.html">Prev</a> - <a href="Importing Code.html">Next</a> - <a href="_docs_index.html">Index</a></p>
+            </nav>
+    -->
+        <div class="menu">
+            <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="Status.html">Project Status</a></li>
+            <hr>
+            <li><a href="Getting%20Started.html">Getting Started</a></li>
+            <li><a href="FAQ.html">FAQ</a></li>
+            <li><a href="Problems%20and%20Limitations.html">Issues &amp; Limitations</a></li>
+            <li><a href="RoadMap.html">RoadMap</a></li>
+            <hr>
+            <li><a href="Moka.html">Moka</a></li>
+            <li><a href="Categories.html">Categories</a></li>
+            <li><a href="Protocols.html">Protocols</a></li>
+            <li><a href="Importing%20Code.html">Importing Code</a></li>
+            <li><a href="Bundles.html">Bundles</a></li>
+            <hr>
+            <li><a href="Object%20Model.html">Object Model</a></li>
+            <li><a href="Runtime.html">Runtime</a></li>
+            <li><a href="Parser.html">Parser</a></li>
+            <li><a href="Keywords.html">Language Keywords</a></li>
+            <li><a href="Tokenizer.html">Tokenizer</a></li>
+            <li><a href="Tokens.html">Tokens</a></li>
+            <li><a href="Useful%20Links.html">Useful Links &amp; Refs</a></li>
+            <hr>
+            <li><a href="Obj-PHP%20vs%20Obj-C.html">Obj-PHP vs Obj-C</a></li>
+            <li><a href="Obj-PHP%20vs%20Obj-J.html">Obj-PHP vs Obj-J</a></li>
+            <hr>
+            <li><a href="_docs_index.html">Index</a></li>
+            </ul>
+        </div>
+
+        <div id="content">
+            <div class="download">
+              <a href="http://github.com/stevegeek/moka/zipball/master">
+                <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+              <a href="http://github.com/stevegeek/moka/tarball/master">
+                <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+            </div>
+
+            <div class="description">
+                <b>Objective-PHP</b> is a port of the Objective-C (or <a href="http://www.cappuccino.org/">Objective-J</a> runtime to PHP. This adds the language features of Objective-C nestled nicely inside the syntax of Objective-C.
+                <b>Moka</b> is a port of the Apple Cocoa Frameworks (or <a href="http://www.cappuccino.org/">Cappuccino</a>).
+            </div>
+            <hr>
+        <h1>Getting Started</h1>
+
+<p>Valid for Beta 1</p>
+
+<h2>Download</h2>
+
+<p>Either use the zipball or tarball links above, or even better, clone the git repo:</p>
+
+<p>Main Repo:  <a href="http://github.com/stevegeek/moka">http://github.com/stevegeek/moka</a></p>
+
+<p>Examples: <a href="http://github.com/stevegeek/mokaexamples">http://github.com/stevegeek/mokaexamples</a></p>
+
+<p>(Note: The <code>objphp</code> application is also an example of an Objective-PHP application).</p>
+
+<h2>Install</h2>
+
+<p>Create a <code>OBJPHP</code> enviroment variable and set it to the path of your moka repo.</p>
+
+<p>In Linux and MacOS X this can be done by adding</p>
+
+<pre><code>export OBJPHP = "&lt;path&gt;"
+</code></pre>
+
+<p>to your <code>.profile</code> file in your home folder. The running <code>source ~/.profile</code> .</p>
+
+<p>You can optionally also set the following for the <code>gen</code> command of <code>objphp</code>:</p>
+
+<ul>
+<li><code>OBJPHP_PROJECT_AUTHOR</code> : Author name (your name)</li>
+<li><code>OBJPHP_PROJECT_COPYRIGHT</code> : The Copyright dates for your project</li>
+<li><code>OBJPHP_PROJECT_EMAIL</code> : Your email address</li>
+</ul>
+
+<h2>Generate Project</h2>
+
+<p>In your chosen terminal have a read of the help for the <code>objphp</code> application.</p>
+
+<pre><code>./objphp -h
+</code></pre>
+
+<p>Then to see the list of target application types run</p>
+
+<pre><code>./objphp gen -l
+</code></pre>
+
+<p>At the moment there are 3 project types.</p>
+
+<ul>
+<li><code>console</code>: a blank console application</li>
+<li><code>web</code>: a blank web application (starts in index.php)</li>
+<li><code>mvc</code>: a basic Model-View-Controller web application (starts in index.php and FrontController.op)</li>
+</ul>
+
+<p>Choose your project type. If you just want a quick play with Objective-PHP choose <code>console</code> so you
+can run your application from the terminal.</p>
+
+<pre><code>./objphp gen -t=console ProjectName
+</code></pre>
+
+<p>where <code>ProjectName</code> is the name and path of the generated project.</p>
+
+<h2>Code!</h2>
+
+<p>Now open the main Objective-PHP file. For different applications this is different.</p>
+
+<p>For <code>console</code> applications the file is called <code>main.op</code> , for <code>web</code> it is called
+<code>AppController.op</code> and for <code>mvc</code> <code>FrontController.op</code>.</p>
+
+<p>Here are some important starting points.</p>
+
+<ul>
+<li><p>All Objective-PHP files must start with <code>&lt;?php</code>, it is PHP afterall! You can of course put things
+before the opening tag (or close the Objective-PHP mode with <code>?&gt;</code>). Anything before/after these tags
+will be considered as being sent to stdout.</p></li>
+<li><p>Variables in PHP start with a <code>$</code>. So must Objective-PHP variables when defined in code blocks.
+This also applies to <code>$self</code>! BUT not to <code>super</code> as this is not a real variable but a compiler
+command. Instance variable definisions do not have to have the <code>$</code> before &#8230; You can do whatever feels
+more confortable to you (see snippet).</p>
+
+<pre><code>@implementation class
+{
+    MKString $aString;
+    MKString anotherString;
+}
+</code></pre></li>
+<li><p>To access instance variables you must use the PHP object operator <code>-&gt;</code>. So for an instance of the
+above class you would do</p>
+
+<pre><code>[$instance-&gt;aString description];
+</code></pre>
+
+<p>or inside a instance method of the class</p>
+
+<pre><code>[$self-&gt;aString description];
+</code></pre></li>
+<li><p>There are still some caveats that are unresolved in this Beta so have a read about this site
+to find out more.</p></li>
+</ul>
+
+<p>For a primer on Objective-C in general see:
+<a href="http://developer.apple.com/mac/library/referencelibrary/GettingStarted/Learning_Objective-C_A_Primer/index.html#//apple_ref/doc/uid/TP40007594">http://developer.apple.com/mac/library/referencelibrary/GettingStarted/Learning<em>Objective-C</em>A<em>Primer/index.html#//apple</em>ref/doc/uid/TP40007594</a></p>
+
+<h2>UnitTest and Compile</h2>
+
+<p>You can UnitTest you application by creating classes which are subclasses of <code>UnitTest</code>. Below is
+an example file <code>example.op</code></p>
+
+<pre><code>&lt;?php
+@implementation example : UnitTest
+- testMe
+{
+    echo "HI\n";
+}
+@end
+</code></pre>
+
+<p>Any instance methods with <code>test</code> at the start of the method name will be called by the test
+framework, unless you specify which function to run. If you do specify a function to run DO NOT
+inclde the <code>test</code> prefix. See Below:</p>
+
+<pre><code>./objphp test example.op
+</code></pre>
+
+<p>will run all functions with the <code>test</code> prefix.</p>
+
+<pre><code>./objphp test example.op Me
+</code></pre>
+
+<p>would run the method <code>testMe</code> above.</p>
+
+<p>When you are done building and testing with your application you will probably want to compile
+it to remove the parse overhead. This is acheived by doing</p>
+
+<pre><code>./objphp compile file.op -o=outputfile.php
+</code></pre>
+
+<p>Imported files should automatically be included into the output.</p>
+
+<h2>Deploy</h2>
+
+<p>Currently deployment and compilation (above) are in early days, so at the moment you must simply
+copy the compiled file (the output <code>.php</code> file from the compilation stage) to your server/directory
+and name appropriately.</p>
+
+<h2>Troubleshooting</h2>
+
+<p>If you have any problems you can find me on the Google Group</p>
+
+<p>Google Group: <a href="http://groups.google.com/group/objective-php">http://groups.google.com/group/objective-php</a></p>
+
+<p>and on twitter: <a href="http://twitter.com/stevegeek">stevegeek</a></p>
+
+<hr />
+
+<p><em>Document status: IN-PROGRESS for current version.</em></p>
+
+
+            <footer>
+            <hr>
+            <p>Generated by <a href="http://stevegeek.github.com/CompileDocs">CompileDocs</a> on 03/01/10 at 12:32:32</p>
+            </footer>
+        </div>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://flat53.com/stats/" : "http://flat53.com/stats/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 4);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://flat53.com/stats/piwik.php?idsite=4" style="border:0" alt=""/></p></noscript>
+<!-- End Piwik Tag -->
+</BODY>
+</HTML>

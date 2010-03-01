@@ -2,7 +2,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-	<TITLE>Docs - About</TITLE>
+	<TITLE>Docs - Parser</TITLE>
 
 	<style type="text/css">
 	body {
@@ -74,7 +74,7 @@
     <div id="container">
     <!--
             <nav>
-                <p class="mainnav"><a href="index.html">Home</a> - <a href="">Prev</a> - <a href="Bundles.html">Next</a> - <a href="_docs_index.html">Index</a></p>
+                <p class="mainnav"><a href="index.html">Home</a> - <a href="Object Model.html">Prev</a> - <a href="Problems and Limitations.html">Next</a> - <a href="_docs_index.html">Index</a></p>
             </nav>
     -->
         <div class="menu">
@@ -121,124 +121,89 @@
                 <b>Moka</b> is a port of the Apple Cocoa Frameworks (or <a href="http://www.cappuccino.org/">Cappuccino</a>).
             </div>
             <hr>
-        <h1>Objective-PHP and Moka</h1>
+        <h1>The Objective-PHP parser</h1>
 
-<p><em>To be Released under the LGPL (see COPYING &amp; COPYING.LESSER)
-Copyright 2009, 2010 Stephen Paul Ierodiaconou <a href="&#x6d;&#97;i&#x6c;&#116;o&#x3a;&#115;&#116;&#x65;&#112;&#104;&#x65;&#110;&#64;&#x66;&#x6c;&#97;&#x74;&#x35;&#51;&#x2e;&#x63;&#111;&#x6d;">&#115;&#116;&#x65;&#112;&#104;&#x65;&#110;&#64;&#x66;&#x6c;&#97;&#x74;&#x35;&#51;&#x2e;&#x63;&#111;&#x6d;</a></em></p>
+<p>(Note: this document will eventually describe the inner workings of the parser. At the moment it
+is a work in progress).</p>
 
-<p><strong>Objective-PHP</strong> is a port of the Objective-C (or <a href="http://www.cappuccino.org/">Objective-J</a> )
-runtime to PHP. This adds the language features of Objective-C nestled nicely inside the syntax of
-Objective-C.</p>
+<p>The Objective PHP parser uses the <a href="Tokenizer.html">Objective-PHP tokenizer&#8217;s</a> output. The token stream
+is read in in sequence and every attempt has been made to ensure that only the latest token is
+required (in essence the parser is based on a Recursive-Decsent LL(1) parser but basically is just
+off the top of my head).</p>
 
-<p><strong>Moka</strong> is a port of the Apple Cocoa Frameworks (or <a href="http://www.cappuccino.org/">Cappuccino</a> ). As
-PHP is primarily a server side scripting language the frameworks are currently non-UI ones
-(Foundation).</p>
+<p>The parser rules are implemented as state machines, progressively parsing input the token stream
+and accepting only those tokens that are permissable in the current state. This allows the parser
+to catch a large variety of syntax errors and is thus quite robust.</p>
 
-<p>I created this a way of learning the Objective-C/J languages in as much depth as possible. However,
-through this process a programming language and set of tools has resulting and as such has been
-released as Open Source in the hope others too can learn and find use from it. Also since the
-original goal was to learn I have created this site and as much documentation and tutorials as
-I could muster so others too could effectively follow this learning path. I hope this complements
-the skills of the Objective-J Cappuccino programmers, who may program the backend in the well
-estabilished PHP while still using the syntax and Objects they are so familiar with.</p>
+<p>In general the principle is to pass through tokens until a specific Objective-PHP start token is
+found, ie. it is assumed all tokens not of the Objective-PHP syntax are simply those of PHP.</p>
 
-<h2>What?</h2>
+<p>When a specific token (or seqeunce of tokens, though this is less desirable) is found the parser
+calls the rule specific to this token. For example an T<em>OBJPHP</em>SELECTOR tokens correspondin to
+@selector keyword fires the Parser::ruleSelector(). Any expression is parsed with the Expression
+rule.</p>
 
-<ul>
-<li>A superset of PHP (you can use normal PHP anywhere and as much as you like)</li>
-<li>Smalltalk 80 / Objective-C object model</li>
-<li>Lovely Smalltalk square bracket syntax</li>
-<li>Dynamic dispatch and delegate programming</li>
-<li>A programming philosophy</li>
-<li>Features:
+<h2>Note</h2>
 
-<ul>
-<li>Objective-PHP &amp; Moka will work happily alongside any PHP Framework</li>
-<li>Protocols</li>
-<li>Categories</li>
-<li>Command line build tools</li>
-<li>Cross platform (all you need is PHP)</li>
-</ul></li>
-</ul>
+<p>The parser is a syntax checker, and pre-processor of Objective-PHP, it is NOT a sematic checker.
+A syntax checker will only check that the phrases (or sentences) are correctly formed, it does not
+check to see if it makes sense. For example in English &#8220;The cat initiates the chilli&#8221; is
+syntactically correct but semantically meaningless. Semantic problems will be caught at runtime by
+the PHP semantic analyser.</p>
 
-<p>Example Code:</p>
+<p>The parser can be used as a compiler (actually a pre-processor really) to convert Objective-PHP
+into PHP in advance thus saving the tokenizing and parsing overheads, however for this is only
+necessary on release and deployment when development is over (in debug the lack of a compile
+step is a blessing!).</p>
 
-<pre><code>// Test app
-@import &lt;Foundation/Foundation.op&gt;
-@implementation Test : MKObject
-{
-    @public     MKString        test1 = "World"     @accessors;
-    @protected                  test2 = 12;
-    @private    MKDictionary    dic                 @accessors;
-}
-- (id)init
-{
-    if ($self = [super init])
-    {
-        $self-&gt;dic = [MKDictionary dictionary];
-        [$self-&gt;dic setObject:
-            [[MKString alloc] initWithString:"Hello"] forKey:"First"];
-    }
-    return $self;
-}
-- (void)hello:name1 and:name2
-{
-    echo $self-&gt;test1." ".[$self-&gt;dic objectForKey:"First"].
-                        " and ".$name1." and ".$name2."\n";
-}
-+ (String)testclass:variable
-{
-    return "\nHi from class Method\n".$variable;
-}
-@end
-?&gt;
-&lt;p&gt;This is in HTML mode&lt;/p&gt;
-&lt;?
-$instance = [[Test alloc] init];
-[$instance hello:"Jane" and:"Bob"];
+<p>From cocoa docs &#8220;super is simply a flag to the compiler telling it where to begin searching for
+ the method to perform; it s used only as the receiver of a message. But self is a variable name
+ that can be used in any number of ways, even assigned a new value.&#8221; Hence $super doesnt exist,
+ $self does, and in the case of Objective-PHP is the same as $this. $self and $this however are
+ parsed into $<em>op</em>obj , a special object pointer passed to each method pointing to the instance
+ object instance.</p>
+
+<h2>PHP Can Be a Pain</h2>
+
+<p>Annoyingly Comments at end of lines trap newlines. Ie &#8220;ABC\n&#8221; Will tokenize as a T<em>STRING and a
+T</em>WHITESPACE , but &#8220;ABC // comment\n&#8221; will tokenize as a T<em>STRING and T</em>COMMENT.
+Since comments are generally consumed by the parser this will mean your
+beautifully formatted code may look a little messy in the PHP output.</p>
+
+<p>Another difficulty is with the tokens PHP defines. Possibly due to legacy
+reasons there are a silly number of tokens for PHP (e.g. <code>print</code> is tokenized
+into its own special token T_PRINT). This means that there are a HUGE number of
+potentially reserved words. Imagine you have the following methods in your class</p>
+
+<pre><code>- steve {}
+- testMethod {}
+- print {}
 </code></pre>
 
-<h2>Why?</h2>
+<p>Now for the first method you will see a <code>-</code> token, a whitespace token and then a
+string token with the value &#8220;steve&#8221;. For the second the same except the string
+token value will be &#8220;testMethod&#8221;. Good, everything simple so far. However for
+the last line you will get a <code>-</code> token, a whitespace token and then a T_PRINT
+token. Its not impossible to see how this makes parsing so much more annoying.</p>
 
-<ul>
-<li>It was fun and interesting to develop!</li>
-<li>Ease of development for devs using Objective-C/J and Cocoa/Cappuccino</li>
-<li>Delegate pattern without extra coding, Objective-C/J like programming</li>
-<li>Cocoa-like Frameworks (Non UI ones)</li>
-<li>Ability to message nil (null)</li>
-<li>Nicer syntax for dynamic dispatch</li>
-</ul>
+<p>One possible solution would be to assuming all PHP words that have special
+tokens (you could say these are the keywords of PHP) are reserved and cannot be
+used for method names and the like. However there are so many of them that this
+would be truely annoying.</p>
 
-<p>For years now I have developed for research and as such have been bound to Matlab and C/C++.
-To put it lightly I am not a fan of these languages. Recently I have become obsessed with
-Objective-C, however do not develop in it as much as I wish I could. I use PHP a bit and love the
-speed of development (this is also Matlab&#8217;s only saving grace). Thus born of the desire for a
-web app development language which is fast, easy to learn, and powerful, is this project.</p>
+<p>Therefore some helper methods <code>terminalIsPHPKeyword</code> and
+<code>terminalIsPHPCastKeyword</code> determine whether the token is a reserved word and
+can be used to allow these in a specific context (e.g. for a method name).</p>
 
-<p>Of course, I am happy to admit it is completely and utterly inspired by Objective-J and Cappuccino
-and am happy to plug those as much as possible.</p>
+<p>Note:
+* Class and Protocol names cannot be PHP keywords
+* Instance variables can have PHP keywords as names (as $ is added to them to make them variables)</p>
 
-<h2>How?</h2>
+<h1>Methods</h1>
 
-<p>Objective-PHP is PHP, a runtime and a preprocessor. The language can either be interpreted at runtime (into PHP) or for deployment and better performance, preprocessed to generate pure PHP.</p>
+<hr />
 
-<h2>Source Code</h2>
-
-<p>Main Repo:  <a href="http://github.com/stevegeek/moka">http://github.com/stevegeek/moka</a></p>
-
-<p>Examples: <a href="http://github.com/stevegeek/mokaexamples">http://github.com/stevegeek/mokaexamples</a></p>
-
-<h2>Discussion Group</h2>
-
-<p>Google Group: <a href="http://groups.google.com/group/objective-php">http://groups.google.com/group/objective-php</a></p>
-
-<h2>Disclaimer</h2>
-
-<p><em>I am an electronic engineer whos specialisation is in digital image/video signal processing, thus,
-while I love programming, if I have made any school boy programming or computer science background
-errors please feel free to contact me and tell me. Its all about learning after all.</em></p>
-
-<p>Stephen Paul Ierodiaconou</p>
+<p><em>Document status: INCOMPLETE for current version.</em></p>
 
 
             <footer>

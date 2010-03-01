@@ -2,7 +2,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-	<TITLE>Docs - About</TITLE>
+	<TITLE>Docs - Obj-PHP vs Obj-C</TITLE>
 
 	<style type="text/css">
 	body {
@@ -74,7 +74,7 @@
     <div id="container">
     <!--
             <nav>
-                <p class="mainnav"><a href="index.html">Home</a> - <a href="">Prev</a> - <a href="Bundles.html">Next</a> - <a href="_docs_index.html">Index</a></p>
+                <p class="mainnav"><a href="index.html">Home</a> - <a href="Moka.html">Prev</a> - <a href="Obj-PHP vs Obj-J.html">Next</a> - <a href="_docs_index.html">Index</a></p>
             </nav>
     -->
         <div class="menu">
@@ -121,124 +121,31 @@
                 <b>Moka</b> is a port of the Apple Cocoa Frameworks (or <a href="http://www.cappuccino.org/">Cappuccino</a>).
             </div>
             <hr>
-        <h1>Objective-PHP and Moka</h1>
+        <h1>What are the differences between Objective-PHP and Objective-C?</h1>
 
-<p><em>To be Released under the LGPL (see COPYING &amp; COPYING.LESSER)
-Copyright 2009, 2010 Stephen Paul Ierodiaconou <a href="&#x6d;&#97;i&#x6c;&#116;o&#x3a;&#115;&#116;&#x65;&#112;&#104;&#x65;&#110;&#64;&#x66;&#x6c;&#97;&#x74;&#x35;&#51;&#x2e;&#x63;&#111;&#x6d;">&#115;&#116;&#x65;&#112;&#104;&#x65;&#110;&#64;&#x66;&#x6c;&#97;&#x74;&#x35;&#51;&#x2e;&#x63;&#111;&#x6d;</a></em></p>
-
-<p><strong>Objective-PHP</strong> is a port of the Objective-C (or <a href="http://www.cappuccino.org/">Objective-J</a> )
-runtime to PHP. This adds the language features of Objective-C nestled nicely inside the syntax of
-Objective-C.</p>
-
-<p><strong>Moka</strong> is a port of the Apple Cocoa Frameworks (or <a href="http://www.cappuccino.org/">Cappuccino</a> ). As
-PHP is primarily a server side scripting language the frameworks are currently non-UI ones
-(Foundation).</p>
-
-<p>I created this a way of learning the Objective-C/J languages in as much depth as possible. However,
-through this process a programming language and set of tools has resulting and as such has been
-released as Open Source in the hope others too can learn and find use from it. Also since the
-original goal was to learn I have created this site and as much documentation and tutorials as
-I could muster so others too could effectively follow this learning path. I hope this complements
-the skills of the Objective-J Cappuccino programmers, who may program the backend in the well
-estabilished PHP while still using the syntax and Objects they are so familiar with.</p>
-
-<h2>What?</h2>
+<p>If you are coming from an Objective-C background you should read this list. I
+want this list to a detailed an exhaustive list of differences so please
+<a href="http://groups.google.com/group/objective-php">Contact me</a> if anything is missing.</p>
 
 <ul>
-<li>A superset of PHP (you can use normal PHP anywhere and as much as you like)</li>
-<li>Smalltalk 80 / Objective-C object model</li>
-<li>Lovely Smalltalk square bracket syntax</li>
-<li>Dynamic dispatch and delegate programming</li>
-<li>A programming philosophy</li>
-<li>Features:
-
-<ul>
-<li>Objective-PHP &amp; Moka will work happily alongside any PHP Framework</li>
-<li>Protocols</li>
-<li>Categories</li>
-<li>Command line build tools</li>
-<li>Cross platform (all you need is PHP)</li>
-</ul></li>
+<li><p>Message <code>-initialise</code> is sent to each object, top down (parents first), when
+they are first created, which will be when the first reference to them is
+encountered (as <code>getInstance</code> will be called by the runtime). This will only
+happen though when the object is about to be used so it still effectively
+implements the lazy initialization. In ObjC the call is made first time a
+message is sent. The difference is subtle but there. The ObjPHP way you do not
+need to check the initialised flag everytime you call <code>objphp_msgSend</code> so this
+should help performance (in ObjC initialised is checked everytime <code>msgSend</code> is
+called).</p></li>
+<li><p>Classes are created using <code>@implementation</code> only (no use of <code>@interface</code>). This
+follows the logic of the Objective-J developers, that @interface is really
+not necessary and all the methods plus class definition can be contained
+in @implementation.</p></li>
 </ul>
 
-<p>Example Code:</p>
+<hr />
 
-<pre><code>// Test app
-@import &lt;Foundation/Foundation.op&gt;
-@implementation Test : MKObject
-{
-    @public     MKString        test1 = "World"     @accessors;
-    @protected                  test2 = 12;
-    @private    MKDictionary    dic                 @accessors;
-}
-- (id)init
-{
-    if ($self = [super init])
-    {
-        $self-&gt;dic = [MKDictionary dictionary];
-        [$self-&gt;dic setObject:
-            [[MKString alloc] initWithString:"Hello"] forKey:"First"];
-    }
-    return $self;
-}
-- (void)hello:name1 and:name2
-{
-    echo $self-&gt;test1." ".[$self-&gt;dic objectForKey:"First"].
-                        " and ".$name1." and ".$name2."\n";
-}
-+ (String)testclass:variable
-{
-    return "\nHi from class Method\n".$variable;
-}
-@end
-?&gt;
-&lt;p&gt;This is in HTML mode&lt;/p&gt;
-&lt;?
-$instance = [[Test alloc] init];
-[$instance hello:"Jane" and:"Bob"];
-</code></pre>
-
-<h2>Why?</h2>
-
-<ul>
-<li>It was fun and interesting to develop!</li>
-<li>Ease of development for devs using Objective-C/J and Cocoa/Cappuccino</li>
-<li>Delegate pattern without extra coding, Objective-C/J like programming</li>
-<li>Cocoa-like Frameworks (Non UI ones)</li>
-<li>Ability to message nil (null)</li>
-<li>Nicer syntax for dynamic dispatch</li>
-</ul>
-
-<p>For years now I have developed for research and as such have been bound to Matlab and C/C++.
-To put it lightly I am not a fan of these languages. Recently I have become obsessed with
-Objective-C, however do not develop in it as much as I wish I could. I use PHP a bit and love the
-speed of development (this is also Matlab&#8217;s only saving grace). Thus born of the desire for a
-web app development language which is fast, easy to learn, and powerful, is this project.</p>
-
-<p>Of course, I am happy to admit it is completely and utterly inspired by Objective-J and Cappuccino
-and am happy to plug those as much as possible.</p>
-
-<h2>How?</h2>
-
-<p>Objective-PHP is PHP, a runtime and a preprocessor. The language can either be interpreted at runtime (into PHP) or for deployment and better performance, preprocessed to generate pure PHP.</p>
-
-<h2>Source Code</h2>
-
-<p>Main Repo:  <a href="http://github.com/stevegeek/moka">http://github.com/stevegeek/moka</a></p>
-
-<p>Examples: <a href="http://github.com/stevegeek/mokaexamples">http://github.com/stevegeek/mokaexamples</a></p>
-
-<h2>Discussion Group</h2>
-
-<p>Google Group: <a href="http://groups.google.com/group/objective-php">http://groups.google.com/group/objective-php</a></p>
-
-<h2>Disclaimer</h2>
-
-<p><em>I am an electronic engineer whos specialisation is in digital image/video signal processing, thus,
-while I love programming, if I have made any school boy programming or computer science background
-errors please feel free to contact me and tell me. Its all about learning after all.</em></p>
-
-<p>Stephen Paul Ierodiaconou</p>
+<p><em>Document status: INCOMPLETE for current version.</em></p>
 
 
             <footer>
