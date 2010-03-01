@@ -1,0 +1,58 @@
+Categories in Objective-PHP
+===========================
+
+
+About Categories
+----------------
+
+Categories allow the programmer to add methods to classes at runtime. Once a
+method is added to a class via a Category it is available to all instances of
+objects of that class from then on. Another important factor of Categories is
+that they allow the programmer to add methods to classes which are defined in
+external Frameworks or libraries.
+
+Both class and instance methods can be added to objects, and new instance
+variables cannot be defined. This is a restriction of Objective-C (as once a
+class has been compiled its ivars become a C struct of which one is created per
+class instance and hence adding new ivars at runtime would mean having to change
+the size of this struct, and this isn't trivial. Since this restriction does not
+exist in PHP it would be possible to add ivars via Categories but this features
+is not currently planned).
+
+Categories override methods with the same Selector that are already defined in
+a class.
+
+In ObjPHP categories are implemented in a way that means as the parser comes
+across a definition of one, it creates the necessary runtime calls in the output
+source to thus add the new methods to the specified objects at runtime.
+
+Implementation Detail
+---------------------
+
+* An anonymous function is created with the method definition given.
+* The method handle is added to the Class object into the Dispatch Table using
+  `addMethodWithMethodName()` defined in `_runtimeclass`, see
+  [Runtime](Runtime.html) for more).
+
+* Now when `objphp_msgSend` is called to send a message (and asks the receiver if
+  it has the method that implements the given message), the dispatch table
+  is checked and the message is either called from the pointer there or from the
+  actual class methods (the ones that were known at compile time). Since categories
+  can only be added after the class has been defined categories implicity override
+  methods defined in the class.
+
+Source Code Links
+-----------------
+
+* POINT TO SOURCE THAT IS RELAVENT
+* POINT TO SOURCE THAT IS RELAVENT
+
+More Information
+----------------
+
+* LINK TO OBJC doc
+
+
+
+--------------------------------------------------------------------------------
+_Document status: COMPLETE for current version._

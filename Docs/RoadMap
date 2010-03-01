@@ -1,0 +1,39 @@
+RoadMap
+=======
+
+Beta 1: (Initial release)
+------
+* Trace output needs to not dump the objects
+* Trace needs to output OP file name
+* If compiling dynamic imports need to be handled differently.
+* What about deploying after compile?
+
+Beta 2: (Language feature additions)
+------
+* Foundation Port: All relavent classes at least stubs.
+* `@accessor(OPTIONS)` - `@property` - `@synthesize`  : http://www.cocoacast.com/?q=node/103
+* `@"blah"` parses to instant a MKString
+* `@<int>` or `@<float>` becomes a MKNumber
+* add `@inteface` syntax support?
+* Variable argument length methods (method:param ...)
+
+Beta 3: (Framework Feature Additions)
+-------
+* `MKLog %@` for [obj description]
+* KVC and observers
+* Archiving (Coding) - For encode/decode/save/restore objects see __set_state() and var_export§
+* Optimise compile (remove unused methods etc)
+* deploy command for objphp (compile, optimize, remove debug info)
+
+Beta 4: (Framework Feature Additions)
+-------
+* pList parsing
+* Bundles
+* translation / (i18n / l10n)
+
+Version 1:
+----------
+* Create better command line parser
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._

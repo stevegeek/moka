@@ -1,0 +1,91 @@
+
+The Objective-PHP parser
+========================
+
+(Note: this document will eventually describe the inner workings of the parser. At the moment it
+is a work in progress).
+
+The Objective PHP parser uses the [Objective-PHP tokenizer's](Tokenizer.html) output. The token stream
+is read in in sequence and every attempt has been made to ensure that only the latest token is
+required (in essence the parser is based on a Recursive-Decsent LL(1) parser but basically is just
+off the top of my head).
+
+The parser rules are implemented as state machines, progressively parsing input the token stream
+and accepting only those tokens that are permissable in the current state. This allows the parser
+to catch a large variety of syntax errors and is thus quite robust.
+
+In general the principle is to pass through tokens until a specific Objective-PHP start token is
+found, ie. it is assumed all tokens not of the Objective-PHP syntax are simply those of PHP.
+
+When a specific token (or seqeunce of tokens, though this is less desirable) is found the parser
+calls the rule specific to this token. For example an T_OBJPHP_SELECTOR tokens correspondin to
+@selector keyword fires the Parser::ruleSelector(). Any expression is parsed with the Expression
+rule.
+
+Note
+----
+
+The parser is a syntax checker, and pre-processor of Objective-PHP, it is NOT a sematic checker.
+A syntax checker will only check that the phrases (or sentences) are correctly formed, it does not
+check to see if it makes sense. For example in English "The cat initiates the chilli" is
+syntactically correct but semantically meaningless. Semantic problems will be caught at runtime by
+the PHP semantic analyser.
+
+The parser can be used as a compiler (actually a pre-processor really) to convert Objective-PHP
+into PHP in advance thus saving the tokenizing and parsing overheads, however for this is only
+necessary on release and deployment when development is over (in debug the lack of a compile
+step is a blessing!).
+
+From cocoa docs "super is simply a flag to the compiler telling it where to begin searching for
+ the method to perform; it s used only as the receiver of a message. But self is a variable name
+ that can be used in any number of ways, even assigned a new value." Hence $super doesnt exist,
+ $self does, and in the case of Objective-PHP is the same as $this. $self and $this however are
+ parsed into $_op_obj , a special object pointer passed to each method pointing to the instance
+ object instance.
+
+
+PHP Can Be a Pain
+-----------------
+
+Annoyingly Comments at end of lines trap newlines. Ie "ABC\n" Will tokenize as a T_STRING and a
+T_WHITESPACE , but "ABC // comment\n" will tokenize as a T_STRING and T_COMMENT.
+Since comments are generally consumed by the parser this will mean your
+beautifully formatted code may look a little messy in the PHP output.
+
+Another difficulty is with the tokens PHP defines. Possibly due to legacy
+reasons there are a silly number of tokens for PHP (e.g. `print` is tokenized
+into its own special token T_PRINT). This means that there are a HUGE number of
+potentially reserved words. Imagine you have the following methods in your class
+
+    - steve {}
+    - testMethod {}
+    - print {}
+
+Now for the first method you will see a `-` token, a whitespace token and then a
+string token with the value "steve". For the second the same except the string
+token value will be "testMethod". Good, everything simple so far. However for
+the last line you will get a `-` token, a whitespace token and then a T_PRINT
+token. Its not impossible to see how this makes parsing so much more annoying.
+
+One possible solution would be to assuming all PHP words that have special
+tokens (you could say these are the keywords of PHP) are reserved and cannot be
+used for method names and the like. However there are so many of them that this
+would be truely annoying.
+
+Therefore some helper methods `terminalIsPHPKeyword` and
+`terminalIsPHPCastKeyword` determine whether the token is a reserved word and
+can be used to allow these in a specific context (e.g. for a method name).
+
+Note:
+* Class and Protocol names cannot be PHP keywords
+* Instance variables can have PHP keywords as names (as $ is added to them to make them variables)
+
+Methods
+=======
+
+
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._
+
+

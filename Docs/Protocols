@@ -1,0 +1,38 @@
+About Protocols in Objective-PHP
+--------------------------------
+
+A protocol is a mechanism of providing guarantees for objects. Effectively a protocol is adopted
+by an object (or an object expects another object to adopt a certain protocol) hopefully guaranteeing
+the existance in that object of certain methods defined by the protocol.
+
+For example a protocol `A` specifies there should be an instance method `mustHaveMe` in any class
+which adopts it
+
+    @protocol A
+    - mustHaveMe;
+    @end
+
+now if a class `Class` adopts protocol `A` it must have a method `mustHaveMe` somewhere in it or
+its inheritance chain.
+
+    @implementation Class <A>
+    - (void)mustHaveMe
+    {
+        echo "I obey!\n";
+    }
+    @end
+
+[For a better description see this page.](http://developer.apple.com/mac/library/documentation/cocoa/conceptual/ObjectiveC/Articles/ocProtocols.html)
+
+As in Objective-C, in ObjPHP protocols too are first class objects. They are subclasses of the root
+object `MKObject` and `Protocol`.
+The actual implementation is an ObjPHP class (so it consists of 3 PHP classes, one for the protocols
+instance object, one for the class object and one for the meta class object).
+
+For each class that adopts protocols a table is created of protocol names which is checked for
+conformance at compile time and if the class is missing any methods an exception is thown.
+Objective-C doesnt produce an error if the protocol is not obeyed so to align Objective-PHP with
+Objective-C this may change.
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._

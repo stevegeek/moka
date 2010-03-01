@@ -1,0 +1,52 @@
+Status
+======
+
+As of version : Beta 1
+
+Objective-PHP (the parser/runtime)
+----------------------------------
+The parser is relatively robust. However it still lacks certain features see the [Roadmap](Roadmap.html)
+for more on what is planned when.
+
+The runtime is also relatively stable, but is subject to some changes.
+
+This is a list of language features supported/in development/not supported
+by Objective-PHP.
+
+### Supported
+
+* Categories
+* Protocols
+
+### Partial
+
+* @accessors : To create get/set methods for object ivars.
+
+### Not Yet Implemented
+
+* `@"string"` : To shorthand initialise MKString objects.
+* `@_(number)_` : To shorthand initialise MKNumber objects.
+* Static type hinting.
+* `@synthesize`
+* Archiving
+
+
+Moka (the framework)
+--------------------
+Is in early days. The ported elements are from Foundation.
+
+See [Moka](Moka.html) for details.
+
+However I will now work alot on this to try get much more of Foundation ported.
+
+Compiler
+--------
+
+Currently lacking support for applications that do dynamic imports (imports that are resolved at
+runtime).
+
+The compiler also lacks any optimisation (like removal of methods that are never used). However this
+is planned.
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._

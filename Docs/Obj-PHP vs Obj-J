@@ -1,0 +1,17 @@
+What are the differences between Objective-PHP and Objective-J?
+===============================================================
+
+If you are coming from an [Objective-J](http://www.cappuccino.org/) background
+you should read this list. I want this list to a detailed an exhaustive list of
+differences so please [Contact me](http://groups.google.com/group/objective-php)
+if anything is missing.
+
+
+* In Obj-J Javascript types are toll-free bridged to Cappuccino equivalents.
+  Unfortunately in PHP the native types are _not_ objects (in this sense PHP is
+  much less OO than JS) and so such simple toll-free bridging is not possible.
+  In this sense Moka is more like Cocoa than Cappuccino.
+
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._

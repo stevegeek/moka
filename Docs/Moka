@@ -1,0 +1,38 @@
+Moka
+====
+
+What is Moka?
+-------------
+
+Moka is a port of the Apple Cocoa (c) Frameworks to Objective-PHP.
+
+Status
+------
+
+It is very early days. See below for more detailed analysis.
+
+Root Objects
+------------
+
+There are two root objects, these implement key methods for any Objective-PHP
+application to work correctly including method forwarding, initialization and
+protocol support.
+
+* MKObject : All objects should inherit from MKObject at some level.
+
+* Protocol: This is used by the Objective-PHP runtime for protocol support.
+
+
+Class Status
+------------
+
+### Foundation
+
+* MKLog : Basic functionality, requires `%@` support still.
+* MKObject: Partial
+* MKString: Partial
+* MKArray: Partial
+* MKDictionary: Partial
+
+--------------------------------------------------------------------------------
+_Document status: COMPLETE for current version._

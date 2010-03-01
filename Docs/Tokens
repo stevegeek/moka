@@ -1,0 +1,36 @@
+Objective-PHP Tokens
+====================
+
+Here is a list of Objective-PHP tokens for keywords and special constants.
+
+* _TOKEN_ (_ID NUM_): _string_
+* `T_OBJPHP_ATIMPORT` (10000): `@import`
+* `T_OBJPHP_IMPLEMENTATION` (10001): `@implementation`
+* `T_OBJPHP_INTERFACE` (): `@interface`
+* `T_OBJPHP_END` (): `@end`
+* `T_OBJPHP_PUBLIC` (): `@public`
+* `T_OBJPHP_PRIVATE` (): `@private`
+* `T_OBJPHP_PROTECTED` (): `@protected`
+* `T_OBJPHP_TRY` (): `@try`
+* `T_OBJPHP_CATCH` (): `@catch`
+* `T_OBJPHP_THROW` (): `@implementation`
+* `T_OBJPHP_FINALLY` (): `@finally`
+* `T_OBJPHP_PROTOCOL` (): `@protocol`
+* `T_OBJPHP_SELECTOR` (): `@selector`
+* `T_OBJPHP_SYNTHESIZE` (): `@synthesize`
+* `T_OBJPHP_ACCESSORS` (): `@accessors`
+* `T_OBJPHP_SYNCHRONIZED` (): `@synchronized`
+* `T_OBJPHP_DEFS` (): `@defs`
+* `T_OBJPHP_ENCODE` (): `@encode`
+* `T_OBJPHP_PHP` (): `@php`
+* `T_OBJPHP_CMD` (): `$_cmd`
+* `T_OBJPHP_SUPER` (): `$super`
+* `T_OBJPHP_SELF` (): `$self` _(Note: `self` (with no $) is reserved by PHP)_
+* `T_OBJPHP_NIL` (10022): `nil`
+* `T_OBJPHP_OBJNIL` (10023): `Nil`
+* `T_OBJPHP_THIS` (10024): `$this` _(In instance methods this is replaced
+  by `$_op_obj`)_
+
+
+--------------------------------------------------------------------------------
+_Document status: COMPLETE for current version._

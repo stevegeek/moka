@@ -1,0 +1,26 @@
+What are the differences between Objective-PHP and Objective-C?
+===============================================================
+
+If you are coming from an Objective-C background you should read this list. I
+want this list to a detailed an exhaustive list of differences so please
+[Contact me](http://groups.google.com/group/objective-php) if anything is missing.
+
+
+* Message `-initialise` is sent to each object, top down (parents first), when
+  they are first created, which will be when the first reference to them is
+  encountered (as `getInstance` will be called by the runtime). This will only
+  happen though when the object is about to be used so it still effectively
+  implements the lazy initialization. In ObjC the call is made first time a
+  message is sent. The difference is subtle but there. The ObjPHP way you do not
+  need to check the initialised flag everytime you call `objphp_msgSend` so this
+  should help performance (in ObjC initialised is checked everytime `msgSend` is
+  called).
+
+* Classes are created using `@implementation` only (no use of `@interface`). This
+  follows the logic of the Objective-J developers, that @interface is really
+  not necessary and all the methods plus class definition can be contained
+  in @implementation.
+
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._

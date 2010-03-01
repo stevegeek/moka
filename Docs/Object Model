@@ -1,0 +1,35 @@
+The Object Model of Objective-PHP
+=================================
+
+The Object Model of Objective-PHP is based on that of Objective-C which is in turn based on
+Small-talk 80. [Here is a page I Googled which describes the model](http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html)
+
+and the C source of Objective-C for exploration (very interesting!):
+[http://www.opensource.apple.com/source/objc4/objc4-274/](http://www.opensource.apple.com/source/objc4/objc4-274/)
+[http://www.opensource.apple.com/source/gcc/gcc-1640/libobjc/](http://www.opensource.apple.com/source/gcc/gcc-1640/libobjc/)
+
+In Objective-PHP each class thus becomes 3 PHP classes. An instance object, a class object and a
+meta class object. The objects connect together via the `isa` and `super_class` pointers.
+
+The instance object contains the actual instance vars (properties, or class variables) and it is
+this which is created for each new instance of the class you create. This object is cloneable. It
+contains the `isa` pointer which points to the class object. (In Objective-C the correlate of this
+is a struct{} which contains the instance vars)
+
+The class object is a singleton class and the factory of the instance objects. It is created lazily
+(ie if and when the class is first used) and then lives in memory until termination. It
+holds the Objective-PHP class' instance methods. These are the methods that can be called on
+instance objects and thus can use the instance variables. The class objects `super_class` pointer
+points to the class object of the parent (at least this will be the root object) and the `isa`
+pointer points to the meta class object
+
+The meta class object is also a singleton. It is created lazily too. It holds the class methods
+of the class. The `isa` pointer points to the root meta class object and the `super_class` pointer
+to the parent meta class object.
+
+An interesting note: since the root meta class object is infact a subclass of the root class
+object you CAN send instance method messages defined in the root object to any class object.
+(see for example [Objective-C Pocket Reference](http://oreilly.com/catalog/9780596004231))
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._

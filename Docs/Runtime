@@ -1,0 +1,85 @@
+The Runtime of Objective-PHP
+============================
+
+(Note: this document will eventually describe the inner workings of the parser. At the moment it
+is a work in progress).
+
+The runtime consists of a set of PHP classes which act as the parents of the instance, class and meta
+class objects created from the Objective-PHP classes.
+
+The runtime also contains the `PreProcessor` object which implements the main enviroment for
+Objective-PHP parsing and execution (not for compiled builds though as it is obviously not necessary
+then).
+
+The runtime also contains the main Objective-PHP runtime methods prefixed with `objphp_` including
+logging functions and the all important `objphp_msgSend`.
+
+
+Implementation Details
+----------------------
+
+### Message Sending
+
+A couple of approaches have been tried for the implementation of the `msgSend`
+functionality however basically two main approaches have been tried.
+
+The first involves using the PHP Reflection (introspection) system to ask
+classes which methods they implement. This however is only valid for methods
+that are known at PHP compile time.
+
+The second method is to use an associative array, called a dispatch table,
+which maps the method names that the class implements to pointers of functions.
+
+For categories, which are methods added at runtime, only one method is possible,
+that of a custom dispatch table.
+
+Note: it is worth mentioning that `__call` magic method (which is the method
+PHP calls at runtime if a unknown method is called on an object, e.g.
+
+    class Test { public function __call($method) { echo $method;} };
+    $a = new Test();
+    $a->methodA();
+
+) is not useful to us as Objective-C runtime allows the useful ability of
+messaging NULL objects and in this case if `$a` is null, PHP will throw an
+exception.
+
+Thus one possible approach is to have both of the above systems in place, first
+to check if a method exists on a class by checking its dispatch table, and
+secondly to use Reflection to ask if the class implements the method.
+
+To check the performance of the approaches we can time the relative
+performance of each:
+
+    @implementation ProfileMe : Object
+    { @public counter = 0; @public counter_dtable = 0;}
+    - testMethod { $self->counter++; }
+    @end
+    $mtime = explode(" ", microtime());
+    $startTime = $mtime[1] + $mtime[0];
+    for ($i = 0; $i < $calls; $i++) { [$testObj testMethod]; }
+    $mtime = explode(" ", microtime());
+    printf("Time: %f s\n\n", (($mtime[1] + $mtime[0]) - $startTime));
+    if ($testObj->counter == $calls) echo "OK\n\n";
+
+For 100,000 calls the mean time with:
+* PHP Reflection = 1.035s
+* DTables = 1.015s
+
+Thus there is not a huge difference. However we now need to consider that
+categories require the dispatch table hence it makes sense everything only uses
+the dispatch table.
+
+A test application making 100,000 calls to a compile time defined method
+and to a category defined method takes mean time (6 runs):
+* using both Reflection and a dispatch table = 2.16s
+* using only a dispatch table = 1.90s
+
+Hence there is a 12% performance increase with just a dispatch table.
+This thus requires that every method on the object at parse time is added to
+the dispatch table. This happens in `getInstance`.
+
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._
+

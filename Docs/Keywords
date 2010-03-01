@@ -1,0 +1,55 @@
+Objective-PHP Keywords
+======================
+
+The Objective-PHP keywords start with an `@` symbol. Note that this includes the
+Objective-C keyword `#import` which is `@import` in ObjPHP as `#' denotes a
+comment in PHP.
+
+You may notice some keywords are added to be compatible with
+[Objective-J](http://www.cappuccino.org/) syntax.
+
+The following is a list of Objective-PHP keywords (effectively this extends the
+PHP keyword set by this list, ie you cannot use these names in your code)
+including whether they are currently supported in the language:
+
+* KEYWORD : SUPPORT _(Fully/ Partial/ Partial (In Development)/ No/ No (Coming Soon))_
+* `@import`: Fully
+* `@implementation`: Fully
+* `@interface`: No (See ObjC vs. ObjPHP document)
+* `@end`: Fully
+* `@public`: Partial
+* `@private`: Partial
+* `@protected`: Partial
+* `@try`: No (Coming Soon)
+* `@catch`: No (Coming Soon)
+* `@finally`: Nos
+* `@protocol`: Fully
+* `@selector`: Fully
+* `@synthesize`: No (Coming Soon)
+* `@accessors`: Partial (In Development)
+* `@synchronized`: No
+* `@defs`: No
+* `@encode`: No (Coming Soon)
+* `@php`: Fully
+* `nil`: Fully
+* `Nil`: Fully
+* `super`: Fully (see note on `$self`)
+
+The following is a list of Special variables`:
+
+* `$_cmd`
+* `$self` (Note: self (no $) is reserved in PHP)
+* `$this` (In instance methods this is replaced by a pointer to the receiver)
+
+Implementation Details
+----------------------
+The more awake (or caffine fueled) of you will note that `@` too has a special
+meaning in PHP. It is the Silence operator and mutes the output of a function
+call (e.g. `@test()`; wil output nothing). This is only a problem if one wants
+to name a PHP method the same as one of the Objective-PHP keywords. However this
+is illegal anyway (you cannot name methods after keywords) so there should be
+not other constraints).
+
+
+--------------------------------------------------------------------------------
+_Document status: COMPLETE for current version._

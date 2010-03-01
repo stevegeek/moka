@@ -1,0 +1,91 @@
+The Tokenizer
+=============
+
+What is a Tokenizer?
+--------------------
+
+The Tokenizer takes on the job of converting the input characters that make up
+the source code into more easily handled symbols. For example, it may find the
+characters that make up a specific keyword and then output one ID number that
+represents that keyword. This thus turns the input source code into a sequence
+of so called _tokens_.
+
+For example the code `$a = @protocol(ProtocolName);` will become a sequence of
+
+1. `T_VARIABLE` ($a)
+2. =
+3. `T_OBJPHP_PROTOCOL`
+4. (
+5. `T_STRING` (ProtocolName)
+6. )
+7. ;
+
+where `T_VARIABLE`, `T_OBJPHP_PROTOCOL`, `T_STRING` are all constants.
+
+The subsequent parse stage will now be much simpler to implement.
+
+Implementation Details
+----------------------
+
+Since Objective-PHP builds on PHP we can use the PHP tokenizer (which is exposed
+to us via the in-built PHP method [`token_get_all`] [1]) to initially tokenize
+the input Objective-PHP.
+
+However, the PHP tokenizer has no knowledge of the [ObjPHP keywords](Keywords.html)
+so the `Tokenizer` object takes the token stream from `token_get_all` and
+then looks for the @ symbol and a `T_STRING` token (or other PHP token) which when
+combined with the @ symbol makes a ObjPHP token.
+
+For example the tokens `@` and `T_PUBLIC` will be consumed by the `Tokenizer`
+and a `T_OBJPHP_PUBLIC` will be produced.
+
+PHP produces tokens either as strings or as associative arrays. If the token is
+itself simply one character, e.g. {, then it is returned as '{'. However if the
+token is a string e.g. protected, then it is returned as an array containing the
+string `protected`, the ID of this keyword, `T_PROTECTED`, the PHP name of
+this keyword, `T_PROTECTED`, and the line number the token is on on the input
+source.
+
+Important Notes
+---------------
+
+* The Objective-PHP tokenizer produces associative arrays for ALL tokens. The
+  line number of the string tokens is assumed from the previous non string PHP
+  token since the PHP tokenizer does not retain line info for string tokens,
+  this of course means the line numbers for some Objective-PHP tokens may not
+  be valid!
+
+* There is a conflict with PHP and Objective-PHP with the PHP built-in
+  method `end()`.
+  It is perfectly valid to use the mute operator `@` on `end()` hence
+  creating the Objective-PHP keyword `@end`. It could be possible to catch this
+  by saying that if `@end` has a `(` after it (and with any whitespace in
+  between) that it is the method call rather than the `@end` keyword. However,
+  it is also valid PHP to put the `()` part of the method syntax on the next new
+  line and it is valid syntax to have an expression enclosed in braces, hence
+  it is not possible to determine if
+
+        @end
+        (expression);
+
+  is an Objective-PHP keyword and then an expression, or a muted `end` call.
+  Another possible solution would be to ensure that the `@end` keyword must
+  always be ended with a `;` however this would break syntax compatability with
+  Objective-C/J significantly and as such is highly undesirable.
+
+
+
+
+Relavent Source Code
+--------------------
+
+* SOURCE CODE LINK
+
+Other Information
+-----------------
+
+[1]: http://www.php.net/manual/en/function.token-get-all.php "PHP: token_get_all - Manual"
+
+
+--------------------------------------------------------------------------------
+_Document status: COMPLETE for current version._

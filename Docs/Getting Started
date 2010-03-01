@@ -1,0 +1,150 @@
+Getting Started
+===============
+
+Valid for Beta 1
+
+Download
+--------
+
+Either use the zipball or tarball links above, or even better, clone the git repo:
+
+Main Repo:  [http://github.com/stevegeek/moka](http://github.com/stevegeek/moka)
+
+Examples: [http://github.com/stevegeek/mokaexamples](http://github.com/stevegeek/mokaexamples)
+
+(Note: The `objphp` application is also an example of an Objective-PHP application).
+
+Install
+-------
+
+Create a `OBJPHP` enviroment variable and set it to the path of your moka repo.
+
+In Linux and MacOS X this can be done by adding
+
+    export OBJPHP = "<path>"
+
+to your `.profile` file in your home folder. The running `source ~/.profile` .
+
+You can optionally also set the following for the `gen` command of `objphp`:
+
+* `OBJPHP_PROJECT_AUTHOR` : Author name (your name)
+* `OBJPHP_PROJECT_COPYRIGHT` : The Copyright dates for your project
+* `OBJPHP_PROJECT_EMAIL` : Your email address
+
+Generate Project
+----------------
+
+In your chosen terminal have a read of the help for the `objphp` application.
+
+    ./objphp -h
+
+Then to see the list of target application types run
+
+    ./objphp gen -l
+
+At the moment there are 3 project types.
+
+* `console`: a blank console application
+* `web`: a blank web application (starts in index.php)
+* `mvc`: a basic Model-View-Controller web application (starts in index.php and FrontController.op)
+
+Choose your project type. If you just want a quick play with Objective-PHP choose `console` so you
+can run your application from the terminal.
+
+    ./objphp gen -t=console ProjectName
+
+where `ProjectName` is the name and path of the generated project.
+
+Code!
+-----
+
+Now open the main Objective-PHP file. For different applications this is different.
+
+For `console` applications the file is called `main.op` , for `web` it is called
+`AppController.op` and for `mvc` `FrontController.op`.
+
+Here are some important starting points.
+
+* All Objective-PHP files must start with `<?php`, it is PHP afterall! You can of course put things
+before the opening tag (or close the Objective-PHP mode with `?>`). Anything before/after these tags
+will be considered as being sent to stdout.
+
+* Variables in PHP start with a `$`. So must Objective-PHP variables when defined in code blocks.
+This also applies to `$self`! BUT not to `super` as this is not a real variable but a compiler
+command. Instance variable definisions do not have to have the `$` before ... You can do whatever feels
+more confortable to you (see snippet).
+
+        @implementation class
+        {
+            MKString $aString;
+            MKString anotherString;
+        }
+
+* To access instance variables you must use the PHP object operator `->`. So for an instance of the
+above class you would do
+
+        [$instance->aString description];
+
+    or inside a instance method of the class
+
+        [$self->aString description];
+
+
+* There are still some caveats that are unresolved in this Beta so have a read about this site
+to find out more.
+
+For a primer on Objective-C in general see:
+[http://developer.apple.com/mac/library/referencelibrary/GettingStarted/Learning_Objective-C_A_Primer/index.html#//apple_ref/doc/uid/TP40007594](http://developer.apple.com/mac/library/referencelibrary/GettingStarted/Learning_Objective-C_A_Primer/index.html#//apple_ref/doc/uid/TP40007594)
+
+UnitTest and Compile
+--------------------
+
+You can UnitTest you application by creating classes which are subclasses of `UnitTest`. Below is
+an example file `example.op`
+
+    <?php
+    @implementation example : UnitTest
+    - testMe
+    {
+        echo "HI\n";
+    }
+    @end
+
+Any instance methods with `test` at the start of the method name will be called by the test
+framework, unless you specify which function to run. If you do specify a function to run DO NOT
+inclde the `test` prefix. See Below:
+
+    ./objphp test example.op
+
+will run all functions with the `test` prefix.
+
+    ./objphp test example.op Me
+
+would run the method `testMe` above.
+
+
+When you are done building and testing with your application you will probably want to compile
+it to remove the parse overhead. This is acheived by doing
+
+    ./objphp compile file.op -o=outputfile.php
+
+Imported files should automatically be included into the output.
+
+Deploy
+------
+
+Currently deployment and compilation (above) are in early days, so at the moment you must simply
+copy the compiled file (the output `.php` file from the compilation stage) to your server/directory
+and name appropriately.
+
+Troubleshooting
+---------------
+
+If you have any problems you can find me on the Google Group
+
+Google Group: [http://groups.google.com/group/objective-php](http://groups.google.com/group/objective-php)
+
+and on twitter: [stevegeek](http://twitter.com/stevegeek)
+
+--------------------------------------------------------------------------------
+_Document status: IN-PROGRESS for current version._

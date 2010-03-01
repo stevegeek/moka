@@ -1,0 +1,47 @@
+Frequently Asked Questions (FAQ)
+================================
+
+Here is a short list of FAQs. Please feel free to [contact](/Contact) me with
+other questions.
+
+_Q: **Why?** PHP is so great, this is an abomination, how dare you.... (etc)_
+
+    A: Because of the reasons stated [here](About.html) and a) if you want to learn
+    something well, implement its runtime! b) because I like.
+    Enough said.
+
+_Q: **Why?** PHP is rubbish and you are nothing but a script kiddie._
+
+    A: OK. See Q1.
+
+_Q: Can I help develop this?_
+
+    A: Yes, please. Help out by contributing code or testing.
+
+_Q: What version of PHP does this require?_
+
+    A: The current implementation requires 5.3.x ... When PHP 6 is
+    officially released the project will adopt it.
+
+_Q: What is the license of projects created using Objective-PHP and Moka?_
+
+    A: It is released under the Lesser GNU GPL meaning anything using it can
+    be closed source and commercial but any changes to the runtime/parser/
+    Moka etc (any code in the Objective-PHP/Moka distribution) must be open
+    source. [See here for more on the LGPL](http://www.gnu.org/licenses/lgpl.html).
+
+_Q: Why `super` and not `$super`?
+
+    A: From cocoa docs "super is simply a flag to the compiler telling it where to begin searching for
+    the method to perform; it s used only as the receiver of a message. But self is a variable name
+    that can be used in any number of ways, even assigned a new value." Hence $super doesnt exist,
+    $self does, and in the case of Objective-PHP is the same as $this. $self and $this however are
+    parsed into $_op_obj , a special object pointer passed to each method pointing to the instance
+    object instance.
+
+_Q: (Flame/Troll/Hate)_
+
+    A: OK.
+
+--------------------------------------------------------------------------------
+_Document status: IN-PROGRESS for current version._

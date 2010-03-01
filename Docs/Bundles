@@ -1,0 +1,13 @@
+About the Bundle model of Objective-PHP
+=======================================
+
+Bundles will allow configuration and resource handling for your applications,
+including support for localization. The file 'info.plist' provides the PList
+format bundle information.
+
+This support is hopefully planned soon. See the [Roadmap](Roadmap.html) for more.
+
+
+
+--------------------------------------------------------------------------------
+_Document status: COMPLETE for current version._

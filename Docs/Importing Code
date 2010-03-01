@@ -1,0 +1,30 @@
+Import
+======
+
+Importing can be at preprocess time or at runtime.
+
+To import code at preprocess time (and when compiling these files are automatically included
+into the build):
+
+    @import <file path in framework folders>
+
+or
+
+    @import "file path relative to current locaiton"
+
+*Note*: the lack of semicolon on the end of the line.
+
+You can import code at runtime too. This is done by:
+
+    @import $variable
+
+Where `$variable` is a string of a file path. *Note Well*: at the moment the file path
+is always relative to the current location (or absolute if given as an absolute path).
+
+For Beta 1:
+-----------
+*Compiling with runtime imports is NOT supported.*
+
+
+--------------------------------------------------------------------------------
+_Document status: COMPLETE for current version._

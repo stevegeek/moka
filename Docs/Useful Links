@@ -1,0 +1,14 @@
+Useful Links and Info
+=====================
+
+Objective-C Object Model
+------------------------
+[http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html](http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html)
+
+
+C source of Objective-C runtime
+--------------------------------
+
+[http://www.opensource.apple.com/source/objc4/objc4-274/](http://www.opensource.apple.com/source/objc4/objc4-274/)
+
+[http://www.opensource.apple.com/source/gcc/gcc-1640/libobjc/](http://www.opensource.apple.com/source/gcc/gcc-1640/libobjc/)

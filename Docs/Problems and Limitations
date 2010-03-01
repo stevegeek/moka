@@ -1,0 +1,40 @@
+Problems and Limitations of Objective-PHP
+=========================================
+
+Problem: PHP/Objective-PHP Syntax Conflicts
+-------------------------------------------
+
+Unfortunately there is a syntactic conflict with PHP (see
+[the Tokenizer page](Tokenizer.html) for more details).
+
+Limitation: Timers in PHP
+-------------------------
+
+One of the stumbling points of PHP as a general purpose programming language is
+the lack of a timing system (real-time functionality).
+
+In PHP timing can be achieved through polling the system time
+(microsecond accuracy) at given 'ticks' where a tick is the execution of 1 PHP
+instruction. Ie after a certain number of instructions are executed a method
+can be called to check the time and update or fire any timers.
+
+However its not hard to see that this is far from ideal. You must trade off
+accuracy for performance (as for high accuracy of timer time outs the poll
+method must constantly fire hence slowing the overall script execution time).
+
+I really hope this is addressed in the future but its unlikely.
+
+However there are many applications where accurate timing is not necessary
+(e.g. in a website MVC backend) so this may not be a problem for most target
+applications).
+
+Limitation: Lack of Type Bridging
+---------------------------------
+
+In Obj-J Javascript types are toll-free bridged to Cappuccino equivalents.
+Unfortunately in PHP the native types are _not_ objects (in this sense PHP is
+much less OO than JS) and so such simple toll-free bridging is not possible.
+In this sense Moka is more like Cocoa than Cappuccino.
+
+--------------------------------------------------------------------------------
+_Document status: INCOMPLETE for current version._
