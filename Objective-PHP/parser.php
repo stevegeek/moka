@@ -123,16 +123,13 @@ class Parser
     public function readImport($fileName, $rel)
     {
         // check if already imported
-        // FIXME: this should first resolve the absolute path, then check/store so we can know <file>
-        // and "file" might be the same import.
-        $unique = md5($fileName . (($rel)?("r"):("")));
+        $mode = ($rel)?(FILE_TEXT):(FILE_USE_INCLUDE_PATH | FILE_TEXT);
+        $file = @file_get_contents($fileName, $mode);
+        $unique = sha1($file);
         if (array_key_exists($unique, $this->importTable))
             return false;
         else
             $this->importTable[$unique] = true;
-
-        $mode = ($rel)?(FILE_TEXT):(FILE_USE_INCLUDE_PATH | FILE_TEXT);
-        $file = @file_get_contents($fileName, $mode);
 
         if ($file===false)
             throw new \ObjPHP\CountableException("File to load '$fileName' could not be found. ".(($rel)?("The search path was relative to working directory."):("The search path absolute or the include paths.")));
