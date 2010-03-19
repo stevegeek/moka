@@ -22,5 +22,10 @@ want this list to a detailed an exhaustive list of differences so please
   in @implementation.
 
 
+* Getter/Setter methods for properties are created with `@accessors`. `@synthesize`, `@dynamic` and
+  `@property` have no correlate. [Read on Cappuccino.org for more on `@accessors`](http://cappuccino.org/discuss/2008/10/26/synthesizing-accessor-methods/)
+
+
+
 --------------------------------------------------------------------------------
 _Document status: INCOMPLETE for current version._

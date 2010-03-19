@@ -25,7 +25,6 @@ including whether they are currently supported in the language:
 * `@finally`: Nos
 * `@protocol`: Fully
 * `@selector`: Fully
-* `@synthesize`: No (Coming Soon)
 * `@accessors`: Partial (In Development)
 * `@synchronized`: No
 * `@defs`: No

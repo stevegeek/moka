@@ -2324,7 +2324,6 @@ class Parser
                 break;
         }
 
-        // FIXME: call a reflection parser method
         $this->reflectionClassSetPHP($nameprefix.$name, $sourceMeta, $sourceClass, $sourceInst);
 
         $source = $sourceMeta.$sourceClass.$sourceInst;
