@@ -1222,6 +1222,30 @@ class Parser
                     $s = S_FIRST;
                     break;
 
+                case '(':
+                    if ($s == S_START && $stopOnWhitespaceAndClosingSymbols == false)
+                    {
+                        $code .= $t[2];
+                        $useToken = PARSER_USE;
+                        $s = S_FIRST;
+                    }
+                    else
+                    {
+                        $code .= $this->ruleExpression($t, false, $convertSelf, $convertThis);
+                        $useToken = PARSER_LEAVE;
+                        $s = S_FIRST;
+                    }
+                    break;
+
+                case ')':
+                    if ($s == S_FIRST)
+                    {
+                        $code .= $t[2];
+                        $s = S_END;
+                        $useToken = PARSER_USE;
+                    }
+                    break;
+
                 case '[':
                     $p = $this->tokens->previousToken();
                     $p1 = $this->tokens->previousTokenAt(1);
