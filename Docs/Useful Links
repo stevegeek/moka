@@ -1,6 +1,10 @@
 Useful Links and Info
 =====================
 
+Comprehensive Objective-C Documentation
+---------------------------------------
+[Apple: Objective-C 2.0 Programming Language](http://developer.apple.com/mac/library/documentation/cocoa/conceptual/ObjectiveC/Introduction/introObjectiveC.html#//apple_ref/doc/uid/TP30001163-CH1-SW2)
+
 Objective-C Object Model
 ------------------------
 [http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html](http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html)

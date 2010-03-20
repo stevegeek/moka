@@ -11,11 +11,12 @@ Beta 1: (Initial release)
 Beta 2: (Language feature additions)
 ------
 * Foundation Port: All relavent classes at least stubs.
-* `@accessor(OPTIONS)` - `@property` - `@synthesize`  : http://www.cocoacast.com/?q=node/103
+* `@accessor(OPTIONS)`
 * `@"blah"` parses to instant a MKString
 * `@<int>` or `@<float>` becomes a MKNumber
-* add `@inteface` syntax support?
 * Variable argument length methods (method:param ...)
+* Exception handling
+* Start enumeration and fast enumeration
 
 Beta 3: (Framework Feature Additions)
 -------

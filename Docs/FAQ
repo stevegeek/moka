@@ -4,6 +4,39 @@ Frequently Asked Questions (FAQ)
 Here is a short list of FAQs. Please feel free to [contact](/Contact) me with
 other questions.
 
+The FAQ is split into a set of technical questions and then a set of general questions.
+
+Technical Questions
+-------------------
+
+_Q: Why `super` and not `$super`?_
+
+    A: From Apple: "super is simply a flag to the compiler telling it where to begin searching for
+    the method to perform; it s used only as the receiver of a message. But self is a variable name
+    that can be used in any number of ways, even assigned a new value." Hence $super doesnt exist,
+    $self does, and in the case of Objective-PHP is the same as $this. $self and $this however are
+    parsed into $_op_obj , a special object pointer passed to each method pointing to the instance
+    object instance.
+
+_Q: What about Static Typing?_
+
+    A: Static typing is not supported in Objective-PHP. Declare variables as you would in PHP.
+
+_Q: Does Objective-PHP support Dot Syntax, `.`?_
+
+    A: No and yes. The `.` operator does not work; (it would clash with the concat operator) instead
+    use the `->` object operator which is inherintely part of PHP. If you have an instance of an
+    object `$obj` with an ivar `$x` then you can get/set it with `$obj->x`.
+    But NOTE: in Objective-C the Dot Syntax compiles into accessor method calls. Hence
+    `anObject.anIvarThatIsAnObject.anotherIvar` is perfectly valid even if `anIvarThatIsAnObject` is
+    `nil` (as the getter method for `anotherIvar` is sent to a `nil` object which is perfectly
+    valid) but in PHP `$anObject->anIvarThatIsAnObject->anotherIvar` will throw a runtime error is
+    `anIvarThatIsAnObject` is `nil` as in this case you are directly accessing the ivar.
+    [Apple Docs on Dot Syntax](http://developer.apple.com/mac/library/documentation/cocoa/conceptual/ObjectiveC/Articles/ocObjectsClasses.html#//apple_ref/doc/uid/TP30001163-CH11-SW17)
+
+General Questions
+-----------------
+
 _Q: **Why?** PHP is so great, this is an abomination, how dare you.... (etc)_
 
     A: Because of the reasons stated [here](About.html) and a) if you want to learn
@@ -30,18 +63,14 @@ _Q: What is the license of projects created using Objective-PHP and Moka?_
     Moka etc (any code in the Objective-PHP/Moka distribution) must be open
     source. [See here for more on the LGPL](http://www.gnu.org/licenses/lgpl.html).
 
-_Q: Why `super` and not `$super`?
+_Q: What is the prefered file extension?_
 
-    A: From cocoa docs "super is simply a flag to the compiler telling it where to begin searching for
-    the method to perform; it s used only as the receiver of a message. But self is a variable name
-    that can be used in any number of ways, even assigned a new value." Hence $super doesnt exist,
-    $self does, and in the case of Objective-PHP is the same as $this. $self and $this however are
-    parsed into $_op_obj , a special object pointer passed to each method pointing to the instance
-    object instance.
+    A: `.op` for Objective-PHP.
 
 _Q: (Flame/Troll/Hate)_
 
     A: OK.
+
 
 --------------------------------------------------------------------------------
 _Document status: IN-PROGRESS for current version._
