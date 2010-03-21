@@ -30,6 +30,7 @@
         Options:
             -o, --output=<file> : Outputfile
             -b, --hashbang      : Add "#!/usr/bin/php" to top of file
+            -x, --executable    : Set +x permissions on output file
             -f, --force         : Force overwrite of existing output file
             -v, --verbose       : Enable verbose output
             -s, --silent        : Silence output
@@ -44,6 +45,7 @@
     $hashbang = false;
     $outputFilename = false;
     $inputFiles = array();
+    $setx = false;
     // parse args
     if ([$params count])
     {
@@ -79,6 +81,10 @@
             else if ($argname === 'b' || $argname === 'hashbang')
             {
                 $hashbang = true;
+            }
+            else if ($argname === 'x' || $argname === 'executable')
+            {
+                $setx = true;
             }
             else if (is_int($argname))
             {
@@ -118,6 +124,8 @@
                         // write out result
                         if (file_put_contents($outputFilename, (($hashbang)?("#!/usr/bin/php\n"):("")).$source, FILE_TEXT) === false)
                             throw new \ObjPHP\CountableException("The output file is not writable. Check that the drive is not read-only.");
+                        if ($setx)
+                            chmod($outputFilename, 0755);
                     }
                     else
                         throw new \ObjPHP\CountableException("No input files where specified. Use -h to get help on this command.");
