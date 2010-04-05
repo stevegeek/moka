@@ -221,7 +221,7 @@ zone*/
 
 - (void)forward:(SEL)aSelector :(marg_list)args
 {
-    MKLog( "'$aSelector' could not be delivered" );
+    MKLog( "'".\ObjPHP\selectorFromMethodName($aSelector)."' could not be delivered on '".[$self name]."'" );
 }
 
 @end

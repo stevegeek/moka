@@ -35,6 +35,16 @@ const MKNumericSearch         = 64;
     @protected string string;
 }
 
++ (string)string
+{
+    return [[MKString alloc] init];
+}
+
++ (string)stringWithString:aString
+{
+    return [[MKString alloc] initWithString:$aString];
+}
+
 - (id)initWithString:aString
 {
     if ($self = [super init])
@@ -42,11 +52,6 @@ const MKNumericSearch         = 64;
         $self->string = $aString;
     }
     return $self;
-}
-
-+ (string)string
-{
-    return [[MKString alloc] init];
 }
 
 - (int) length
