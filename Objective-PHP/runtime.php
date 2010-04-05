@@ -183,7 +183,7 @@ function nil_method( $receiver, $sel, $params )
 function objphp_msgSend( $receiver, $methodName, $params, $withSuper=false )
 {
     // Note: pass this methodName not selector
-    if ( $receiver === null )
+    if ( $receiver == null )
         return nil_method( $receiver, $methodName, $params );
 
     // TODO: could copy this function to SendSuper and remove this switch for opt purposes
