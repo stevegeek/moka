@@ -1238,12 +1238,9 @@ class Parser
                     break;
 
                 case ')':
-                    if ($s == S_FIRST)
-                    {
-                        $code .= $t[2];
-                        $s = S_END;
-                        $useToken = PARSER_USE;
-                    }
+                    $code .= $t[2];
+                    $s = S_END;
+                    $useToken = PARSER_USE;
                     break;
 
                 case '[':
