@@ -20,6 +20,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
 */
+date_default_timezone_set("GMT");
 
 define('OBJPHP_INCLUDE_PATH', getenv('OBJPHP'));
 define('OBJPHP_TOOL_PATH', OBJPHP_INCLUDE_PATH.'/Tools/objphp');

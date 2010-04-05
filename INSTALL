@@ -2,3 +2,5 @@ Installation Instructions
 =========================
 
 * Create environment variable OBJPHP and point it to your root Moka installation
+
+* Create a symbolic link to `objphp` in your `/bin` : `sudo ln -s ~/moka/Tools/objphp/objphp /bin/objphp`
