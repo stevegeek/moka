@@ -56,7 +56,7 @@ class _class
 class _runtimeclass extends _class
 {
     public $super_class     = null;
-    protected $name         = "";
+    public $name            = "";
     public $dispatchTable   = array();
     protected $protocols    = array();
     protected $version      = 0;
@@ -186,9 +186,15 @@ function objphp_msgSend( $receiver, $methodName, $params, $withSuper=false )
     if ( $receiver == null )
         return nil_method( $receiver, $methodName, $params );
 
+    // This warning helps with debugging, but it would be good if it was removed for optimisation purposes.
+    if ( !is_object($receiver) || !isset($receiver->isa) )
+    {
+        _objphp_log("A message has been sent to an non Objective-PHP object. It will fail.");
+    }
+
     // TODO: could copy this function to SendSuper and remove this switch for opt purposes
     if ($withSuper)
-        $c = $receiver->isa->super_class; // optimse away call
+        $c = $receiver->isa->super_class;
     else
         $c = $receiver->isa;
     while ($c !== null)
@@ -218,8 +224,9 @@ function objphp_msgSend( $receiver, $methodName, $params, $withSuper=false )
     if ($methodName === "m_forward__")
     {
         // even forward wasnt found in whole hierarchy, throw runtime exception
-        throw new RuntimeException("A message to '$methodName' was not delivered anywhere on the object hierarchy, are you sure you have implemented 'forward::' in your root Object?");
-    } else
+        throw new RuntimeException("A message forward '".$params[0]."' failed as 'forward::' was not delivered anywhere on the object hierarchy, are you sure you have implemented 'forward::' in your root Object?");
+    }
+    else
         return objphp_msgSend( $receiver, "m_forward__", array($methodName,$params));
 }
 
