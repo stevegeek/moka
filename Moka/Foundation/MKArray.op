@@ -6,6 +6,8 @@
  *
  * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
  *
+ * Portions based on CPArray.j (12/04/2010) in Cappuccino (http://www.cappuccino.org/)
+ *
  * Moka/Objective-PHP is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,10 +23,13 @@
  */
 
 @import <Foundation/MKObject.op>
+@import <Foundation/MKRange.op>
+@import <Foundation/MKObjPHPRuntime.op>
+@import <Foundation/MKException.op>
 
-const MKBinarySearchingFirstEqual       = 0;
-const MKBinarySearchingLastEqual        = 1;
-const MKBinarySearchingInsertionIndex   = 2;
+const MKBinarySearchingFirstEqual       = 0,
+      MKBinarySearchingLastEqual        = 1,
+      MKBinarySearchingInsertionIndex   = 2;
 
 @implementation MKArray : MKObject
 {
@@ -43,6 +48,11 @@ const MKBinarySearchingInsertionIndex   = 2;
     return [[$this alloc] initWithArray:$anArray];
 }
 
++ (id)arrayWithPHPArray:(array)anArray
+{
+    return [[$this alloc] initWithPHPArray:$anArray];
+}
+
 //Creates and returns an array containing the contents of the file specified by a given path.
 + (id)arrayWithContentsOfFile:(MKString *)aPath
 {
@@ -58,7 +68,7 @@ const MKBinarySearchingInsertionIndex   = 2;
 //Creates and returns an array containing a given object.
 + (id)arrayWithObject:(id)anObject
 {
-    return [[$this alloc] initWithObject:$anObject];
+    return [[$this alloc] initWithObjects:$anObject count:1];
 }
 
 /* VAR ARGS NOT SUPPORTED YET
@@ -69,7 +79,7 @@ const MKBinarySearchingInsertionIndex   = 2;
 */
 
 //Creates and returns an array that includes a given number of objects from a given C array.
-+ (id)arrayWithObjects:(const id *)objects count:(MKUInteger)count
++ (id)arrayWithObjects:(const id *)objects count:(uint)count
 {
     return [[$this alloc] initWithPHPArray:$objects count:$count];
 }
@@ -93,11 +103,13 @@ const MKBinarySearchingInsertionIndex   = 2;
 //Returns a Boolean value that indicates whether a given object is present in the receiver.
 - (BOOL)containsObject:(id)anObject
 {
+    return [$self indexOfObject:$anObject] != MKNotFound;
 }
 
 //Returns the number of objects currently in the receiver.
-- (MKUInteger)count
+- (uint)count
 {
+    return count($self->_array);
 }
 
 //Returns a string that represents the contents of the receiver, formatted as a property list.
@@ -111,22 +123,22 @@ const MKBinarySearchingInsertionIndex   = 2;
 }
 
 //Returns a string that represents the contents of the receiver, formatted as a property list.
-- (MKString *)descriptionWithLocale:(id)locale indent:(MKUInteger)level
+- (MKString *)descriptionWithLocale:(id)locale indent:(uint)level
 {
 }
 
 //Executes a given block using the objects in the receiver at the specified indexes.
-- (void)enumerateObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)block
+- (void)enumerateObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, uint idx, BOOL *stop)*/)block
 {
 }
 
 //Executes a given block using each object in the receiver, starting with the first object and continuing through the array to the last object.
-- (void)enumerateObjectsUsingBlock:(void /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)block
+- (void)enumerateObjectsUsingBlock:(void /*(^)(id obj, uint idx, BOOL *stop)*/)block
 {
 }
 
 //Executes a given block using each object in the receiver.
-- (void)enumerateObjectsWithOptions:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)block
+- (void)enumerateObjectsWithOptions:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, uint idx, BOOL *stop)*/)block
 {
 }
 
@@ -136,57 +148,117 @@ const MKBinarySearchingInsertionIndex   = 2;
 }
 
 //Returns the indexes, from a given set of indexes, of objects in the receiver that pass a test in a given Block for a given set of enumeration options.
-- (MKIndexSet *)indexesOfObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+- (MKIndexSet *)indexesOfObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
 }
 
 //Returns the indexes of objects in the receiver that pass a test in a given Block.
-- (MKIndexSet *)indexesOfObjectsPassingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+- (MKIndexSet *)indexesOfObjectsPassingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
 }
 
 //Returns the indexes of objects in the receiver that pass a test in a given Block for a given set of enumeration options.
-- (MKIndexSet *)indexesOfObjectsWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+- (MKIndexSet *)indexesOfObjectsWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
 }
 
+// TODO: Check these actually return correct results (== vs ===)
 //Returns the lowest index whose corresponding array value is equal to a given object.
-- (MKUInteger)indexOfObject:(id)anObject
+- (uint)indexOfObject:(id)anObject
 {
+    if ($anObject === nil)
+        return CPNotFound;
+
+    $count = count($self->_array);
+
+    for ($i = 0; $i < $count; ++$i)
+        if (is_object($self->_array[$i]) && isset($self->_array[$i]->isa))
+        {
+            if ([$self->_array[$i] isEqual:$anObject])
+                return $i;
+        }
+        else
+        {
+            if ($self->_array[$i] === $anObject)
+                return $i;
+        }
+
+    return MKNotFound;
 }
 
+// TODO: Check these actually return correct results (== vs ===)
 //Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-- (MKUInteger)indexOfObject:(id)anObject inRange:(MKRange)range
+- (uint)indexOfObject:(id)anObject inRange:(MKRange)aRange
 {
+    if ($anObject === nil)
+        return CPNotFound;
+
+    $count = min(MKMaxRange($aRange), count($self->_array));
+
+    for ($i = $aRange->location; $i < $count; ++$i)
+        if (is_object($self->_array[$i]) && isset($self->_array[$i]->isa))
+        {
+            if ([$self->_array[$i] isEqual:$anObject])
+                return $i;
+        }
+        else
+        {
+            if ($self->_array[$i] === $anObject)
+                return $i;
+        }
+
+    return MKNotFound;
 }
 
 //Returns the index, within a specified range, of an object compared with elements in the receiver using a given MKComparator block.
-- (MKUInteger)indexOfObject:(id)obj inSortedRange:(MKRange)r options:(MKBinarySearchingOptions)opts usingComparator:(MKComparator)cmp
+- (uint)indexOfObject:(id)obj inSortedRange:(MKRange)r options:(MKBinarySearchingOptions)opts usingComparator:(MKComparator)cmp
 {
 }
 
 //Returns the index, from a given set of indexes, of the first object in the receiver that passes a test in a given Block for a given set of enumeration options.
-- (MKUInteger)indexOfObjectAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+- (uint)indexOfObjectAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
 }
 
+// TODO: Check these actually return correct results (== vs ===)
 //Returns the lowest index whose corresponding array value is identical to a given object.
-- (MKUInteger)indexOfObjectIdenticalTo:(id)anObject
+- (uint)indexOfObjectIdenticalTo:(id)anObject
 {
+    if ($anObject === nil)
+        return CPNotFound;
+
+    $count = count($self->_array);
+
+    for ($i = 0; $i < $count; ++$i)
+        if ($self->_array[$i] === $anObject)
+            return $i;
+
+    return MKNotFound;
 }
 
+// TODO: Check these actually return correct results (== vs ===)
 //Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-- (MKUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(MKRange)range
+- (uint)indexOfObjectIdenticalTo:(id)anObject inRange:(MKRange)aRange
 {
+    if ($anObject === nil)
+        return CPNotFound;
+
+    $count = min(MKMaxRange($aRange), count($self->_array));
+
+    for ($i = $aRange->location; $i < $count; ++$i)
+        if ($self->_array[$i] === $anObject)
+            return $i;
+
+    return MKNotFound;
 }
 
 //Returns the index of the first object in the receiver that passes a test in a given Block.
-- (MKUInteger)indexOfObjectPassingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+- (uint)indexOfObjectPassingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
 }
 
 //Returns the index of the first object in the receiver that passes a test in a given Block for a given set of enumeration options.
-- (MKUInteger)indexOfObjectWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, MKUInteger idx, BOOL *stop)*/)predicate
+- (uint)indexOfObjectWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
 }
 
@@ -228,9 +300,26 @@ const MKBinarySearchingInsertionIndex   = 2;
 }
 
 //Initializes a newly allocated array using anArray as the source of data objects for the array.
-- (id)initWithArray:(MKArray *)array copyItems:(BOOL)flag
+- (id)initWithArray:(MKArray *)anArray copyItems:(BOOL)flag
 {
-    throw new NotImplementedException($_cmd);
+    if (!flag)
+        return [$self initWithArray:$anArray];
+
+    $self = [super init];
+
+    if ($self)
+    {
+        $count = [$anArray count];
+
+        for($index = 0; $index < $count; ++$index)
+        {
+            // Do a deep/shallow copy?
+            if (is_object($anArray[$index]) && isset($anArray[$index]->isa))
+                $self->_array[$index] = [$anArray[$index] copy];
+            else
+                $self->_array[$index] = $anArray[$index];
+        }
+    }
 }
 
 //Initializes a newly allocated array with the contents of the file specified by a given path.
@@ -253,15 +342,28 @@ Initializes a newly allocated array by placing in it the objects in the argument
 */
 
 //Initializes a newly allocated array to include a given number of objects from a given C array.
-- (id)initWithObjects:(const id *)objects count:(MKUInteger)count
+- (id)initWithObjects:(const id *)objects count:(uint)count
 {
-    return [[$this alloc] initWithPHPArray:$objects count:$count];
+    if (is_array(objects))
+        return [$self initWithPHPArray:$objects count:$count];
+    else
+        return [$self initWithPHPArray:array($objects) count:$count];
 }
 
 //Compares the receiving array to another array.
 - (BOOL)isEqualToArray:(MKArray *)otherArray
 {
     return (count(array_diff($self->_array, [$otherArray PHParray])))?(YES):(NO);
+}
+
+//Returns the object in the array with the highest index value.
+- (id)lastObject
+{
+    $count = count($self->_array);
+
+    if (!$count) return nil;
+
+    return $self->_array[$count - 1];
 }
 
 //Sends to each object in the receiver the message identified by a given selector, starting with the first object and continuing through the array to the last object.
@@ -281,8 +383,11 @@ Initializes a newly allocated array by placing in it the objects in the argument
 }
 
 //Returns the object located at index.
-- (id)objectAtIndex:(MKUInteger)index
+- (id)objectAtIndex:(uint)index
 {
+    if ($index >= count($self->_array) || $index < 0)
+        [MKException raise:MKRangeException reason:("index ($index) is beyond array bounds (".count($self->_array).")")];
+
     return $self->_array[$index];
 }
 

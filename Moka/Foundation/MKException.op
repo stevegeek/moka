@@ -1,0 +1,96 @@
+<?php
+/*
+ * MKException.op
+ *
+ * Copyright 2009, 2010 Stephen Paul Ierodiaconou
+ *
+ * This file is part of Moka/Objective-PHP <http://www.atimport.net/>.
+ *
+ * Portions based on CPException.j (12/04/2010) in Cappuccino (http://www.cappuccino.org/)
+ *
+ * Moka/Objective-PHP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moka/Objective-PHP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@import <Foundation/MKObject.op>
+@import <Foundation/MKString.op>
+
+const MKInvalidArgumentException          = "KMInvalidArgumentException",
+      MKUnsupportedMethodException        = "MKUnsupportedMethodException",
+      MKRangeException                    = "MKRangeException",
+      MKInternalInconsistencyException    = "MKInternalInconsistencyException";
+
+@implementation MKException : MKObject
+{
+    MKString message;
+    MKString name;
+    id _userInfo;
+}
+
++ (void)raise:(MKString)aName reason:(MKString)aReason
+{
+    [[$this exceptionWithName:$aName reason:$aReason userInfo:nil] raise];
+}
+
++ (CPException)exceptionWithName:(CPString)aName reason:(CPString)aReason userInfo:(CPDictionary)aUserInfo
+{
+    return [[$this alloc] initWithName:$aName reason:$aReason userInfo:$aUserInfo];
+}
+
+- (id)initWithName:(MKString)aName reason:(MKString)aReason userInfo:(MKDictionary)aUserInfo
+{
+    $self = [super init];
+
+    if ($self)
+    {
+        $self->name = $aName;
+        $self->message = $aReason;
+        $self->_userInfo = $aUserInfo;
+    }
+
+    return $self;
+}
+
+- (MKString)name
+{
+    return $self->name;
+}
+
+- (MKString)reason
+{
+    return $self->message;
+}
+
+- (MKDictionary)userInfo
+{
+    return $self->_userInfo;
+}
+
+/*!
+    Returns the exception's reason.
+*/
+- (MKString)description
+{
+    return $self->message;
+}
+
+/*!
+    Raises the exception and causes the program to go to the exception handler.
+*/
+- (void)raise
+{
+    throw new \ObjPHP\RuntimeException($self->name.": ".$self->message, \ObjPHP\RUNTIME_ERROR);
+}
+
+
+@end

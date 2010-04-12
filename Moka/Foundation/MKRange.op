@@ -20,3 +20,16 @@
  * along with Moka/Objective-PHP.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// make a range object
+function MKMakeRange($location, $length)
+{
+    $obj->location = $location;
+    $obj->length = $length;
+    return $obj;
+}
+
+// The range maximum, its location + length
+function MKMaxRange($aRange)
+{
+    return $aRange->location + $aRange->length;
+}

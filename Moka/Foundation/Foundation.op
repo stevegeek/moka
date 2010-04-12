@@ -21,23 +21,10 @@
  */
 
 // Include base Moka
+@import <Foundation/MKObjPHPRuntime.op>
 @import <Foundation/MKObject.op>
 @import <Foundation/MKLog.op>
 @import <Foundation/MKArray.op>
 @import <Foundation/MKString.op>
 @import <Foundation/MKDictionary.op>
 @import <Foundation/MKKeyedArchiver.op>
-
-// Foundation functions
-
-// 'Selector' is used in cocoa to mean the SEL compile time object of a method name.
-// So the following function converts from a SEL to a string of the method name.
-function MKStringFromSelector($methodName)
-{
-    return \ObjPHP\selectorFromMethodName($methodName);
-}
-// and vice versa
-function MKSelectorFromString($sel) // return method name from a selector string
-{
-    return \ObjPHP\methodNameFromSelector($sel);
-}
