@@ -1949,7 +1949,7 @@ class Parser
     // nil and Nil
     private function terminalNil($startToken)
     {
-        return "false";
+        return "null";
     }
 
     private function terminalIsPHPCastKeyword($t)
