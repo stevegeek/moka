@@ -353,7 +353,12 @@ class PreProcessor
         }
         catch(\ObjPHP\ParseException $e)
         {
-            objphp_log("Failed\n---\n".$e->getFormattedError()."\n");
+            objphp_log("Failed with Parse Error\n---\n".$e->getFormattedError()."\n");
+            return false;
+        }
+        catch(\ObjPHP\RuntimeException $e)
+        {
+            objphp_log("Failed with Runtime Error\n---\nR".$e->getMessage()."\n");
             return false;
         }
         catch(\ObjPHP\CountableException $e)
