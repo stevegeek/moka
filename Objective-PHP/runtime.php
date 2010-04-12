@@ -285,12 +285,12 @@ class PreProcessor
         }
         catch(\ObjPHP\ParseException $e)
         {
-            MKLog("Failed\n---\n".$e->getFormattedError()."\n");
+            \ObjPHP\_objphp_log("Failed\n---\n".$e->getFormattedError()."\n");
             return false;
         }
         catch(\ObjPHP\CountableException $e)
         {
-            MKLog("Failed\n---\n".$e->getMessage()."\n");
+            \ObjPHP\_objphp_log("Failed\n---\n".$e->getMessage()."\n");
             return false;
         }
     }
