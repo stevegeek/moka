@@ -23,7 +23,6 @@ What?
 -----
 * A strict superset of PHP (you can use normal PHP anywhere and as much as you like)
 * Smalltalk 80 / Objective-C object model
-* Lovely Smalltalk square bracket syntax
 * Dynamic dispatch and delegate programming
 * A programming philosophy
 
