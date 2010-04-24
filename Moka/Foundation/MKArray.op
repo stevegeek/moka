@@ -87,17 +87,43 @@ const MKBinarySearchingFirstEqual       = 0,
 //Returns a new array that is a copy of the receiver with a given object added to the end.
 - (MKArray *)arrayByAddingObject:(id)anObject
 {
-    //Returns a new array that is a copy of the receiver with a given object added to the end.
+    if ($anObject === nil )
+        [MKException raise:MKInvalidArgumentException 
+                     reason:"arrayByAddingObject: object can't be nil"];
+
+    $arr = [$self copy];
+    [$arr addObject:$anObject];
+    return $arr;
 }
 
 //Returns a new array that is a copy of the receiver with the objects contained in another array added to the end.
 - (MKArray *)arrayByAddingObjectsFromArray:(MKArray *)otherArray
 {
+    $arr = [$self copy];
+    [$arr addObjectsFromPHPArray:[$otherArray PHParray]];
+    return $arr;
 }
 
 //Constructs and returns an MKString object that is the result of interposing a given separator between the elements of the receiver’s array.
 - (MKString *)componentsJoinedByString:(MKString *)separator
 {
+    $desc = array();
+    foreach ($self->_array as $object)
+    {
+        if (isset($object->isa))
+            $desc[] = [$object description];
+        else
+        {
+            if (is_object($object))
+                $desc[] = "aPHPObject";            
+            else if (is_null($object))
+                $desc[] = "null";
+            else
+                $desc[] = "".$object;
+        }
+    }
+    return implode([$separator description], $desc);
+
 }
 
 //Returns a Boolean value that indicates whether a given object is present in the receiver.
@@ -115,51 +141,64 @@ const MKBinarySearchingFirstEqual       = 0,
 //Returns a string that represents the contents of the receiver, formatted as a property list.
 - (MKString *)description
 {
+    // FIXME: not a plist
+    return [$self componentsJoinedByString:[MKString stringWithString:","]];
 }
 
 //Returns a string that represents the contents of the receiver, formatted as a property list.
 - (MKString *)descriptionWithLocale:(id)locale
 {
+    // TODO: not fully implemented
+    return [$self description];
 }
 
 //Returns a string that represents the contents of the receiver, formatted as a property list.
 - (MKString *)descriptionWithLocale:(id)locale indent:(uint)level
 {
+    // TODO: not fully implemented
+    return [$self description];
 }
 
 //Executes a given block using the objects in the receiver at the specified indexes.
 - (void)enumerateObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, uint idx, BOOL *stop)*/)block
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Executes a given block using each object in the receiver, starting with the first object and continuing through the array to the last object.
 - (void)enumerateObjectsUsingBlock:(void /*(^)(id obj, uint idx, BOOL *stop)*/)block
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Executes a given block using each object in the receiver.
 - (void)enumerateObjectsWithOptions:(MKEnumerationOptions)opts usingBlock:(void /*(^)(id obj, uint idx, BOOL *stop)*/)block
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Copies the objects contained in the receiver that fall within the specified range to aBuffer.
 - (void)getObjects:(id *)aBuffer range:(MKRange)aRange
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Returns the indexes, from a given set of indexes, of objects in the receiver that pass a test in a given Block for a given set of enumeration options.
 - (MKIndexSet *)indexesOfObjectsAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Returns the indexes of objects in the receiver that pass a test in a given Block.
 - (MKIndexSet *)indexesOfObjectsPassingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Returns the indexes of objects in the receiver that pass a test in a given Block for a given set of enumeration options.
 - (MKIndexSet *)indexesOfObjectsWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
+    throw new NotImplementedException($_cmd);
 }
 
 // TODO: Check these actually return correct results (== vs ===)
@@ -213,11 +252,13 @@ const MKBinarySearchingFirstEqual       = 0,
 //Returns the index, within a specified range, of an object compared with elements in the receiver using a given MKComparator block.
 - (uint)indexOfObject:(id)obj inSortedRange:(MKRange)r options:(MKBinarySearchingOptions)opts usingComparator:(MKComparator)cmp
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Returns the index, from a given set of indexes, of the first object in the receiver that passes a test in a given Block for a given set of enumeration options.
 - (uint)indexOfObjectAtIndexes:(MKIndexSet *)indexSet options:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
+    throw new NotImplementedException($_cmd);
 }
 
 // TODO: Check these actually return correct results (== vs ===)
@@ -255,11 +296,13 @@ const MKBinarySearchingFirstEqual       = 0,
 //Returns the index of the first object in the receiver that passes a test in a given Block.
 - (uint)indexOfObjectPassingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
+    throw new NotImplementedException($_cmd);
 }
 
 //Returns the index of the first object in the receiver that passes a test in a given Block for a given set of enumeration options.
 - (uint)indexOfObjectWithOptions:(MKEnumerationOptions)opts passingTest:(BOOL /*(^)(id obj, uint idx, BOOL *stop)*/)predicate
 {
+    throw new NotImplementedException($_cmd);
 }
 
 - (array)PHParray
@@ -459,6 +502,182 @@ Initializes a newly allocated array by placing in it the objects in the argument
 
 //Writes the contents of the receiver to the location specified by a given URL.
 - (BOOL)writeToURL:(MKURL *)aURL atomically:(BOOL)flag
+{
+    throw new NotImplementedException($_cmd);
+}
+
+// Mutable methods
+
+//Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
++ (id)arrayWithCapacity:(NSUInteger)numItems
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Inserts a given object at the end of the receiver.
+- (void)addObject:(id)anObject
+{
+    $self->_array[] = $anObject;
+}
+
+//Adds the objects contained in another given array to the end of the receiver’s content.
+- (void)addObjectsFromArray:(NSArray *)otherArray
+{
+}
+
+- (void)addObjectsFromPHPArray:(array)otherArray
+{   
+    foreach($otherArray as $obj)
+        $self->_array[] = $obj;
+}
+
+
+//Exchanges the objects in the receiver at given indices.
+- (void)exchangeObjectAtIndex:(NSUInteger)idx1 withObjectAtIndex:(NSUInteger)idx2
+{
+    throw new NotImplementedException($_cmd);
+}
+    
+//Evaluates a given predicate against the receiver’s content and leaves only objects that match
+- (void)filterUsingPredicate:(NSPredicate *)predicate
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Returns an array, initialized with enough memory to initially hold a given number of objects.
+- (id)initWithCapacity:(NSUInteger)numItems
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Inserts a given object into the receiver's contents at a given index.
+- (void)insertObject:(id)anObject atIndex:(NSUInteger)index
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Inserts the objects in in a given array into the receiver at the specified indexes.
+- (void)insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexes
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Empties the receiver of all its elements.
+- (void)removeAllObjects
+{
+    $self->_array = array();
+}
+
+//Removes the object with the highest-valued index in the receiver
+- (void)removeLastObject
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes all occurrences in the receiver of a given object.
+- (void)removeObject:(id)anObject
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes all occurrences within a specified range in the receiver of a given object.
+- (void)removeObject:(id)anObject inRange:(NSRange)aRange
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes the object at index .
+- (void)removeObjectAtIndex:(NSUInteger)index
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes all occurrences of a given object in the receiver.
+- (void)removeObjectIdenticalTo:(id)anObject
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes all occurrences of anObject within the specified range in the receiver.
+- (void)removeObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes the objects at the specified indexes from the receiver.
+- (void)removeObjectsAtIndexes:(NSIndexSet *)indexes
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes from the receiver the objects in another given array.
+- (void)removeObjectsInArray:(NSArray *)otherArray
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Removes from the receiver each of the objects within a given range.
+- (void)removeObjectsInRange:(NSRange)aRange
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Replaces the object at index with anObject.
+- (void)replaceObjectAtIndex:(NSUInteger)index withObject:(id)anObject
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Replaces the objects in the receiver at specified locations specified with the objects from a given array.
+- (void)replaceObjectsAtIndexes:(NSIndexSet *)indexes withObjects:(NSArray *)objects
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Replaces the objects in the receiver specified by a given range with all of the objects from a given array.
+- (void)replaceObjectsInRange:(NSRange)aRange withObjectsFromArray:(NSArray *)otherArray
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Replaces the objects in the receiver specified by one given range with the objects in another array specified by another range.
+- (void)replaceObjectsInRange:(NSRange)aRange withObjectsFromArray:(NSArray *)otherArray range:(NSRange)otherRange
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Sets the receiver’s elements to those in another given array.
+- (void)setArray:(NSArray *)otherArray
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Sorts the receiver using the comparison method specified by a given NSComparator Block.
+- (void)sortUsingComparator:(NSComparator)cmptr
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Sorts the receiver using a given array of sort descriptors.
+- (void)sortUsingDescriptors:(NSArray *)sortDescriptors
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Sorts the receiver’s elements in ascending order as defined by the comparison function compare.
+- (void)sortUsingFunction:(NSInteger /*(*)(id, id, void *)*/)compare context:(void *)context
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Sorts the receiver’s elements in ascending order, as determined by the comparison method specified by a given selector.
+- (void)sortUsingSelector:(SEL)comparator
+{
+    throw new NotImplementedException($_cmd);
+}
+
+//Sorts the receiver using the specified options and the comparison method specified by a given NSComparator Block.
+- (void)sortWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmptr
 {
     throw new NotImplementedException($_cmd);
 }
