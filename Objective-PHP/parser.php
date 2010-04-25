@@ -1296,7 +1296,6 @@ class Parser
                     $useToken = PARSER_USE;
                     break;
 
-                case T_ENCAPSED_AND_WHITESPACE:
                 case T_WHITESPACE:
                     if ($stopOnWhitespaceAndClosingSymbols || (preg_match('/^[^\n\s]*\n/', $t[2]) != 0))
                     {
@@ -1448,15 +1447,6 @@ class Parser
                         $s = 10;
                         $useToken = PARSER_USE;
                     }
-                    /*else if ($s == S_FIRST && $t[0] == T_STRING)
-                    {
-                        // FIXME: expression, but! the  what about String::something()
-                        if ($t[2] != 'super' && !$this->reflectionClassExists($t[2]))
-                            $this->syntaxError($firstToken, "Receiver class (".$t[2].") does not exist or has not yet been encountered: ",PARSE_ERR_UNDEF_RECEIVER);
-                        $receiver = array('type'=>'s','value'=>$t[2]);
-                        $s = 2;
-                        $useToken = PARSER_USE;
-                    }*/
                     else if (($s == S_FIRST || $s == 2) &&
                         ($this->terminalIsPHPKeyword($t) || $t[0] == T_STRING))
                     {
