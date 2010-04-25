@@ -100,7 +100,7 @@ const MKBinarySearchingFirstEqual       = 0,
 - (MKArray *)arrayByAddingObjectsFromArray:(MKArray *)otherArray
 {
     $arr = [$self copy];
-    [$arr addObjectsFromPHPArray:[$otherArray PHParray]];
+    [$arr addObjectsFromArray:$otherArray];
     return $arr;
 }
 
@@ -509,9 +509,9 @@ Initializes a newly allocated array by placing in it the objects in the argument
 // Mutable methods
 
 //Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
-+ (id)arrayWithCapacity:(NSUInteger)numItems
++ (id)arrayWithCapacity:(int)numItems
 {
-    throw new NotImplementedException($_cmd);
+    return [[$self alloc] initWithCapacity:$numItems];
 }
 
 //Inserts a given object at the end of the receiver.
@@ -521,8 +521,10 @@ Initializes a newly allocated array by placing in it the objects in the argument
 }
 
 //Adds the objects contained in another given array to the end of the receiver’s content.
-- (void)addObjectsFromArray:(NSArray *)otherArray
+- (void)addObjectsFromArray:(MKArray)otherArray
 {
+    foreach([$otherArray PHPArray] as $obj)
+        $self->_array[] = $obj;
 }
 
 - (void)addObjectsFromPHPArray:(array)otherArray
@@ -531,11 +533,12 @@ Initializes a newly allocated array by placing in it the objects in the argument
         $self->_array[] = $obj;
 }
 
-
 //Exchanges the objects in the receiver at given indices.
-- (void)exchangeObjectAtIndex:(NSUInteger)idx1 withObjectAtIndex:(NSUInteger)idx2
+- (void)exchangeObjectAtIndex:(int)idx1 withObjectAtIndex:(int)idx2
 {
-    throw new NotImplementedException($_cmd);
+    $temp = $self->_array[$idx1];
+    $self->_array[$idx1] = $self->_array[$idx2];
+    $self->_array[$idx2] = $temp;
 }
     
 //Evaluates a given predicate against the receiver’s content and leaves only objects that match
@@ -545,21 +548,38 @@ Initializes a newly allocated array by placing in it the objects in the argument
 }
 
 //Returns an array, initialized with enough memory to initially hold a given number of objects.
-- (id)initWithCapacity:(NSUInteger)numItems
+- (id)initWithCapacity:(int)numItems
 {
-    throw new NotImplementedException($_cmd);
+    return $self;
 }
 
 //Inserts a given object into the receiver's contents at a given index.
-- (void)insertObject:(id)anObject atIndex:(NSUInteger)index
+- (void)insertObject:(id)anObject atIndex:(int)index
 {
-    throw new NotImplementedException($_cmd);
+    $arr = array_slice($self->_array, 0, $index);
+    $arr[] = $anObject;
+ 
+    $self->_array = array_merge($arr, array_slice($self->_array, $index));
 }
 
 //Inserts the objects in in a given array into the receiver at the specified indexes.
-- (void)insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexes
+- (void)insertObjects:(MKArray)objects atIndexes:(MKIndexSet)indexes
 {
-    throw new NotImplementedException($_cmd);
+    $indexesCount = [$indexes count];
+    $objectsCount = [$objects count];
+    
+    if ($indexesCount !== $objectsCount)
+        [MKException raise:MKRangeException reason:"the counts of the passed-in array ($objectsCount) and index set ($indexesCount) must be identical."];
+    
+    $lastIndex = [$indexes lastIndex];
+    
+    if ($lastIndex >= [$self count] + $indexesCount)
+        [MKException raise:MKRangeException reason:"the last index ($lastIndex) must be less than the sum of the original count (".[$self count].") and the insertion count ($indexesCount)."];    
+    
+    $currentIndex = [$indexes firstIndex];
+ 
+    for ($index = 0; $index < $objectsCount; ++$index, $currentIndex = [$indexes indexGreaterThanIndex:$currentIndex])
+        [$self insertObject:$objects[$index] atIndex:$currentIndex];
 }
 
 //Empties the receiver of all its elements.
