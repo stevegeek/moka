@@ -327,11 +327,17 @@ const MKBinarySearchingFirstEqual       = 0,
     return $self;
 }
 
-- (id)initWithPHPArray:(PHPArray)ar count:cnt
+- (id)initWithPHPArray:(PHPArray)ar count:(int)cnt
 {
+    //$self->_array = array_slice($ar, 0, $cnt);
     if ($self = [super init])
     {
-        $self->_array = array_slice($ar, 0, $cnt);
+        for ($index = 0; $index < $cnt; $index++)
+        {
+            if ($ar[$index] === nil)
+                [MKException raise:MKInvalidArgumentException reason:"initWithPHPArray:count: object can't be nil"];
+            $self->_array = $ar[$index];
+        }
     }
     return $self;
 }
@@ -387,10 +393,19 @@ Initializes a newly allocated array by placing in it the objects in the argument
 //Initializes a newly allocated array to include a given number of objects from a given C array.
 - (id)initWithObjects:(const id *)objects count:(uint)count
 {
-    if (is_array(objects))
-        return [$self initWithPHPArray:$objects count:$count];
-    else
-        return [$self initWithPHPArray:array($objects) count:$count];
+    if (!is_array($objects))
+        $objects = array($objects);
+
+    if ($self = [super init])
+    {
+        for ($index = 0; $index < $count; $index++)
+        {
+            if ($objects[$index] === nil)
+                [MKException raise:MKInvalidArgumentException reason:"initWithObjects:count: object can't be nil"];
+            $self->_array = $objects[$index];
+        }
+    }
+    return $self;
 }
 
 //Compares the receiving array to another array.
@@ -517,6 +532,8 @@ Initializes a newly allocated array by placing in it the objects in the argument
 //Inserts a given object at the end of the receiver.
 - (void)addObject:(id)anObject
 {
+    if ($anObject === nil)
+        [MKException raise:MKInvalidArgumentException reason:"addObject: object can't be nil"];
     $self->_array[] = $anObject;
 }
 
@@ -556,6 +573,9 @@ Initializes a newly allocated array by placing in it the objects in the argument
 //Inserts a given object into the receiver's contents at a given index.
 - (void)insertObject:(id)anObject atIndex:(int)index
 {
+    if ($anObject === nil)
+        [MKException raise:MKInvalidArgumentException reason:"insertObject:atIndex: object can't be nil"];
+        
     $arr = array_slice($self->_array, 0, $index);
     $arr[] = $anObject;
  
@@ -569,7 +589,7 @@ Initializes a newly allocated array by placing in it the objects in the argument
     $objectsCount = [$objects count];
     
     if ($indexesCount !== $objectsCount)
-        [MKException raise:MKRangeException reason:"the counts of the passed-in array ($objectsCount) and index set ($indexesCount) must be identical."];
+        [MKException raise:MKRangeException reason:"a"];//"the counts of the passed-in array ($objectsCount) and index set ($indexesCount) must be identical."];
     
     $lastIndex = [$indexes lastIndex];
     
