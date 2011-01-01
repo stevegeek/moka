@@ -29,21 +29,23 @@
 - (bool)runTest:name;
 @end
 
+const MKUnitTestAssertFailed = "MKUnitTestAssertFailed";
+
 // All tests inherit this
 @implementation UnitTest : MKObject <ITestable>
 
 - (bool)runTests
 {
-    MKLog("Begin tests '".[$self name]."'");
+    MKLog(">Begin tests '".[$self name]."'");
 
     try
     {
         // First attempt to call -setUp
         if (array_key_exists(@selector(setUp), $self->isa->dispatchTable))
         {
-            MKLog("Begin setup of tests:");
+            MKLog(">Begin setup of tests:");
             \ObjPHP\objphp_msgSend( $self, @selector(setUp), array());
-            MKLog("Success");
+            MKLog(">Success");
         }
 
         // call each method that has 'test' in the name
@@ -51,35 +53,35 @@
         {
             if (strpos($methodName, @selector(test)) !== 0)
                 continue;
-            MKLog("Method '".\ObjPHP\selectorFromMethodName($methodName)."' - ");
+            MKLog(">>Method '".\ObjPHP\selectorFromMethodName($methodName)."': ");
             \ObjPHP\objphp_msgSend( $self, $methodName, array());
-            MKLog("Success");
+            MKLog(">>Success");
         }
     }
     catch(\ObjPHP\ParseException $e)
     {
-        MKLog("Failed\n---\n".$e->getFormattedError());
+        MKLog(">Failed\n---\n".$e->getFormattedError());
     }
     catch(\ObjPHP\CountableException $e)
     {
-        MKLog("Failed\n---\n".$e->getMessage());
+        MKLog(">Failed\n---\n".$e->getMessage());
     }
     // If -shutdown exists call now
     if (array_key_exists(@selector(shutDown), $self->isa->dispatchTable))
     {
         try
         {
-            MKLog("Start shutdown of tests:");
+            MKLog(">Start shutdown of tests:");
             \ObjPHP\objphp_msgSend( $self, @selector(shutDown), array());
-            MKLog("Success");
+            MKLog(">Success");
         }
         catch(\ObjPHP\ParseException $e)
         {
-            MKLog("Failed\n---\n".$e->getFormattedError());
+            MKLog(">Failed\n---\n".$e->getFormattedError());
         }
         catch(\ObjPHP\CountableException $e)
         {
-            MKLog("Failed\n---\n".$e->getMessage());
+            MKLog(">Failed\n---\n".$e->getMessage());
         }
     }
 }
@@ -90,43 +92,68 @@
     $methodName = \ObjPHP\methodNameFromSelector('test'.$name);
     if (array_key_exists($methodName, $self->isa->dispatchTable))
     {
-        MKLog("Begin ".[$self name]);
+        MKLog(">Begin ".[$self name]);
 
         try
         {
-            MKLog("Method 'test".$name."' - ");
+            MKLog(">>Method 'test".$name."': ");
             \ObjPHP\objphp_msgSend( $self, $methodName, array());
-            MKLog("Success");
+            MKLog(">>Success");
         }
         catch(\ObjPHP\ParseException $e)
         {
-            MKLog("Failed\n---\n".$e->getFormattedError());
+            MKLog(">Failed\n---\n".$e->getFormattedError());
         }
         catch(\ObjPHP\CountableException $e)
         {
-            MKLog("Failed\n---\n".$e->getMessage());
+            MKLog(">Failed\n---\n".$e->getMessage());
         }
     }
     else
     {
-        MKLog("Failed\n---\nMethod with name 'test$name' not found in '".[$self name]."'.");
+        MKLog(">Failed\n---\nMethod with name 'test$name' not found in '".[$self name]."'.");
     }
 
 }
 
 - (bool)assertTrue:test
 {
-    return ($test)?(true):(false);
+    if ($test === YES)
+        return YES;
+    else
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'true', test value was '$test'")];
 }
 
 - (bool)assertFalse:test
 {
-    return (!$test)?(true):(false);
+    if ($test === NO)
+        return YES;
+    else
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'false', test value was '$test'")];
+}
+
+- (bool)assertNotTrue:test
+{
+    if ($test !== YES)
+        return YES;
+    else
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'not true', test value was '$test'")];
+}
+
+- (bool)assertNotFalse:test
+{
+    if ($test !== NO)
+        return YES;
+    else
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'not false', test value was '$test'")];
 }
 
 - (bool)assert:test1 equals:test2
 {
-    return ($test1 === $test2);
+    if ($test1 === $test2)
+        return YES;
+    else
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected '$test2' but was '$test1'")];
 }
 
 @end

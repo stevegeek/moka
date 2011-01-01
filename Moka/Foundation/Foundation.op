@@ -21,10 +21,11 @@
  */
 
 // Include base Moka
-@import <Foundation/MKObjPHPRuntime.op>
-@import <Foundation/MKObject.op>
-@import <Foundation/MKLog.op>
 @import <Foundation/MKArray.op>
-@import <Foundation/MKString.op>
 @import <Foundation/MKDictionary.op>
+@import <Foundation/MKException.op>
 @import <Foundation/MKKeyedArchiver.op>
+@import <Foundation/MKLog.op>
+@import <Foundation/MKObject.op>
+@import <Foundation/MKObjPHPRuntime.op>
+@import <Foundation/MKString.op>
