@@ -1,10 +1,24 @@
 <?php
 
 @implementation example : UnitTest
+{
+    string helloString;
+}
+
+- setUp
+{
+    $self->helloString = "HI\n";
+}
 
 - testMe
 {
-    echo "HI\n";
+    echo $self->helloString;
+}
+
+- shutDown
+{
+    echo "BYE!\n";
 }
 
 @end
+

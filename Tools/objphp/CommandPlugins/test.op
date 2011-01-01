@@ -34,17 +34,43 @@
 
 - (bool)runTests
 {
-    MKLog("Begin ".[$self name]);
+    MKLog("Begin tests '".[$self name]."'");
 
-    // call each method that has 'test' in the name
-    foreach($self->isa->dispatchTable as $methodName => $method)
+    try
     {
-        try
+        // First attempt to call -setUp
+        if (array_key_exists(@selector(setUp), $self->isa->dispatchTable))
         {
-            if (strstr($methodName, 'test') === false)
+            MKLog("Begin setup of tests:");
+            \ObjPHP\objphp_msgSend( $self, @selector(setUp), array());
+            MKLog("Success");
+        }
+
+        // call each method that has 'test' in the name
+        foreach($self->isa->dispatchTable as $methodName => $method)
+        {
+            if (strpos($methodName, @selector(test)) !== 0)
                 continue;
             MKLog("Method '".\ObjPHP\selectorFromMethodName($methodName)."' - ");
             \ObjPHP\objphp_msgSend( $self, $methodName, array());
+            MKLog("Success");
+        }
+    }
+    catch(\ObjPHP\ParseException $e)
+    {
+        MKLog("Failed\n---\n".$e->getFormattedError());
+    }
+    catch(\ObjPHP\CountableException $e)
+    {
+        MKLog("Failed\n---\n".$e->getMessage());
+    }
+    // If -shutdown exists call now
+    if (array_key_exists(@selector(shutDown), $self->isa->dispatchTable))
+    {
+        try
+        {
+            MKLog("Start shutdown of tests:");
+            \ObjPHP\objphp_msgSend( $self, @selector(shutDown), array());
             MKLog("Success");
         }
         catch(\ObjPHP\ParseException $e)
@@ -55,7 +81,6 @@
         {
             MKLog("Failed\n---\n".$e->getMessage());
         }
-
     }
 }
 
