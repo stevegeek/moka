@@ -109,10 +109,11 @@ function copyr($dirsource, $dirdest, $silence = false)
 ?>
     format: gen <Options> -t=<ProjectType> <ProjectName>
         Options:
-            -t, --type=<type>       : Project type (Default : console)
+            -t, --type=<type>       : Project type (Optional, Default : console)
             -a, --author=<name>     : Project Author (Optional, can be set with env var OBJPHP_PROJECT_AUTHOR)
             -e, --email=<email>     : Author Email (Optional, can be set with env var OBJPHP_PROJECT_EMAIL)
             -c, --copyright=<msg>   : Copyright message (Optional, can be set with env var OBJPHP_PROJECT_COPYRIGHT)
+            -z, --timezone=<zone>   : Default timezone for app (Optional, Default = "GMT")
             -l, --list              : List available project types
             -f, --force             : Force overwrite of existing project
             -s, --silent            : Silence output
@@ -130,6 +131,8 @@ function copyr($dirsource, $dirdest, $silence = false)
     $author         = getenv('OBJPHP_PROJECT_AUTHOR');
     $copyright      = getenv('OBJPHP_PROJECT_COPYRIGHT');
     $authorEmail    = getenv('OBJPHP_PROJECT_EMAIL');
+
+    $defaultTimeZone = "GMT";
 
     // parse args
     if ([$params count])
@@ -170,6 +173,10 @@ function copyr($dirsource, $dirdest, $silence = false)
             else if ($argname === 'c' || $argname === 'copyright')
             {
                 $copyright = $argval;
+            }
+            else if ($argname === 'z' || $argname === 'timezone')
+            {
+                $defaultTimeZone = $argval;
             }
             else if ($argname === 'f' || $argname === 'force')
             {
@@ -232,6 +239,7 @@ function copyr($dirsource, $dirdest, $silence = false)
                     $fileContents = str_replace("##Author##", $author, $fileContents);
                     $fileContents = str_replace("##AuthorEmail##", $authorEmail, $fileContents);
                     $fileContents = str_replace("##Date##", strftime("%c"), $fileContents);
+                    $fileContents = str_replace("##DefaultTimeZone##", $defaultTimeZone, $fileContents);
                     if (!file_put_contents($filename, $fileContents))
                         throw new \ObjPHP\CountableException("The bootstrap file '$filename' could not be written. Make sure you have write permissions.");
                 }
@@ -247,6 +255,7 @@ function copyr($dirsource, $dirdest, $silence = false)
                     $fileContents = str_replace("##Author##", $author, $fileContents);
                     $fileContents = str_replace("##AuthorEmail##", $authorEmail, $fileContents);
                     $fileContents = str_replace("##Date##", strftime("%c"), $fileContents);
+                    $fileContents = str_replace("##DefaultTimeZone##", $defaultTimeZone, $fileContents);
                     if (!file_put_contents($filename, $fileContents))
                         throw new \ObjPHP\CountableException("The debug bootstrap file '$filename' could not be written. Make sure you have write permissions.");
                 }

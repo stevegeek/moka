@@ -10,6 +10,8 @@
 
 const _DEBUG_ = true;
 
+date_default_timezone_set("##DefaultTimeZone##");
+
 define('OBJPHP_INCLUDE_PATH', getenv('OBJPHP'));
 define('OBJPHP_APP_PATH', __DIR__);
 
