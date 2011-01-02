@@ -25,10 +25,6 @@ namespace ObjPHP;
 include_once "Objective-PHP/tokenizer.php";
 include_once "Objective-PHP/parser.php";
 
-// Objective-PHP constants
-const YES = true;
-const NO = false;
-
 // Error Codes
 const UNDEF_ERR                     = 0;
 const RUNTIME_ERROR                 = 1;
@@ -96,7 +92,7 @@ class _runtimeclass extends _class
         if (array_key_exists($methodName,$this->dispatchTable))
             return $this->dispatchTable[$methodName]['dispatchmethod'];
 
-        return NO;
+        return false;
     }
 
     public function hasMethodWithMethodName($methodName)
@@ -104,7 +100,7 @@ class _runtimeclass extends _class
         if (array_key_exists($methodName,$this->dispatchTable))
             return $this->dispatchTable[$methodName]['dispatchmethod'];
 
-        return NO;
+        return false;
     }
 
     public function getMethodFromDispatchTable($sel)

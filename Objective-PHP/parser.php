@@ -422,6 +422,17 @@ class Parser
                     }
                     break;
 
+                case T_OBJPHP_YES:
+                case T_OBJPHP_NO:
+                    if ($s == 43)
+                    {
+                        // initial as number
+                        $iVarInitialValue = $this->terminalYesNo($t);
+                        $s = 44;
+                        $useToken = PARSER_USE;
+                    }
+                    break;
+
                 case T_OBJPHP_SELECTOR:
                     if ($s == 43)
                     {
@@ -1216,6 +1227,13 @@ class Parser
                     $s = S_FIRST;
                     break;
 
+                case T_OBJPHP_YES:
+                case T_OBJPHP_NO:
+                    $code .= $this->terminalYesNo($t);
+                    $useToken = PARSER_USE;
+                    $s = S_FIRST;
+                    break;
+
                 case '{':
                     $code .= $this->ruleFunctionBlock($t,$convertSelf, $convertThis);
                     $useToken = PARSER_LEAVE;
@@ -1934,6 +1952,12 @@ class Parser
             $this->syntaxError($firstToken, "Unexpected end of file while parsing ".(($methodType=='c')?("class"):("instance"))." method: ",PARSE_ERR_UNEX_EOF);
 
         return $type;
+    }
+
+    // YES & NO
+    private function terminalYesNo($startToken)
+    {
+        return ($startToken[0] == T_OBJPHP_YES)?("true"):("false");
     }
 
     // nil and Nil

@@ -48,8 +48,10 @@ const T_OBJPHP_SUPER =          10020; //$super
 const T_OBJPHP_SELF =           10021; //$self: (Note: self (no $) is reserved)
 const T_OBJPHP_NIL =            10022; //nil
 const T_OBJPHP_OBJNIL =         10023; //Nil
-const T_OBJPHP_THIS =           10024; //$this: (In instance methods this is
-                                       //        replaced by $_op_receiver)
+const T_OBJPHP_THIS =           10024; //$this: (In instance methods this is replaced by $_op_receiver)
+const T_OBJPHP_YES =            10025;
+const T_OBJPHP_NO =             10026;
+
 // Tokenizer
 class Tokenizer extends \ArrayObject
 {
@@ -234,6 +236,14 @@ class Tokenizer extends \ArrayObject
                             case 'Nil':
                                 $id = T_OBJPHP_OBJNIL;
                                 $t_name = "T_OBJPHP_OBJNIL";
+                                break;
+                            case 'NO':
+                                $id = T_OBJPHP_NO;
+                                $t_name = "T_OBJPHP_NO";
+                                break;
+                            case 'YES':
+                                $id = T_OBJPHP_YES;
+                                $t_name = "T_OBJPHP_YES";
                                 break;
                         }
 
