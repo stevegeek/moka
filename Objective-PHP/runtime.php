@@ -26,17 +26,17 @@ include_once "Objective-PHP/tokenizer.php";
 include_once "Objective-PHP/parser.php";
 
 // Error Codes
-const UNDEF_ERR                     = 0;
-const RUNTIME_ERROR                 = 1;
-const RUNTIME_IMPORTPARSER_ERROR    = 2;
-const RUNTIME_STUBMETHOD_ERROR      = 3;
+define("UNDEF_ERR",                     0);
+define("RUNTIME_ERROR",                 1);
+define("RUNTIME_IMPORTPARSER_ERROR",    2);
+define("RUNTIME_STUBMETHOD_ERROR",      3);
 
 // Internal Constants
-const _METHOD_CAT           = 1;
-const _METHOD_CLASS         = 2;
-const _CLS_META             = 1;
-const _CLS_CLASS            = 2;
-const _CLS_PROTOCOL         = 3;
+define("_METHOD_CAT",   1);
+define("_METHOD_CLASS", 2);
+define("_CLS_META",     1);
+define("_CLS_CLASS",    2);
+define("_CLS_PROTOCOL", 4);
 
 // FIXME: DO AWAY WITH THIS ... simply at compile time pass the preprocessor to each method?
 $_objphp_preprocessor = null;
@@ -46,6 +46,27 @@ $_objphp_preprocessor = null;
 class _class
 {
     public $isa;
+    public $uid;
+    protected static $currentuid = 0;
+
+    protected function setUID()
+    {
+        $this->uid = static::$currentuid++;
+    }
+
+    public function __toString()
+    {
+        try
+        {
+            $sel = methodNameFromSelector('description');
+            if ($this->isa->hasMethod($sel))
+                return obj_msgSend($this, $sel, array());
+        }
+        catch (Exception $e)
+        {
+        }
+        return "[Instance object (".$this->uid.") of class '".$this->isa->name."']";
+    }
 }
 
 // The base runtime class for class and metaclasses
@@ -56,7 +77,7 @@ class _runtimeclass extends _class
     public $dispatchTable   = array();
     protected $protocols    = array();
     protected $version      = 0;
-    //protected $info;
+    protected $info         = 0;
     //protected $instance_size;
     // subclass_list
     // sibling_list
@@ -112,38 +133,66 @@ class _runtimeclass extends _class
         return $this->dispatchTable[$methodName]['pointer'];
     }
 
-    private function __clone()
-    {
+    private function __clone() { }
 
+    public function __toString()
+    {
+        try
+        {
+            $sel = methodNameFromSelector('description');
+            if ($this->hasMethod($sel))
+                return obj_msgSend($this, $sel, array());
+        }
+        catch (Exception $e)
+        {
+        }
+
+        if ($this->info == _CLS_CLASS)
+            $type = 'Class';
+        else
+            $type = 'Metaclass';
+        return "[$type object (".$this->uid.") of class '".$this->isa->name."']";
     }
 }
 
 // The base protocol object, a singleton version of an instance class
 class _protocol extends _class
 {
-    private function __clone()
-    {
+    private function __clone() {}
 
+    public function __toString()
+    {
+        return "[Protocol object (".$this->uid.") of class '".$this->isa->name."']";
     }
 }
 
-// Runtime logging
-function objphp_log()
+function objphp_sprintf()
 {
-    $argc = func_num_args();
+    //$argc = func_num_args();
     $argv = func_get_args();
+    // intercept objects and call description for %@
+    $format = array_shift($argv);
 
-    _objphp_log(vsprintf(array_shift($argv), $argv));
+    return vsprintf($format, $argv);
 }
 
-function _objphp_log($string)
+// Runtime logging
+
+function objphp_log()
 {
-    printf("[".objphp_logCurrentTimeStamp()."] ".$string."\n");
+    $argv = func_get_args();
+
+    _objphp_log(call_user_func_array("objphp_sprintf",$argv));
 }
 
 function objphp_logCurrentTimeStamp()
 {
     return strftime("%x %X");
+}
+
+function _objphp_log($string)
+{
+    printf("[".objphp_logCurrentTimeStamp()."] ".$string."\n");
 }
 
 function _objphp_print_trace()
@@ -169,6 +218,8 @@ function _objphp_print_trace()
     if ( $trace_calls == "" ) $trace_calls = "No functions were called." ;
     echo ( $trace_calls ) ;
 }
+
+// Runtime methods for message dispatch
 
 function nil_method( $receiver, $sel, $params )
 {

@@ -2285,7 +2285,9 @@ class Parser
         ".(($parentName)?("self::\$_instance->super_class = ".$parentclassprefix.$parentName."::getInstance();"):("self::\$_instance->super_class = null;"))."
             $protocolListSource
             $instMethodDTable
-        \ObjPHP\objphp_msgSend( self::\$_instance, \"m_initialize\", array());
+        self::\$_instance->setUID();
+        \ObjPHP\objphp_msgSend(self::\$_instance, \"m_initialize\", array());
+        self::\$_instance->name = \ObjPHP\objphp_msgSend(self::\$_instance, \"m_name\", array());
     }
     return self::\$_instance;
 }\n";
@@ -2298,6 +2300,7 @@ class Parser
         self::\$_instance->isa = ".(($parentName)?($rootmetaprefix.$rootobject."::getInstance();"):("null;"))."
             $classMethodDTable
             ".(($parentName)?("self::\$_instance->super_class = ".$parentmetaprefix.$parentName."::getInstance();"):("self::\$_instance->super_class = null;"))."
+        self::\$_instance->setUID();
     }
     return self::\$_instance;
 }\n";
@@ -2309,13 +2312,20 @@ class Parser
         self::\$_instance = new self();
         self::\$_instance->isa = $classprefix$name::getInstance();
         self::\$_instance->info = _CLS_PROTOCOL;
+        self::\$_instance->setUID();
     }
     return self::\$_instance;
 }\n";
 
         // Other necessary methods
-        $constructor = "function __construct() { }\n"; // FIXME: move constructor to objects def if never used here
-        $factory = "public function factory() { \$o = new ".$instprefix.$name."(); \$o->isa  = \$this; return \$o; }\n";
+        $constructor = "function __construct() { }\n";
+        $factory = "public function factory()
+{
+    \$o = new ".$instprefix.$name."();
+    \$o->isa  = \$this;
+    \$o->setUID();
+    return \$o;
+}\n";
         $inststatic = "private static \$_instance;\n"; // stays here to prevent LSB problem
 
         // create methods
