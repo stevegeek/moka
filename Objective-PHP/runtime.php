@@ -182,7 +182,7 @@ function objphp_log()
 {
     $argv = func_get_args();
 
-    _objphp_log(call_user_func_array("objphp_sprintf",$argv));
+    _objphp_log(call_user_func_array("\ObjPHP\objphp_sprintf",$argv));
 }
 
 function objphp_logCurrentTimeStamp()
