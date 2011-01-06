@@ -1,0 +1,112 @@
+<?php
+// ./objphp compile Moka/Foundation/MKObject.op Moka/Foundation/MKException.op Tools/objphp/main.op Tools/objphp/CommandPlugins/test.op Tests/Objective-PHP/ParserTest.op -f -o=test.php
+
+@implementation ParserTest : UnitTest
+{
+    Tokenizer   tokenizer;
+    Parser      parser;
+    string      aProtocol = "   @protocol TestProtocol
+                                    - (void) anInstanceMethod:param1 withVar:param2;
+                                @end";
+}
+
+- (void)setUp
+{
+    $self->tokenizer = new \ObjPHP\Tokenizer();
+    $self->parser = new \ObjPHP\Parser($self->tokenizer);
+}
+
+- (void)addCode:(string)code
+{
+    $self->tokenizer->addTokensAndReset($code);
+}
+
+- (void)addCodeAndAssertNoThrow:(string)code message:(string)message
+{
+    $self->tokenizer->addTokensAndReset($code);
+    [$self assertDoesNotThrow:(function() use ($self) {$self->parser->parse();}) message:$message];
+}
+
+- (void)addCodeAndAssertThrows:(string)code message:(string)message
+{
+    $self->tokenizer->addTokensAndReset($code);
+    [$self assertThrows:(function() use ($self) {$self->parser->parse();}) message:$message];
+}
+
+- (void)testDefineClass
+{
+    [$self addCodeAndAssertNoThrow:"<?php
+    //hello
+    @implementation TestClass
+    @end" message:"Define new empty class without parent"];
+
+    [$self addCodeAndAssertNoThrow:"<?php
+    @implementation TestClass1 @end" message:"Class defined in single line"];
+
+    [$self addCodeAndAssertThrows:"<?php
+    <?php
+    @implementation TestClass1
+    @end" message:"Class name already defined"];
+
+    [$self addCodeAndAssertThrows:"<?php @implementation TestClass1" message:"Missing @end"];
+    [$self addCodeAndAssertThrows:"<?php @implementation @end" message:"Missing class name"];
+    [$self addCodeAndAssertThrows:"<?php @implementation TestClass2 TestClass3 @end" message:"Whitespace in class name"];
+}
+
+- (void)testDefineClassWithParent
+{
+    [$self addCodeAndAssertNoThrow:"
+        <?php
+        @implementation TestChild : TestClass
+        @end" message:"Define new class with parent"];
+
+    [$self addCodeAndAssertNoThrow:"
+        <?php @implementation TestChild1 : TestClass @end
+    " message:"Define new class with parent in single line"];
+}
+
+- (void)testDefineClassWithImportedParent
+{
+    [$self addCodeAndAssertNoThrow:"
+        <?php
+        @import <Foundation/MKObject.op>
+        @implementation TestChildFromMKObject : MKObject
+        @end" message:"Define new class with parent imported from Foundation of Moka"];
+}
+
+- (void)testDefineClassWithProtocol
+{
+    [$self addCodeAndAssertNoThrow:"
+        <?php
+        ".$self->aProtocol."
+        @implementation TestClassWithProtocol <TestProtocol>
+        - (void)anInstanceMethod:variable1 withVar:variable2
+        {
+            return;
+        }
+        @end" message:"Define new class which obeys a protocol, TestProtocol"];
+
+    // TODO: test combinations with invalid syntax
+}
+
+- (void)testDefineClassWithParentWithProtocol
+{
+    [$self addCodeAndAssertNoThrow:"
+        <?php
+        ".$self->aProtocol."
+        @implementation TestClassWithProtocol : TestClass <TestProtocol>
+        - (void)anInstanceMethod:variable1 withVar:variable2
+        {
+            return;
+        }
+        @end" message:"Define new class with parent which obeys a protocol, TestProtocol"];
+
+    // TODO: test combinations with invalid syntax
+}
+
+- (void)testDefineClassWithProtocolInheritance
+{
+
+}
+
+@end
