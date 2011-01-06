@@ -30,6 +30,7 @@
 @end
 
 const MKUnitTestAssertFailed = "MKUnitTestAssertFailed";
+const MKUnitTestUndefinedMessage = "<anonymous>";
 
 // All tests inherit this
 @implementation UnitTest : MKObject <ITestable>
@@ -118,45 +119,75 @@ const MKUnitTestAssertFailed = "MKUnitTestAssertFailed";
 
 - (bool)assertTrue:test
 {
+    [$self assertTrue:$test message:MKUnitTestUndefinedMessage];
+}
+
+- (bool)assertTrue:test message:(string)message
+{
     if ($test === YES)
         return YES;
     else
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'true', test value was '$test'")];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'true', test value was '$test'")];
 }
 
 - (bool)assertFalse:test
 {
+    [$self assertFalse:$test message:MKUnitTestUndefinedMessage];
+}
+
+- (bool)assertFalse:test message:(string)message
+{
     if ($test === NO)
         return YES;
     else
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'false', test value was '$test'")];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'false', test value was '$test'")];
 }
 
 - (bool)assertNotTrue:test
 {
+    [$self assertNotTrue:$test message:MKUnitTestUndefinedMessage];
+}
+
+- (bool)assertNotTrue:test message:(string)message
+{
     if ($test !== YES)
         return YES;
     else
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'not true', test value was '$test'")];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'not true', test value was '$test'")];
 }
 
 - (bool)assertNotFalse:test
 {
+    [$self assertNotFalse:$test message:MKUnitTestUndefinedMessage];
+}
+
+- (bool)assertNotFalse:test message:(string)message
+{
     if ($test !== NO)
         return YES;
     else
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'not false', test value was '$test'")];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'not false', test value was '$test'")];
 }
 
 - (bool)assert:test1 equals:test2
 {
+    return [$self assert:$test1 equals:$test2 message:MKUnitTestUndefinedMessage];
+}
+
+- (bool)assert:test1 equals:test2 message:(string)message
+{
     if ($test1 === $test2)
         return YES;
     else
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected '$test2' but was '$test1'")];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected '$test2' but was '$test1'")];
 }
 
 - (bool)assertThrows:(function)anonfunc
+{
+    return [$self assertThrows:$anonfunc message:MKUnitTestUndefinedMessage];
+}
+
+- (bool)assertThrows:(function)anonfunc message:(string)message
 {
     try
     {
@@ -167,10 +198,15 @@ const MKUnitTestAssertFailed = "MKUnitTestAssertFailed";
         return YES;
     }
 
-    [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'exception' but no exception was caught.")];
+    [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'exception' but no exception was caught.")];
 }
 
 - (bool)assertDoesNotThrow:(function)anonfunc
+{
+    return [$self assertThrows:$anonfunc message:MKUnitTestUndefinedMessage];
+}
+
+- (bool)assertDoesNotThrow:(function)anonfunc message:(string)message
 {
     try
     {
@@ -178,15 +214,15 @@ const MKUnitTestAssertFailed = "MKUnitTestAssertFailed";
     }
     catch(\ObjPHP\ParseException $e)
     {
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'no exception' but caught exception of type 'ParseException': ".$e->getFormattedError())];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'no exception' but caught exception of type 'ParseException': ".$e->getFormattedError())];
     }
     catch(\ObjPHP\CountableException $e)
     {
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'no exception' but caught exception of type 'CountableException': ".$e->getMessage())];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'no exception' but caught exception of type 'CountableException': ".$e->getMessage())];
     }
     catch(Exception $e)
     {
-        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'no exception' but caught exception of type 'Exception': ".$e->getMessage())];
+        [MKException raise:MKUnitTestAssertFailed reason:("Assert '$message' failed: Expected 'no exception' but caught exception of type 'Exception': ".$e->getMessage())];
     }
     return $retval;
 }
