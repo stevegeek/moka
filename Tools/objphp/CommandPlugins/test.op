@@ -156,6 +156,41 @@ const MKUnitTestAssertFailed = "MKUnitTestAssertFailed";
         [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected '$test2' but was '$test1'")];
 }
 
+- (bool)assertThrows:(function)anonfunc
+{
+    try
+    {
+        $anonfunc();
+    }
+    catch(Exception $e)
+    {
+        return YES;
+    }
+
+    [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'exception' but no exception was caught.")];
+}
+
+- (bool)assertDoesNotThrow:(function)anonfunc
+{
+    try
+    {
+        $retval = $anonfunc();
+    }
+    catch(\ObjPHP\ParseException $e)
+    {
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'no exception' but caught exception of type 'ParseException': ".$e->getFormattedError())];
+    }
+    catch(\ObjPHP\CountableException $e)
+    {
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'no exception' but caught exception of type 'CountableException': ".$e->getMessage())];
+    }
+    catch(Exception $e)
+    {
+        [MKException raise:MKUnitTestAssertFailed reason:("assert failed: Expected 'no exception' but caught exception of type 'Exception': ".$e->getMessage())];
+    }
+    return $retval;
+}
+
 @end
 
 // the test plugin
