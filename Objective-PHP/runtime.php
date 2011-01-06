@@ -26,10 +26,10 @@ include_once "Objective-PHP/tokenizer.php";
 include_once "Objective-PHP/parser.php";
 
 // Error Codes
-define("UNDEF_ERR",                     0);
-define("RUNTIME_ERROR",                 1);
-define("RUNTIME_IMPORTPARSER_ERROR",    2);
-define("RUNTIME_STUBMETHOD_ERROR",      3);
+const UNDEF_ERR                     = 0;
+const RUNTIME_ERROR                 = 1;
+const RUNTIME_IMPORTPARSER_ERROR    = 2;
+const RUNTIME_STUBMETHOD_ERROR      = 3;
 
 // Internal Constants
 define("_METHOD_CAT",   1);
