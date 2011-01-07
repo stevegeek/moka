@@ -2,83 +2,82 @@
 // ./objphp compile Moka/Foundation/MKObject.op Moka/Foundation/MKException.op Tools/objphp/main.op Tools/objphp/CommandPlugins/test.op Tests/Objective-PHP/ParserTest.op -f -o=test.php
 
 @implementation ParserTest : UnitTest
+
+- (id)parserWithTokenizer
 {
-    Tokenizer   tokenizer;
-    Parser      parser;
-    string      aProtocol = "   @protocol TestProtocol
-                                    - (void) anInstanceMethod:param1 withVar:param2;
-                                @end";
+    return new \ObjPHP\Parser(new \ObjPHP\Tokenizer());
 }
 
-- (void)setUp
+- (void)parser:(id)parser addCode:(string)code
 {
-    $self->tokenizer = new \ObjPHP\Tokenizer();
-    $self->parser = new \ObjPHP\Parser($self->tokenizer);
+    $parser->getTokens()->addTokensAndReset($code);
 }
 
-- (void)addCode:(string)code
+- (void)parser:(id)parser addCodeAndAssertNoThrow:(string)code message:(string)message
 {
-    $self->tokenizer->addTokensAndReset($code);
+    $parser->getTokens()->addTokensAndReset($code);
+    [$self assertDoesNotThrow:(function() use ($parser) {$parser->parse();}) message:$message];
 }
 
-- (void)addCodeAndAssertNoThrow:(string)code message:(string)message
+- (void)parser:(id)parser addCodeAndAssertThrows:(string)code message:(string)message
 {
-    $self->tokenizer->addTokensAndReset($code);
-    [$self assertDoesNotThrow:(function() use ($self) {$self->parser->parse();}) message:$message];
-}
-
-- (void)addCodeAndAssertThrows:(string)code message:(string)message
-{
-    $self->tokenizer->addTokensAndReset($code);
-    [$self assertThrows:(function() use ($self) {$self->parser->parse();}) message:$message];
+    $parser->getTokens()->addTokensAndReset($code);
+    [$self assertThrows:(function() use ($parser) {$parser->parse();}) message:$message];
 }
 
 - (void)testDefineClass
 {
-    [$self addCodeAndAssertNoThrow:"<?php
-    //hello
-    @implementation TestClass
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php //hello
+    @implementation TestEmptyClass
     @end" message:"Define new empty class without parent"];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+    @implementation TestClassInLine @end" message:"Class defined in single line"];
+    // syntax errors
+    [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation TestClassMissingEnd" message:"Missing @end"];
+    [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation @end" message:"Missing class name"];
+    [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation TestClass2 TestClass3 @end" message:"Whitespace in class name"];
+}
 
-    [$self addCodeAndAssertNoThrow:"<?php
-    @implementation TestClass1 @end" message:"Class defined in single line"];
-
-    [$self addCodeAndAssertThrows:"<?php
-    <?php
-    @implementation TestClass1
-    @end" message:"Class name already defined"];
-
-    [$self addCodeAndAssertThrows:"<?php @implementation TestClass1" message:"Missing @end"];
-    [$self addCodeAndAssertThrows:"<?php @implementation @end" message:"Missing class name"];
-    [$self addCodeAndAssertThrows:"<?php @implementation TestClass2 TestClass3 @end" message:"Whitespace in class name"];
+- (void)testAlreadyDefinedClass
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php @implementation TestClassInLine @end" message:"Class defined in single line"];
+    [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation TestClassInLine @end" message:"Class name already defined"];
 }
 
 - (void)testDefineClassWithParent
 {
-    [$self addCodeAndAssertNoThrow:"
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php @implementation TestClass @end" message:"Class defined in single line"];
+    [$self parser:$parser addCodeAndAssertNoThrow:"
         <?php
         @implementation TestChild : TestClass
         @end" message:"Define new class with parent"];
 
-    [$self addCodeAndAssertNoThrow:"
-        <?php @implementation TestChild1 : TestClass @end
+    [$self parser:$parser addCodeAndAssertNoThrow:"
+        <?php @implementation TestChildInLine : TestClass @end
     " message:"Define new class with parent in single line"];
 }
 
 - (void)testDefineClassWithImportedParent
 {
-    [$self addCodeAndAssertNoThrow:"
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"
         <?php
         @import <Foundation/MKObject.op>
-        @implementation TestChildFromMKObject : MKObject
+        @implementation TestChild : MKObject
         @end" message:"Define new class with parent imported from Foundation of Moka"];
 }
 
-- (void)testDefineClassWithProtocol
+- (void)testDefineClassWithProtocolConform
 {
-    [$self addCodeAndAssertNoThrow:"
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"
         <?php
-        ".$self->aProtocol."
+        @protocol TestProtocol
+        - (void) anInstanceMethod:param1 withVar:param2;
+        @end
         @implementation TestClassWithProtocol <TestProtocol>
         - (void)anInstanceMethod:variable1 withVar:variable2
         {
@@ -89,24 +88,96 @@
     // TODO: test combinations with invalid syntax
 }
 
-- (void)testDefineClassWithParentWithProtocol
+- (void)testDefineClassWithProtocolNonConformance
 {
-    [$self addCodeAndAssertNoThrow:"
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertThrows:"
         <?php
-        ".$self->aProtocol."
-        @implementation TestClassWithProtocol : TestClass <TestProtocol>
-        - (void)anInstanceMethod:variable1 withVar:variable2
+        @protocol TestProtocol
+        - (void) anInstanceMethod:param1 withVar:param2;
+        @end
+        @implementation TestClassWithProtocol <TestProtocol>
+        - (void)anInstanceMethod:variable1 withVar:variable2 anotherVar:var
         {
             return;
         }
-        @end" message:"Define new class with parent which obeys a protocol, TestProtocol"];
+        @end" message:"Define new class which does not conform to a protocol, TestProtocol"];
 
     // TODO: test combinations with invalid syntax
 }
 
-- (void)testDefineClassWithProtocolInheritance
-{
 
+- (void)testDefineClassWithParentWithProtocolConform
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"
+        <?php
+        @implementation TestClassParent
+        - (void)anotherInstanceMethod:variable1 { return; }
+        @end
+        @protocol TestProtocol
+        - (void) anotherInstanceMethod:param1;
+        @end
+        @implementation TestClass : TestClassParent <TestProtocol>
+        @end
+        " message:"Define new class with parent which obeys a protocol, TestProtocol"];
+
+    // TODO: test combinations with invalid syntax
+}
+
+- (void)testDefineClassWithProtocolInheritanceConforms
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"
+        <?php
+        @protocol TestProtocolParent
+        - (void) instanceMethod:param1;
+        @end
+        @protocol TestProtocol <TestProtocolParent>
+        - (void) anotherInstanceMethod:param1;
+        @end
+        @implementation TestClassWithProtocol <TestProtocol>
+        - (void)instanceMethod:variable1 { return; }
+        - (void)anotherInstanceMethod:variable1 { return; }
+        @end
+        " message:"Define new class with protocol, TestProtocol, which has a parent protocol, TestProtocolParent"];
+}
+
+- (void)testDefineClassWithProtocolInheritanceNonConformance
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolParent
+        - (void) instanceMethod:param1;
+        @end
+        @protocol TestProtocol <TestProtocolParent>
+        - (void) anotherInstanceMethod:param1;
+        @end
+        @implementation TestClassWithProtocol <TestProtocol>
+        - (void)instanceMethod:variable1 { return; }
+        @end
+        " message:"Define new class with protocol, TestProtocol, which has a parent protocol, TestProtocolParent and test throws on non conformance"];
+}
+
+- (void)testDefineClassWithParentWithProtocolInheritanceConformance
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"
+        <?php
+        @implementation TestClassParent
+        - (void) instanceMethod:param1 { return; }
+        @end
+        @protocol TestProtocolParent
+        - (void) instanceMethod:param1;
+        @end
+        @protocol TestProtocol <TestProtocolParent>
+        - (void) anotherInstanceMethod:param1;
+        @end
+        @implementation TestClassWithProtocol : TestClassParent <TestProtocol>
+        - (void)anotherInstanceMethod:variable1 { return; }
+        @end
+        " message:"Define new class with parent with protocol, TestProtocol, which has a parent protocol, TestProtocolParent, and conformance is split over the inheritance tree."];
 }
 
 @end
