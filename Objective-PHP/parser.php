@@ -560,6 +560,9 @@ class Parser
                 case T_OBJPHP_END:
                     if ($s == 2 || $s == 4 || $s == 20)
                     {
+                        if ($s == 2)
+                            if ($this->reflectionClassExists($className))
+                                $this->syntaxError(null, "Class '$className' already exists! Specified in @implementation: ",PARSE_ERR_IMP_CLASSEXISTS);
                         $s = S_END;
                         $useToken = PARSER_USE;
                     }
