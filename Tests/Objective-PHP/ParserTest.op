@@ -29,20 +29,258 @@
 {
     $parser = [$self parserWithTokenizer];
     [$self parser:$parser addCodeAndAssertNoThrow:"<?php //hello
-    @implementation TestEmptyClass
-    @end" message:"Define new empty class without parent"];
+        @implementation TestEmptyClass
+        @end" message:"Define new empty class without parent"];
+
     [$self parser:$parser addCodeAndAssertNoThrow:"<?php
-    @implementation TestClassInLine @end" message:"Class defined in single line"];
+        @implementation TestClassInLine @end" message:"Class defined in single line"];
     // syntax errors
     [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation TestClassMissingEnd" message:"Missing @end"];
+
     [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation @end" message:"Missing class name"];
+
     [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation TestClass2 TestClass3 @end" message:"Whitespace in class name"];
+}
+
+- (void)testDefineIVars
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassNoIvars
+        {
+        }
+        @end" message:"Define class with empty ivars"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassNoIvarsInline {}
+        @end" message:"Define class with empty ivars inline"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsNoType {
+            testvar1;
+            testvar2;
+        }
+        @end" message:"Define class with ivars with no type"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsNoTypeInline {
+            testvar1; testvar2;
+        }
+        @end" message:"Define class with ivars with no type inline"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsWithType { aType testvar1; anotherType testvar2;}
+        @end" message:"Define class with ivars with no type inline"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsInList { testvar1, testvar2;}
+        @end" message:"Define class TestClassIvarsInList with ivar list"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsInListWithType { aType testvar1, testvar2;}
+        @end" message:"Define class TestClassIvarsInListWithType with ivar list with type"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvars1 { aType testvar1 }
+        @end" message:"Define class TestClassInvalidIvars1 with ivar with no semicolon"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvars2 { 
+            aType testvar1
+            aType testvar2;
+        }
+        @end" message:"Define class TestClassInvalidIvars2 with ivars with no semicolon"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvars3 { atype atype testvar2;}
+        @end" message:"Define class TestClassInvalidIvars3 with ivar with multiple types"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvars4 { atype testvar2,;}
+        @end" message:"Define class TestClassInvalidIvars4 with invalid ivar list"];
+}
+
+- (void)testDefineIVarsWithVisibility
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsWithVisibility
+        { @public testType ivar1; testType ivar2; ivar3; @protected ivar4; @private ivar5, ivar6; }
+        @end" message:"Define class with ivars with visibility specifiers"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvarVisibility { @public @private testvar1;}
+        @end" message:"Define class with double ivar visibility"];
+}
+
+- (void)testDefineIVarsWithInitialValues
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsNoTypeWithInitial {
+            var1 = 124;
+            var2 = \"Hello\";
+            var3 = 123.43456;
+            var4 = nil, var5 = array(), var5 = array('hi', 'work', 123);
+        }
+        @end" message:"Define class with ivars with no type but with initials of all types"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsNoTypeWithInitialInline {
+            testvar1 = 123; testvar2 = \"test\";
+        }
+        @end" message:"Define class with ivars with no type inline with initials"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsWithTypeAndInitial { aType testvar1 = 123; anotherType testvar2 = 'string';}
+        @end" message:"Define class with ivars with types and initial values inline"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvarsWithInitial1 { aType testvar1 = }
+        @end" message:"Define class with ivar initial not set"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvarsWithInitial2 { aType testvar1 =; }
+        @end" message:"Define class with ivar initial not set"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvarsWithInitial3 { aType testvar1 = '; }
+        @end" message:"Define class with ivar initial as invalid string"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvarsWithInitial3 { aType testvar1 = 123 \"hello\"; }
+        @end" message:"Define class with ivar double initial value"];
+}
+
+- (void)testDefineIVarsWithAccessor
+{
+    $parser = [$self parserWithTokenizer];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsWithAccessors
+        { testType ivar1 @accessors; ivar6 @accessors; }
+        @end" message:"Define class with ivars with accessor directive"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsListWithAccessors
+        { testType ivar1, ivar2 @accessors; }
+        @end" message:"Define class with ivars list with accessor directive"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassIvarsWithVisibilityAndAccessors
+        { @public testType ivar1 @accessors; ivar6 @accessors; }
+        @end" message:"Define class with ivars with visibility specifiers and accessor directive"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvarsWithAccessors1 { @accessors testvar1; }
+        @end" message:"Define class with accessor directive before name"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidIvarsWithAccessors2 { testvar1, @accessors; }
+        @end" message:"Define class with accessor directive after comma"];
+}
+
+- (void)testDefineInstanceMethods
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassInstanceMethods
+        - test1 
+        {return;}
+        - test2:aparam {\$self->foo = 1;}
+        - test3:param andVar:param2
+        {
+            return \$local;
+        }
+        @end" message:"Define class with instance methods with no type information"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassInstanceMethodsWithTypes
+        - (void)test1 {return;}
+        - (type 2)test2:(type)aparam {\$self->foo = 1;}
+        - (array)test3:(id)param andVar:(123)param2 { return \$local;}
+        @end" message:"Define class with instance methods with type information"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidInstanceMethod1
+        - (void)test1;
+        @end" message:"Define class TestClassInvalidInstanceMethod1 with invalid instance method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidInstanceMethod2
+        - (void)test1 {
+        @end" message:"Define class TestClassInvalidInstanceMethod2 with invalid instance method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidInstanceMethod3
+        - (void)test1
+        - (void)test2;
+        @end" message:"Define class TestClassInvalidInstanceMethod3 with invalid instance method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidInstanceMethod4
+        (void)test1 {}
+        @end" message:"Define class TestClassInvalidInstanceMethod4 with invalid instance method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidInstanceMethod5
+        - (void)test1 test2 {}
+        @end" message:"Define class TestClassInvalidInstanceMethod5 with invalid instance method name"];
+}
+
+- (void)testDefineClassMethods
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassClassMethods
+        + test1 
+        {return;}
+        + test2:aparam {\$self->foo = 1;}
+        + test3:param andVar:param2
+        {
+            return \$local;
+        }
+        @end" message:"Define class with class methods with no type information"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassClassClassMethodsWithTypes
+        + (void)test1 {return;}
+        + (type 2)test2:(type)aparam {\$self->foo = 1;}
+        + (array)test3:(id)param andVar:(123)param2 { return \$local;}
+        @end" message:"Define class with class methods with type information"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidClassMethod1
+        - (void)test1;
+        @end" message:"Define class TestClassInvalidClassMethod1 with invalid class method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidClassMethod2
+        - (void)test1 {
+        @end" message:"Define class TestClassInvalidClassMethod2 with invalid class method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidClassMethod3
+        - (void)test1
+        - (void)test2;
+        @end" message:"Define class TestClassInvalidClassMethod3 with invalid class method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidClassMethod4
+        (void)test1 {}
+        @end" message:"Define class TestClassInvalidClassMethod4 with invalid class method"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"<?php
+        @implementation TestClassInvalidClassMethod5
+        - (void)test1 test2 {}
+        @end" message:"Define class TestClassInvalidClassMethod5 with invalid class method name"];
 }
 
 - (void)testAlreadyDefinedClass
 {
     $parser = [$self parserWithTokenizer];
     [$self parser:$parser addCodeAndAssertNoThrow:"<?php @implementation TestClassInLine @end" message:"Class defined in single line"];
+
     [$self parser:$parser addCodeAndAssertThrows:"<?php @implementation TestClassInLine @end" message:"Class name already defined"];
 }
 
@@ -50,6 +288,7 @@
 {
     $parser = [$self parserWithTokenizer];
     [$self parser:$parser addCodeAndAssertNoThrow:"<?php @implementation TestClass @end" message:"Class defined in single line"];
+
     [$self parser:$parser addCodeAndAssertNoThrow:"
         <?php
         @implementation TestChild : TestClass
@@ -70,22 +309,52 @@
         @end" message:"Define new class with parent imported from Foundation of Moka"];
 }
 
-- (void)testDefineClassWithProtocolConform
+- (void)testDefineClassWithProtocolConformance
 {
     $parser = [$self parserWithTokenizer];
     [$self parser:$parser addCodeAndAssertNoThrow:"
         <?php
         @protocol TestProtocol
-        - (void) anInstanceMethod:param1 withVar:param2;
+        - (void)anInstanceMethod:param1 withVar:param2;
         @end
         @implementation TestClassWithProtocol <TestProtocol>
-        - (void)anInstanceMethod:variable1 withVar:variable2
-        {
-            return;
-        }
+        - (void)anInstanceMethod:variable1 withVar:variable2 { return; }
         @end" message:"Define new class which obeys a protocol, TestProtocol"];
 
-    // TODO: test combinations with invalid syntax
+    [$self parser:$parser addCodeAndAssertNoThrow:"
+        <?php
+        @protocol TestProtocolInline - (void)anInstanceMethod:param1 withVar:param2; + (void)testMethod; @end
+        @implementation TestClassWithProtocolInline <TestProtocolInline>
+        - (void)anInstanceMethod:variable1 withVar:variable2 { return; }
+        + (void)testMethod {return;}
+        @end" message:"Define new class which obeys a protocol, TestProtocolInline"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolInvalid1
+        (void)anInstanceMethod:param1 withVar:param2;
+        @end
+        " message:"Invalid Protocol syntax test 1"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol
+        - (void)anInstanceMethod:param1 withVar:param2; @end
+        " message:"Invalid Protocol syntax test 2"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolInvalid3
+        - (void)anInstanceMethod:param1 withVar:param2;
+        " message:"Invalid Protocol syntax test 3"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolInvalid4
+        {}
+        - (void)anInstanceMethod:param1 withVar:param2; + (void)testMethod;
+        @end
+        " message:"Invalid Protocol syntax test 4"];
 }
 
 - (void)testDefineClassWithProtocolNonConformance
@@ -94,7 +363,7 @@
     [$self parser:$parser addCodeAndAssertThrows:"
         <?php
         @protocol TestProtocol
-        - (void) anInstanceMethod:param1 withVar:param2;
+        - (void)anInstanceMethod:param1 withVar:param2;
         @end
         @implementation TestClassWithProtocol <TestProtocol>
         - (void)anInstanceMethod:variable1 withVar:variable2 anotherVar:var
@@ -102,12 +371,10 @@
             return;
         }
         @end" message:"Define new class which does not conform to a protocol, TestProtocol"];
-
-    // TODO: test combinations with invalid syntax
 }
 
 
-- (void)testDefineClassWithParentWithProtocolConform
+- (void)testDefineClassWithParentWithProtocolConformance
 {
     $parser = [$self parserWithTokenizer];
     [$self parser:$parser addCodeAndAssertNoThrow:"
@@ -116,7 +383,7 @@
         - (void)anotherInstanceMethod:variable1 { return; }
         @end
         @protocol TestProtocol
-        - (void) anotherInstanceMethod:param1;
+        - (void)anotherInstanceMethod:param1;
         @end
         @implementation TestClass : TestClassParent <TestProtocol>
         @end
@@ -125,22 +392,56 @@
     // TODO: test combinations with invalid syntax
 }
 
-- (void)testDefineClassWithProtocolInheritanceConforms
+- (void)testDefineClassWithProtocolInheritanceConformance
 {
     $parser = [$self parserWithTokenizer];
     [$self parser:$parser addCodeAndAssertNoThrow:"
         <?php
         @protocol TestProtocolParent
-        - (void) instanceMethod:param1;
+        - (void)instanceMethod:param1;
         @end
         @protocol TestProtocol <TestProtocolParent>
-        - (void) anotherInstanceMethod:param1;
+        - (void)anotherInstanceMethod:param1;
         @end
         @implementation TestClassWithProtocol <TestProtocol>
         - (void)instanceMethod:variable1 { return; }
         - (void)anotherInstanceMethod:variable1 { return; }
         @end
         " message:"Define new class with protocol, TestProtocol, which has a parent protocol, TestProtocolParent"];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"
+        <?php
+        @protocol TestProtocolParentInline - (void)instanceMethod:param1; @end
+        @protocol TestProtocolInline <TestProtocolParentInline> - (void)anotherInstanceMethod:param1; @end
+    " message:"Define new protocol, TestProtocolInline, which has a parent protocol, TestProtocolParentInline"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolInvalid <TestProtocolParent1>
+        - (void)anInstanceMethod:param1 withVar:param2;
+        @end
+        " message:"Invalid Protocol inheritance, test parent does not exist."];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolInvalid1 : TestProtocolParent
+        - (void)anInstanceMethod:param1 withVar:param2;
+        @end
+        " message:"Invalid Protocol inheritance syntax test 1"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolInvalid2 <TestProtocolParent
+        - (void)anInstanceMethod:param1 withVar:param2;
+        @end
+        " message:"Invalid Protocol inheritance syntax test 2"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @protocol TestProtocolInvalid3 TestProtocolParent>
+        - (void)anInstanceMethod:param1 withVar:param2;
+        @end
+        " message:"Invalid Protocol inheritance syntax test 3"];
 }
 
 - (void)testDefineClassWithProtocolInheritanceNonConformance
@@ -149,10 +450,10 @@
     [$self parser:$parser addCodeAndAssertThrows:"
         <?php
         @protocol TestProtocolParent
-        - (void) instanceMethod:param1;
+        - (void)instanceMethod:param1;
         @end
         @protocol TestProtocol <TestProtocolParent>
-        - (void) anotherInstanceMethod:param1;
+        - (void)anotherInstanceMethod:param1;
         @end
         @implementation TestClassWithProtocol <TestProtocol>
         - (void)instanceMethod:variable1 { return; }
@@ -166,18 +467,54 @@
     [$self parser:$parser addCodeAndAssertNoThrow:"
         <?php
         @implementation TestClassParent
-        - (void) instanceMethod:param1 { return; }
+        - (void)instanceMethod:param1 { return; }
         @end
         @protocol TestProtocolParent
-        - (void) instanceMethod:param1;
+        - (void)instanceMethod:param1;
         @end
         @protocol TestProtocol <TestProtocolParent>
-        - (void) anotherInstanceMethod:param1;
+        - (void)anotherInstanceMethod:param1;
         @end
         @implementation TestClassWithProtocol : TestClassParent <TestProtocol>
         - (void)anotherInstanceMethod:variable1 { return; }
         @end
         " message:"Define new class with parent with protocol, TestProtocol, which has a parent protocol, TestProtocolParent, and conformance is split over the inheritance tree."];
+}
+
+- (void)testDefineClassWithParentWithProtocolInheritanceNonConformance
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @implementation TestClassParent
+        - (void)instanceMethod:param1 { return; }
+        @end
+        @protocol TestProtocolParent
+        - (void)instanceMethod:param1;
+        @end
+        @protocol TestProtocol <TestProtocolParent>
+        - (void)anotherInstanceMethod:param1;
+        @end
+        @implementation TestClassWithProtocol : TestClassParent <TestProtocol>
+        - (void)anotherInstanceMethod2:variable1 { return; }
+        @end
+        " message:"Define new class with parent with protocol, TestProtocol, which has a parent protocol, TestProtocolParent, and dont conform on class"];
+
+    [$self parser:$parser addCodeAndAssertThrows:"
+        <?php
+        @implementation TestClassParent
+        - (void)instanceMethod2:param1 { return; }
+        @end
+        @protocol TestProtocolParent
+        - (void)instanceMethod:param1;
+        @end
+        @protocol TestProtocol <TestProtocolParent>
+        - (void)anotherInstanceMethod:param1;
+        @end
+        @implementation TestClassWithProtocol : TestClassParent <TestProtocol>
+        - (void)anotherInstanceMethod:variable1 { return; }
+        @end
+        " message:"Define new class with parent with protocol, TestProtocol, which has a parent protocol, TestProtocolParent, and don't conform on parent class"];
 }
 
 @end
