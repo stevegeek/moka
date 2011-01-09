@@ -2109,21 +2109,21 @@ class Parser
         // Issue warning or syntaxError if not obeyed
         if ($p = $this->reflectionProtocolProtocols($protocolName))
         {
-            foreach($p as $inheritedProtocol)
+            foreach ($p as $inheritedProtocol)
             {
                 $this->checkProtocolConformance($className, $inheritedProtocol);
             }
-        }
+        } 
 
         // check us
         if ($methods = $this->reflectionProtocolInstanceMethods($protocolName))
         {
-            foreach($methods as $pMethodName => $pMethod)
+            foreach ($methods as $pMethodName => $pMethod)
             {
                 $c = $className;
                 while ($c)
                 {
-                    if ($this->reflectionClassInstanceMethodExists($className, $pMethodName))
+                    if ($this->reflectionClassInstanceMethodExists($c, $pMethodName))
                         return true;
                     $c = $this->reflectionClassParent($c);
                 }
@@ -2133,12 +2133,12 @@ class Parser
         }
         if ($methods = $this->reflectionProtocolClassMethods($protocolName))
         {
-            foreach($methods as $pMethod)
+            foreach ($methods as $pMethod)
             {
                 $c = $className;
                 while ($c)
                 {
-                    if ($this->reflectionClassClassMethodExists($className, $pMethod['name']))
+                    if ($this->reflectionClassClassMethodExists($c, $pMethod['name']))
                         break 2;
                     $c = $this->reflectionClassParent($c);
                 }
