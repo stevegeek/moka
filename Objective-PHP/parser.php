@@ -350,7 +350,7 @@ class Parser
                         // another string on ivar, hence prev thing was actually a type, n this is name
                         $iVarType = $iVarName;
                         $iVarName = $t[2];
-                        $s = 42;
+                        $s = 46;
                         $useToken = PARSER_USE;
                     }
                     else if ($s == 43)
@@ -390,7 +390,7 @@ class Parser
                     break;
 
                 case T_OBJPHP_ACCESSORS:
-                    if ($s == 42 || $s == 44)
+                    if ($s == 42 || $s == 44 || $s == 46)
                     {
                         $iVarAccessors = true;
                         $s = 45;
@@ -474,7 +474,7 @@ class Parser
                     break;
 
                 case '=':
-                    if ($s == 42)
+                    if ($s == 42 || $s == 46)
                     {
                         // init value of ivar, must be a constant, ie either a string or number
                         $s = 43;
@@ -483,7 +483,7 @@ class Parser
                     break;
 
                 case ';':
-                    if ($s == 42 || $s == 44 || $s == 45)
+                    if ($s == 42 || $s == 44 || $s == 45 || $s == 46)
                     {
                         // end of ivar
 
@@ -543,7 +543,7 @@ class Parser
                     break;
 
                 case ',':
-                    if ($s == 42 || $s == 44)
+                    if ($s == 42 || $s == 44 || $s == 46)
                     {
                         // end of ivar
                         $this->reflectionClassAddProperty($className, $iVarName, $iVarVis, $iVarType, $iVarInitialValue);
