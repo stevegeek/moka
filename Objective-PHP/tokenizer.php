@@ -280,7 +280,7 @@ class Tokenizer extends \ArrayObject
                                     $id = T_OBJPHP_END;
                                     $t_name = "T_OBJPHP_END";
                                     break;
-                                case "implementation":
+                                case "throw":
                                     $id = T_OBJPHP_THROW;
                                     $t_name = "T_OBJPHP_THROW";
                                     break;
