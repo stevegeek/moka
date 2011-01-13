@@ -51,6 +51,7 @@ Equivalently Objective-PHP is PHP, a runtime and a preprocessor. The language ca
 interpreted at runtime (into PHP) or for deployment and better performance, preprocessed to generate
 pure PHP.
 
+BSD License
 ----
 Copyright (c) 2009-2011, Stephen Ierodiaconou
 All rights reserved.
