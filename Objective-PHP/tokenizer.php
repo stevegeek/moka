@@ -63,7 +63,7 @@ const T_OBJPHP_YES =            10025;
 const T_OBJPHP_NO =             10026;
 
 // Tokenizer
-class Tokenizer extends \ArrayObject
+class Tokenizer
 {
     protected $tokenChain;
     private $tokenIndex;
@@ -71,7 +71,6 @@ class Tokenizer extends \ArrayObject
     function __construct($codeObjPHP = null)
     {
         $this->reset();
-        parent::__construct($this->tokenChain);
 
         if($codeObjPHP)
         {
@@ -87,13 +86,13 @@ class Tokenizer extends \ArrayObject
 
     public function addTokens($codeObjPHP)
     {
-        $this->tokenize($codeObjPHP);
+        return $this->tokenize($codeObjPHP);
     }
 
     public function addTokensAndReset($codeObjPHP)
     {
         $this->reset();
-        $this->addTokens($codeObjPHP);
+        return $this->addTokens($codeObjPHP);
     }
 
     public function peekToken()
