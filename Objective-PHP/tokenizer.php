@@ -75,11 +75,11 @@ class Tokenizer extends \ArrayObject
 
         if($codeObjPHP)
         {
-            $this->tokenizeWithReset($codeObjPHP);
+            $this->addTokens($codeObjPHP);
         }
     }
 
-    private function reset()
+    public function reset()
     {
         $this->tokenIndex = 0;
         $this->tokenChain = array();
