@@ -213,6 +213,14 @@ class Tokenizer extends \ArrayObject
                             $rmToken = true;
                         }
                         break;
+                    case T_THROW:
+                        if ($prevToken && ($prevToken[0] == '@'))
+                        {
+                            $id = T_OBJPHP_THROW;
+                            $t_name = "T_OBJPHP_THROW";
+                            $rmToken = true;
+                        }
+                        break;
 
                     case T_VARIABLE:
                         // Objective-PHP Constants
@@ -279,10 +287,6 @@ class Tokenizer extends \ArrayObject
                                 case "end":
                                     $id = T_OBJPHP_END;
                                     $t_name = "T_OBJPHP_END";
-                                    break;
-                                case "throw":
-                                    $id = T_OBJPHP_THROW;
-                                    $t_name = "T_OBJPHP_THROW";
                                     break;
                                 case "finally":
                                     $id = T_OBJPHP_FINALLY;
