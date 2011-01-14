@@ -65,9 +65,6 @@ const T_OBJPHP_NO =             10026;
 // Tokenizer
 class Tokenizer extends \ArrayObject
 {
-    private $lastErrorCode;
-    private $lastError;
-
     protected $tokenChain;
     private $tokenIndex;
 
@@ -86,11 +83,6 @@ class Tokenizer extends \ArrayObject
     {
         $this->tokenIndex = 0;
         $this->tokenChain = array();
-    }
-
-    public function getLastError()
-    {
-        return array("code" => $this->lastErrorCode, "text" => $this->lastError);
     }
 
     public function addTokens($codeObjPHP)
