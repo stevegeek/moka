@@ -40,7 +40,7 @@
 @end
 
 const MKUnitTestAssertFailed = "MKUnitTestAssertFailed";
-const MKUnitTestUndefinedMessage = "<anonymous>";
+const MKUnitTestUndefinedMessage = "<no message>";
 
 // All tests inherit this
 @implementation UnitTest : MKObject <ITestable>

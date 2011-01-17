@@ -65,9 +65,9 @@ const T_OBJPHP_NO =             10026;
 // Tokenizer
 class Tokenizer
 {
-    protected $tokenChain;
+    public $tokenChain;
     private $tokenIndex;
-
+    
     function __construct($codeObjPHP = null)
     {
         $this->reset();
@@ -129,6 +129,52 @@ class Tokenizer
         return ($this->tokenIndex - $i - 1 >= 0)?($this->tokenChain[$this->tokenIndex - $i - 1]):(false);
     }
 
+    // These are the ObjPHP tokens made from an '@' and a PHP token
+    private $tokensFromPHPKeywordsAndAtSymbol
+        = array(
+            T_PUBLIC            => array(T_OBJPHP_PUBLIC,           "T_OBJPHP_PUBLIC"),
+            T_PRIVATE           => array(T_OBJPHP_PRIVATE,          "T_OBJPHP_PRIVATE"),
+            T_PROTECTED         => array(T_OBJPHP_PROTECTED,        "T_OBJPHP_PROTECTED"),
+            T_TRY               => array(T_OBJPHP_TRY,              "T_OBJPHP_TRY"),
+            T_CATCH             => array(T_OBJPHP_CATCH,            "T_OBJPHP_CATCH"),
+            T_THROW             => array(T_OBJPHP_THROW,            "T_OBJPHP_THROW")
+        );
+
+    // These are the ObjPHP tokens made from a PHP variable token with the given text
+    private $tokensFromVariables
+        = array(
+            '$self'             => array(T_OBJPHP_SELF,             "T_OBJPHP_SELF"),
+            '$this'             => array(T_OBJPHP_THIS,             "T_OBJPHP_THIS")
+        );
+
+    // These are the ObjPHP tokens made from a PHP string token with the given text
+    private $tokensFromStrings
+        = array(
+            "_cmd"              => array(T_OBJPHP_CMD,              "T_OBJPHP_CMD"),
+            "nil"               => array(T_OBJPHP_NIL,              "T_OBJPHP_NIL"),
+            "Nil"               => array(T_OBJPHP_OBJNIL,           "T_OBJPHP_OBJNIL"),
+            "NO"                => array(T_OBJPHP_NO,               "T_OBJPHP_NO"),
+            "YES"               => array(T_OBJPHP_YES,              "T_OBJPHP_YES")
+        );
+
+    // These are the ObjPHP tokens made from a PHP string token with the given text preceeded by an '@' symbol
+    private $tokensFromStringsAndAtSymbol
+        = array(
+            "php"               => array(T_OBJPHP_PHP,              "T_OBJPHP_PHP"),
+            "encode"            => array(T_OBJPHP_ENCODE,           "T_OBJPHP_ENCODE"),
+            "defs"              => array(T_OBJPHP_DEFS,             "T_OBJPHP_DEFS"),
+            "synchronized"      => array(T_OBJPHP_SYNCHRONIZED,     "T_OBJPHP_SYNCHRONIZED"),
+            "accessors"         => array(T_OBJPHP_ACCESSORS,        "T_OBJPHP_ACCESSORS"),
+            "synthesize"        => array(T_OBJPHP_SYNTHESIZE,       "T_OBJPHP_SYNTHESIZE"),
+            "selector"          => array(T_OBJPHP_SELECTOR,         "T_OBJPHP_SELECTOR"),
+            "protocol"          => array(T_OBJPHP_PROTOCOL,         "T_OBJPHP_PROTOCOL"),
+            "import"            => array(T_OBJPHP_ATIMPORT,         "T_OBJPHP_ATIMPORT"),
+            "implementation"    => array(T_OBJPHP_IMPLEMENTATION,   "T_OBJPHP_IMPLEMENTATION"),
+            "interface"         => array(T_OBJPHP_INTERFACE,        "T_OBJPHP_INTERFACE"),
+            "end"               => array(T_OBJPHP_END,              "T_OBJPHP_END"),
+            "finally"           => array(T_OBJPHP_FINALLY,          "T_OBJPHP_FINALLY")
+        );
+
     private function tokenize($src)
     {
         $this->startTimer();
@@ -157,173 +203,44 @@ class Tokenizer
             }
             else
             {
-                // $token is an Array object
+                // PHP tokens are Array objects which contain the ID, the string of the token
+                // and the location of the token (source code line).
                 list($id,$text,$curline) = $token;
                 $t_name = token_name($id); // PHP token name function
 
-                // Objective-PHP Keywords
-                switch($id)
+                // HOW TO DEAL WITH FOUND TOKENS
+
+                // Objective-PHP keywords from PHP keywords
+                if (array_key_exists($id, $this->tokensFromPHPKeywordsAndAtSymbol))
                 {
-                    case T_PUBLIC:
-                        if ($prevToken && ($prevToken[0] == '@'))
-                        {
-                            $id = T_OBJPHP_PUBLIC;
-                            $t_name = "T_OBJPHP_PUBLIC";
-                            $rmToken = true;
-                        }
-                        break;
-                    case T_PRIVATE:
-                        if ($prevToken && ($prevToken[0] == '@'))
-                        {
-                            $id = T_OBJPHP_PRIVATE;
-                            $t_name = "T_OBJPHP_PRIVATE";
-                            $rmToken = true;
-                        }
-                        break;
-                    case T_PROTECTED:
-                        if ($prevToken && ($prevToken[0] == '@'))
-                        {
-                            $id = T_OBJPHP_PROTECTED;
-                            $t_name = "T_OBJPHP_PROTECTED";
-                            $rmToken = true;
-                        }
-                        break;
-                    case T_TRY:
-                        if ($prevToken && ($prevToken[0] == '@'))
-                        {
-                            $id = T_OBJPHP_TRY;
-                            $t_name = "T_OBJPHP_TRY";
-                            $rmToken = true;
-                        }
-                        break;
-                    case T_CATCH:
-                        if ($prevToken && ($prevToken[0] == '@'))
-                        {
-                            $id = T_OBJPHP_CATCH;
-                            $t_name = "T_OBJPHP_CATCH";
-                            $rmToken = true;
-                        }
-                        break;
-                    case T_THROW:
-                        if ($prevToken && ($prevToken[0] == '@'))
-                        {
-                            $id = T_OBJPHP_THROW;
-                            $t_name = "T_OBJPHP_THROW";
-                            $rmToken = true;
-                        }
-                        break;
-
-                    case T_VARIABLE:
-                        // Objective-PHP Constants
-                        switch($text)
-                        {
-                            case '$self':
-                                $id = T_OBJPHP_SELF;
-                                $t_name = "T_OBJPHP_SELF";
-                                break 2;
-                            case '$this':
-                                //$id = T_OBJPHP_SELF;
-                                //$t_name = "T_OBJPHP_SELF";
-                                $id = T_OBJPHP_THIS;
-                                $t_name = "T_OBJPHP_THIS";
-                                break 2;
-                        }
-                        break;
-
-                    case T_STRING:
-                        // Objective-PHP Constants
-                        switch ($text)
-                        {
-                            case "_cmd":
-                                $id = T_OBJPHP_CMD;
-                                $t_name = "T_OBJPHP_CMD";
-                                break;
-                            case 'nil':
-                                $id = T_OBJPHP_NIL;
-                                $t_name = "T_OBJPHP_NIL";
-                                break;
-                            case 'Nil':
-                                $id = T_OBJPHP_OBJNIL;
-                                $t_name = "T_OBJPHP_OBJNIL";
-                                break;
-                            case 'NO':
-                                $id = T_OBJPHP_NO;
-                                $t_name = "T_OBJPHP_NO";
-                                break;
-                            case 'YES':
-                                $id = T_OBJPHP_YES;
-                                $t_name = "T_OBJPHP_YES";
-                                break;
-                        }
-
-                        // Objective-PHP Keywords
-                        if ($prevToken && ($prevToken[0] == '@'))
-                        {
-                            $rmToken = true;
-
-                            switch($text)
-                            {
-                                case "import":
-                                    $id = T_OBJPHP_IMPORT;
-                                    $t_name = "T_OBJPHP_IMPORT";
-                                    break;
-                                case "implementation":
-                                    $id = T_OBJPHP_IMPLEMENTATION;
-                                    $t_name = "T_OBJPHP_IMPLEMENTATION";
-                                    break;
-                                case "interface":
-                                    $id = T_OBJPHP_INTERFACE;
-                                    $t_name = "T_OBJPHP_INTERFACE";
-                                    break;
-                                case "end":
-                                    $id = T_OBJPHP_END;
-                                    $t_name = "T_OBJPHP_END";
-                                    break;
-                                case "finally":
-                                    $id = T_OBJPHP_FINALLY;
-                                    $t_name = "T_OBJPHP_FINALLY";
-                                    break;
-                                case "protocol":
-                                    $id = T_OBJPHP_PROTOCOL;
-                                    $t_name = "T_OBJPHP_PROTOCOL";
-                                    break;
-                                case "selector":
-                                    $id = T_OBJPHP_SELECTOR;
-                                    $t_name = "T_OBJPHP_SELECTOR";
-                                    break;
-                                case "synthesize":
-                                    $id = T_OBJPHP_SYNTHESIZE;
-                                    $t_name = "T_OBJPHP_SYNTHESIZE";
-                                    break;
-                                case "accessors":
-                                    $id = T_OBJPHP_ACCESSORS;
-                                    $t_name = "T_OBJPHP_ACCESSORS";
-                                    break;
-                                case "synchronized":
-                                    $id = T_OBJPHP_SYNCHRONIZED;
-                                    $t_name = "T_OBJPHP_SYNCHRONIZED";
-                                    break;
-                                case "defs":
-                                    $id = T_OBJPHP_DEFS;
-                                    $t_name = "T_OBJPHP_DEFS";
-                                    break;
-                                case "encode":
-                                    $id = T_OBJPHP_ENCODE;
-                                    $t_name = "T_OBJPHP_ENCODE";
-                                    break;
-                                case "php":
-                                    $id = T_OBJPHP_PHP;
-                                    $t_name = "T_OBJPHP_PHP";
-                                    break;
-                                default:
-                                    // If not a ObjPHP keyword dont remove prev
-                                    $rmToken = false;
-                                    break;
-                            }
-                        }
-                        break;
+                    if ($prevToken && ($prevToken[0] == '@'))
+                    {
+                        $t_name = $this->tokensFromPHPKeywordsAndAtSymbol[$id][1];
+                        $id = $this->tokensFromPHPKeywordsAndAtSymbol[$id][0];
+                        $rmToken = true;
+                    }
+                }
+                else if ($id == T_VARIABLE && array_key_exists($text, $this->tokensFromVariables))
+                {
+                    $t_name = $this->tokensFromVariables[$text][1];
+                    $id = $this->tokensFromVariables[$text][0];
+                }
+                else if ($id == T_STRING && array_key_exists($text, $this->tokensFromStrings))
+                {
+                    $t_name = $this->tokensFromStrings[$text][1];
+                    $id = $this->tokensFromStrings[$text][0];
+                }
+                else if ($id == T_STRING && array_key_exists($text, $this->tokensFromStringsAndAtSymbol))
+                {
+                    if ($prevToken && ($prevToken[0] == '@'))
+                    {
+                        $t_name = $this->tokensFromStringsAndAtSymbol[$text][1];
+                        $id = $this->tokensFromStringsAndAtSymbol[$text][0];
+                        $rmToken = true;
+                    }
                 }
 
+                // Delete preceeding '@'
                 if ($rmToken)
                 {
                     unset($tokens[$i - 1]);

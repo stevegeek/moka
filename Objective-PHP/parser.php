@@ -175,7 +175,7 @@ class Parser
                     $useToken = PARSER_USE;
                     break;
 
-                case T_OBJPHP_IMPORT:
+                case T_OBJPHP_ATIMPORT:
                     $code = $this->ruleImport($t);
                     if (is_string($code))
                         $source .= $code;
@@ -917,7 +917,7 @@ class Parser
 
             switch ($t[0])
             {
-                case T_OBJPHP_IMPORT:
+                case T_OBJPHP_ATIMPORT:
                     if ($s == S_FIRST)
                     {
                         $function .= $this->ruleImport($t, $convertSelf, $convertThis);
@@ -1542,7 +1542,7 @@ class Parser
                     $useToken = PARSER_USE;
                     break;
 
-                case T_OBJPHP_IMPORT:
+                case T_OBJPHP_ATIMPORT:
                     if ($s == S_START)
                     {
                         $s = S_FIRST;
