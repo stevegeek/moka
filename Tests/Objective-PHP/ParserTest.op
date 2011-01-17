@@ -517,4 +517,44 @@
         " message:"Define new class with parent with protocol, TestProtocol, which has a parent protocol, TestProtocolParent, and don't conform on parent class"];
 }
 
+- (void)testTryCatchFinally
+{
+    $parser = [$self parserWithTokenizer];
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClass
+        - (void)instanceMethod:param1
+        {
+            @try
+            {
+                [\$self aMethod];
+            }
+            @catch(Exception \$e)
+            {
+                @throw \$e;
+            }
+        }
+        @end
+        " message:"Single Try/catch block in instance method."];
+
+    [$self parser:$parser addCodeAndAssertNoThrow:"<?php
+        @implementation TestClassWithFinally
+        - (void)instanceMethod:param1
+        {
+            @try
+            {
+                [\$self aMethod];
+            }
+            @catch(Exception \$e)
+            {
+                @throw \$e;
+            }
+            @finally
+            {
+                \$c = 1;
+            }
+        }
+        @end
+        " message:"Single Try/catch block in instance method."];
+}
+
 @end
