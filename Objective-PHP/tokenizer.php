@@ -65,9 +65,9 @@ const T_OBJPHP_NO =             10026;
 // Tokenizer
 class Tokenizer
 {
-    public $tokenChain;
+    protected $tokenChain;
     private $tokenIndex;
-    
+
     function __construct($codeObjPHP = null)
     {
         $this->reset();
@@ -161,16 +161,16 @@ class Tokenizer
     private $tokensFromStringsAndAtSymbol
         = array(
             "php"               => array(T_OBJPHP_PHP,              "T_OBJPHP_PHP"),
-            "encode"            => array(T_OBJPHP_ENCODE,           "T_OBJPHP_ENCODE"),
-            "defs"              => array(T_OBJPHP_DEFS,             "T_OBJPHP_DEFS"),
-            "synchronized"      => array(T_OBJPHP_SYNCHRONIZED,     "T_OBJPHP_SYNCHRONIZED"),
+            //"encode"            => array(T_OBJPHP_ENCODE,           "T_OBJPHP_ENCODE"),
+            //"defs"              => array(T_OBJPHP_DEFS,             "T_OBJPHP_DEFS"),
+            //"synchronized"      => array(T_OBJPHP_SYNCHRONIZED,     "T_OBJPHP_SYNCHRONIZED"),
             "accessors"         => array(T_OBJPHP_ACCESSORS,        "T_OBJPHP_ACCESSORS"),
-            "synthesize"        => array(T_OBJPHP_SYNTHESIZE,       "T_OBJPHP_SYNTHESIZE"),
+            //"synthesize"        => array(T_OBJPHP_SYNTHESIZE,       "T_OBJPHP_SYNTHESIZE"),
             "selector"          => array(T_OBJPHP_SELECTOR,         "T_OBJPHP_SELECTOR"),
             "protocol"          => array(T_OBJPHP_PROTOCOL,         "T_OBJPHP_PROTOCOL"),
             "import"            => array(T_OBJPHP_ATIMPORT,         "T_OBJPHP_ATIMPORT"),
             "implementation"    => array(T_OBJPHP_IMPLEMENTATION,   "T_OBJPHP_IMPLEMENTATION"),
-            "interface"         => array(T_OBJPHP_INTERFACE,        "T_OBJPHP_INTERFACE"),
+            //"interface"         => array(T_OBJPHP_INTERFACE,        "T_OBJPHP_INTERFACE"),
             "end"               => array(T_OBJPHP_END,              "T_OBJPHP_END"),
             "finally"           => array(T_OBJPHP_FINALLY,          "T_OBJPHP_FINALLY")
         );
@@ -207,8 +207,6 @@ class Tokenizer
                 // and the location of the token (source code line).
                 list($id,$text,$curline) = $token;
                 $t_name = token_name($id); // PHP token name function
-
-                // HOW TO DEAL WITH FOUND TOKENS
 
                 // Objective-PHP keywords from PHP keywords
                 if (array_key_exists($id, $this->tokensFromPHPKeywordsAndAtSymbol))
