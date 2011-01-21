@@ -32,35 +32,34 @@
 
 namespace ObjPHP;
 
-// Tokens
-const T_OBJPHP_ATIMPORT =       10000; //@import -- # is a php comment
-const T_OBJPHP_IMPLEMENTATION = 10001; //@implementation
-const T_OBJPHP_INTERFACE =      10002; //@interface
-const T_OBJPHP_END =            10003; //@end
-const T_OBJPHP_PUBLIC =         10004; //@public
-const T_OBJPHP_PRIVATE =        10005; //@private
-const T_OBJPHP_PROTECTED =      10006; //@protected
-const T_OBJPHP_TRY =            10007; //@try
-const T_OBJPHP_CATCH =          10008; //@catch
-const T_OBJPHP_THROW =          10009; //@implementation
-const T_OBJPHP_FINALLY =        10010; //@finally
-const T_OBJPHP_PROTOCOL =       10011; //@protocol
-const T_OBJPHP_SELECTOR =       10012; //@selector
-const T_OBJPHP_SYNTHESIZE =     10013; //@synthesize
-const T_OBJPHP_ACCESSORS =      10014; //@accessors
-const T_OBJPHP_SYNCHRONIZED =   10015; //@synchronized
-const T_OBJPHP_DEFS =           10016; //@defs
-const T_OBJPHP_ENCODE =         10017; //@encode
-const T_OBJPHP_PHP =            10018; //@php
-
-const T_OBJPHP_CMD =            10019; //$_cmd
-const T_OBJPHP_SUPER =          10020; //$super
-const T_OBJPHP_SELF =           10021; //$self: (Note: self (no $) is reserved)
-const T_OBJPHP_NIL =            10022; //nil
-const T_OBJPHP_OBJNIL =         10023; //Nil
-const T_OBJPHP_THIS =           10024; //$this: (In instance methods this is replaced by $_op_receiver)
-const T_OBJPHP_YES =            10025;
-const T_OBJPHP_NO =             10026;
+// Tokens, includes possible future tokens which are currently not used
+const T_OBJPHP_IMPORT           = 10000; // @import -- # is a php comment
+const T_OBJPHP_IMPLEMENTATION   = 10001; // @implementation
+const T_OBJPHP_INTERFACE        = 10002; // @interface
+const T_OBJPHP_END              = 10003; // @end
+const T_OBJPHP_PUBLIC           = 10004; // @public
+const T_OBJPHP_PRIVATE          = 10005; // @private
+const T_OBJPHP_PROTECTED        = 10006; // @protected
+const T_OBJPHP_TRY              = 10007; // @try
+const T_OBJPHP_CATCH            = 10008; // @catch
+const T_OBJPHP_THROW            = 10009; // @implementation
+const T_OBJPHP_FINALLY          = 10010; // @finally
+const T_OBJPHP_PROTOCOL         = 10011; // @protocol
+const T_OBJPHP_SELECTOR         = 10012; // @selector
+const T_OBJPHP_SYNTHESIZE       = 10013; // @synthesize
+const T_OBJPHP_ACCESSORS        = 10014; // @accessors
+const T_OBJPHP_SYNCHRONIZED     = 10015; // @synchronized
+const T_OBJPHP_DEFS             = 10016; // @defs
+const T_OBJPHP_ENCODE           = 10017; // @encode
+const T_OBJPHP_PHP              = 10018; // @php
+const T_OBJPHP_CMD              = 10019; // $_cmd
+const T_OBJPHP_SUPER            = 10020; // $super
+const T_OBJPHP_SELF             = 10021; // $self: (Note: self (no $) is reserved)
+const T_OBJPHP_NIL              = 10022; // nil
+const T_OBJPHP_OBJNIL           = 10023; // Nil
+const T_OBJPHP_THIS             = 10024; // $this: (In instance methods this is replaced by $_op_receiver)
+const T_OBJPHP_YES              = 10025; // YES
+const T_OBJPHP_NO               = 10026; // NO
 
 // Tokenizer
 class Tokenizer
@@ -129,128 +128,131 @@ class Tokenizer
         return ($this->tokenIndex - $i - 1 >= 0)?($this->tokenChain[$this->tokenIndex - $i - 1]):(false);
     }
 
-    // These are the ObjPHP tokens made from an '@' and a PHP token
-    private $tokensFromPHPKeywordsAndAtSymbol
+    private $tokenMap
         = array(
-            T_PUBLIC            => array(T_OBJPHP_PUBLIC,           "T_OBJPHP_PUBLIC"),
-            T_PRIVATE           => array(T_OBJPHP_PRIVATE,          "T_OBJPHP_PRIVATE"),
-            T_PROTECTED         => array(T_OBJPHP_PROTECTED,        "T_OBJPHP_PROTECTED"),
-            T_TRY               => array(T_OBJPHP_TRY,              "T_OBJPHP_TRY"),
-            T_CATCH             => array(T_OBJPHP_CATCH,            "T_OBJPHP_CATCH"),
-            T_THROW             => array(T_OBJPHP_THROW,            "T_OBJPHP_THROW")
+            "@accessors"            => T_OBJPHP_ACCESSORS,
+            "@catch"                => T_OBJPHP_CATCH,
+            "@end"                  => T_OBJPHP_END,
+            "@finally"              => T_OBJPHP_FINALLY,
+            "@implementation"       => T_OBJPHP_IMPLEMENTATION,
+            "@import"               => T_OBJPHP_IMPORT,
+            "@php"                  => T_OBJPHP_PHP,
+            "@private"              => T_OBJPHP_PRIVATE,
+            "@protected"            => T_OBJPHP_PROTECTED,
+            "@protocol"             => T_OBJPHP_PROTOCOL,
+            "@public"               => T_OBJPHP_PUBLIC,
+            "@selector"             => T_OBJPHP_SELECTOR,
+            "@throw"                => T_OBJPHP_THROW,
+            "@try"                  => T_OBJPHP_TRY,
+            '$self'                 => T_OBJPHP_SELF,
+            '$this'                 => T_OBJPHP_THIS,
+            "_cmd"                  => T_OBJPHP_CMD,
+            "nil"                   => T_OBJPHP_NIL,
+            "Nil"                   => T_OBJPHP_OBJNIL,
+            "NO"                    => T_OBJPHP_NO,
+            "YES"                   => T_OBJPHP_YES
         );
 
-    // These are the ObjPHP tokens made from a PHP variable token with the given text
-    private $tokensFromVariables
+    private $tokenNames
         = array(
-            '$self'             => array(T_OBJPHP_SELF,             "T_OBJPHP_SELF"),
-            '$this'             => array(T_OBJPHP_THIS,             "T_OBJPHP_THIS")
+            T_OBJPHP_ACCESSORS      => "T_OBJPHP_ACCESSORS",
+            T_OBJPHP_CATCH          => "T_OBJPHP_CATCH",
+            T_OBJPHP_END            => "T_OBJPHP_END",
+            T_OBJPHP_FINALLY        => "T_OBJPHP_FINALLY",
+            T_OBJPHP_IMPLEMENTATION => "T_OBJPHP_IMPLEMENTATION",
+            T_OBJPHP_IMPORT         => "T_OBJPHP_IMPORT",
+            T_OBJPHP_PHP            => "T_OBJPHP_PHP",
+            T_OBJPHP_PRIVATE        => "T_OBJPHP_PRIVATE",
+            T_OBJPHP_PROTECTED      => "T_OBJPHP_PROTECTED",
+            T_OBJPHP_PROTOCOL       => "T_OBJPHP_PROTOCOL",
+            T_OBJPHP_PUBLIC         => "T_OBJPHP_PUBLIC",
+            T_OBJPHP_SELECTOR       => "T_OBJPHP_SELECTOR",
+            T_OBJPHP_THROW          => "T_OBJPHP_THROW",
+            T_OBJPHP_TRY            => "T_OBJPHP_TRY",
+            T_OBJPHP_SELF           => "T_OBJPHP_SELF",
+            T_OBJPHP_THIS           => "T_OBJPHP_THIS",
+            T_OBJPHP_CMD            => "T_OBJPHP_CMD",
+            T_OBJPHP_NIL            => "T_OBJPHP_NIL",
+            T_OBJPHP_OBJNIL         => "T_OBJPHP_OBJNIL",
+            T_OBJPHP_NO             => "T_OBJPHP_NO",
+            T_OBJPHP_YES            => "T_OBJPHP_YES"
         );
 
-    // These are the ObjPHP tokens made from a PHP string token with the given text
-    private $tokensFromStrings
-        = array(
-            "_cmd"              => array(T_OBJPHP_CMD,              "T_OBJPHP_CMD"),
-            "nil"               => array(T_OBJPHP_NIL,              "T_OBJPHP_NIL"),
-            "Nil"               => array(T_OBJPHP_OBJNIL,           "T_OBJPHP_OBJNIL"),
-            "NO"                => array(T_OBJPHP_NO,               "T_OBJPHP_NO"),
-            "YES"               => array(T_OBJPHP_YES,              "T_OBJPHP_YES")
-        );
+    public function createToken($id, $text, $curline)
+    {
+        $name = (is_int($id))?(
+                                (($tname = token_name($id)) != "UNKNOWN")?($tname):(
+                                        (($tname = $this->tokenName($id)) !== false)?($tname):($text)
+                                    )
+                              ):($text);
 
-    // These are the ObjPHP tokens made from a PHP string token with the given text preceeded by an '@' symbol
-    private $tokensFromStringsAndAtSymbol
-        = array(
-            "php"               => array(T_OBJPHP_PHP,              "T_OBJPHP_PHP"),
-            //"encode"            => array(T_OBJPHP_ENCODE,           "T_OBJPHP_ENCODE"),
-            //"defs"              => array(T_OBJPHP_DEFS,             "T_OBJPHP_DEFS"),
-            //"synchronized"      => array(T_OBJPHP_SYNCHRONIZED,     "T_OBJPHP_SYNCHRONIZED"),
-            "accessors"         => array(T_OBJPHP_ACCESSORS,        "T_OBJPHP_ACCESSORS"),
-            //"synthesize"        => array(T_OBJPHP_SYNTHESIZE,       "T_OBJPHP_SYNTHESIZE"),
-            "selector"          => array(T_OBJPHP_SELECTOR,         "T_OBJPHP_SELECTOR"),
-            "protocol"          => array(T_OBJPHP_PROTOCOL,         "T_OBJPHP_PROTOCOL"),
-            "import"            => array(T_OBJPHP_ATIMPORT,         "T_OBJPHP_ATIMPORT"),
-            "implementation"    => array(T_OBJPHP_IMPLEMENTATION,   "T_OBJPHP_IMPLEMENTATION"),
-            //"interface"         => array(T_OBJPHP_INTERFACE,        "T_OBJPHP_INTERFACE"),
-            "end"               => array(T_OBJPHP_END,              "T_OBJPHP_END"),
-            "finally"           => array(T_OBJPHP_FINALLY,          "T_OBJPHP_FINALLY")
-        );
+        return array($id, $name, $text, $curline);
+    }
+
+    public function tokenName($id)
+    {
+        return (array_key_exists($id, $this->tokenNames))?($this->tokenNames[$id]):(false);
+    }
 
     private function tokenize($src)
     {
         $this->startTimer();
 
-        $tokens = token_get_all($src);
+        $tokenizedSource = token_get_all($src);
 
         $curline = -1; // keeps the current line counter for the string tokens
-        $tokencount = count($tokens);
+        $tokenCount = count($tokenizedSource);
 
-        for ($i = 0; $i < $tokencount; $i++)
+        for ($i = 0; $i < $tokenCount; $i++)
         {
-            $token = $tokens[$i];
-            $id = -1;
-            $text = "";
-            $rmToken = false;
+            $token = $tokenizedSource[$i];
 
-            $prevToken = ($i > 0)?($tokens[$i-1]):(false);
+            $prevToken = ($i > 0)?($tokenizedSource[$i-1]):(false);
 
+            // Many single character tokens are simply retained as strings
+            // Name, string and id are all simply the character string
             if (is_string($token))
             {
-                // Many single character tokens are simply retained as strings
-                // Name, string and id are all simply the character string
-                $id = $token;
-                $t_name = $token;
-                $text = $token;
+                $tokenizedSource[$i] = $this->createToken($token, $token, $curline);
+                continue;
+            }
+
+            // PHP tokens are Array objects which contain the ID, the string of the token
+            // and the location of the token (source code line).
+            list($id, $text, $curline) = $token;
+
+            // Create key into token map
+            if($prevToken !== false && $prevToken[0] == '@')
+            {
+                $key = '@'.$text;
+                $rmToken = true;
+            }
+            else
+                $key = $text;
+
+            // Check if this is an Objective PHP keyword
+            if (array_key_exists($key, $this->tokenMap))
+            {
+                // Delete preceeding '@' from token stream
+                if (isset($rmToken))
+                {
+                    unset($tokenizedSource[$i - 1]);
+                    unset($rmToken);
+                }
+
+                $tokenizedSource[$i] = $this->createToken($this->tokenMap[$key], $text, $curline);
             }
             else
             {
-                // PHP tokens are Array objects which contain the ID, the string of the token
-                // and the location of the token (source code line).
-                list($id,$text,$curline) = $token;
-                $t_name = token_name($id); // PHP token name function
+                if (isset($rmToken))
+                    unset($rmToken);
 
-                // Objective-PHP keywords from PHP keywords
-                if (array_key_exists($id, $this->tokensFromPHPKeywordsAndAtSymbol))
-                {
-                    if ($prevToken && ($prevToken[0] == '@'))
-                    {
-                        $t_name = $this->tokensFromPHPKeywordsAndAtSymbol[$id][1];
-                        $id = $this->tokensFromPHPKeywordsAndAtSymbol[$id][0];
-                        $rmToken = true;
-                    }
-                }
-                else if ($id == T_VARIABLE && array_key_exists($text, $this->tokensFromVariables))
-                {
-                    $t_name = $this->tokensFromVariables[$text][1];
-                    $id = $this->tokensFromVariables[$text][0];
-                }
-                else if ($id == T_STRING && array_key_exists($text, $this->tokensFromStrings))
-                {
-                    $t_name = $this->tokensFromStrings[$text][1];
-                    $id = $this->tokensFromStrings[$text][0];
-                }
-                else if ($id == T_STRING && array_key_exists($text, $this->tokensFromStringsAndAtSymbol))
-                {
-                    if ($prevToken && ($prevToken[0] == '@'))
-                    {
-                        $t_name = $this->tokensFromStringsAndAtSymbol[$text][1];
-                        $id = $this->tokensFromStringsAndAtSymbol[$text][0];
-                        $rmToken = true;
-                    }
-                }
-
-                // Delete preceeding '@'
-                if ($rmToken)
-                {
-                    unset($tokens[$i - 1]);
-                }
+                $tokenizedSource[$i] = $this->createToken($id, $text, $curline);
             }
-
-            // token is created in our form
-            $tokens[$i] = array($id,$t_name,$text,$curline);
         }
 
         // add new tokens
-        array_splice($this->tokenChain, $this->tokenIndex, 0, $tokens);
+        array_splice($this->tokenChain, $this->tokenIndex, 0, $tokenizedSource);
 
         $this->stopTimer();
         return true;
