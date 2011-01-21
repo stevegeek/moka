@@ -321,3 +321,5 @@ MKScriptClassDescription.h
 */
 
 @import <Foundation/Protocol.op>
+
+@import <Foundation/MKKeyValueCoding.op>

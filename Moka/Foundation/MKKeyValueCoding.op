@@ -1,0 +1,15 @@
+<?php
+
+@implementation MKObject (MKKeyValueCoding)
+
+- (id)valueForKey:(MKString)key
+{
+    return nil;
+}
+
+- (void)setValue:(id)value forKey:(MKString)key
+{
+    
+}
+
+@end
