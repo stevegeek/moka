@@ -1,0 +1,140 @@
+<?php
+
+@implementation TokenizerTest : UnitTest
+{
+    Tokenizer tokenizer;
+}
+
+- (void)setUp
+{
+    $self->tokenizer = new \ObjPHP\Tokenizer("<?php \$test = 1;");
+    $self->tokenizer->reset();
+}
+
+- (void)testTokenImport
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @import")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_IMPORT, "import", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenImplementation
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @implementation")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_IMPLEMENTATION, "implementation", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenEnd
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @end")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_END, "end", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenPublic
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @public")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_PUBLIC, "public", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenPrivate
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @private")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_PRIVATE, "private", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenProtected
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @protected")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_PROTECTED, "protected", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenTry
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @try")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_TRY, "try", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenCatch
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @catch")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_CATCH, "catch", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenThrow
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @throw")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_THROW, "throw", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenFinally
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @finally")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_FINALLY, "finally", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenProtocol
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @protocol")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_PROTOCOL, "protocol", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenSelector
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @selector")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_SELECTOR, "selector", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenAccessors
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @accessors")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_ACCESSORS, "accessors", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenPhp
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php @php")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_PHP, "php", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenCmd
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php _cmd")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_CMD, "_cmd", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenSelf
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php \$self")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_SELF, "\$self", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenThis
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php \$this")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_THIS, "\$this", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenNil
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php nil")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_NIL, "nil", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenObjNil
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php Nil")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_OBJNIL, "Nil", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenYes
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php YES")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_YES, "YES", 1) equals:$self->tokenizer->peekToken()];
+}
+
+- (void)testTokenNo
+{
+    [$self assertTrue:$self->tokenizer->addTokensAndReset("<?php NO")];
+    [$self assert:$self->tokenizer->createToken(\ObjPHP\T_OBJPHP_NO, "NO", 1) equals:$self->tokenizer->peekToken()];
+}
+
+@end
