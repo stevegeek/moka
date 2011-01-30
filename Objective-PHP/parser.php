@@ -204,7 +204,7 @@ class Parser
 
                 default:
                     if ($runtimeimport)
-                        $source .= $this->ruleExpression($t, false, true, true);
+                        $source .= $this->ruleExpression($t, false, false, false, true, true);
                     else
                         $source .= $this->ruleExpression($t);
                     $useToken = PARSER_LEAVE;
@@ -458,7 +458,7 @@ class Parser
                     if ($s == 43)
                     {
                         // initial as number
-                        $iVarInitialValue = $this->ruleExpression($t, true, false, false);
+                        $iVarInitialValue = $this->ruleExpression($t, true, true, false, false, false);
                         $s = 44;
                         $useToken = PARSER_LEAVE;
                     }
@@ -962,7 +962,7 @@ class Parser
 
                 default:
                     $s = S_FIRST;
-                    $function .= $this->ruleExpression($t, false, $convertSelf, $convertThis, $className);
+                    $function .= $this->ruleExpression($t, false, false, false, $convertSelf, $convertThis, $className);
                     $useToken = PARSER_LEAVE;
             }
 
@@ -1187,9 +1187,7 @@ class Parser
     }
 
     // expression
-    // FIXME: The stop on whitespace and symbols needs a refactor. prob
-    // to be stop on whitespace and stop on symbols seperately
-    private function ruleExpression($firstToken, $stopOnWhitespaceAndClosingSymbols=false, $convertSelf=false, $convertThis=false, $className=null)
+    private function ruleExpression($firstToken, $stopOnWhitespace=false, $stopOnClosingSymbols=false, $stopOnParameter=false, $convertSelf=false, $convertThis=false, $className=null)
     {
         $s = S_START;
 
@@ -1254,7 +1252,7 @@ class Parser
                     break;
 
                 case '(':
-                    if ($s == S_START && $stopOnWhitespaceAndClosingSymbols == false)
+                    if ($s == S_START && $stopOnClosingSymbols == false)
                     {
                         $code .= $t[2];
                         $useToken = PARSER_USE;
@@ -1262,7 +1260,7 @@ class Parser
                     }
                     else
                     {
-                        $code .= $this->ruleExpression($t, false, $convertSelf, $convertThis, $className);
+                        $code .= $this->ruleExpression($t, false, false, false, $convertSelf, $convertThis, $className);
                         $useToken = PARSER_LEAVE;
                         $s = S_FIRST;
                     }
@@ -1298,7 +1296,7 @@ class Parser
 
                 case '}':  // FIXME: CHECK THE LOGIC HERE
                 case ';':
-                    if ($stopOnWhitespaceAndClosingSymbols)
+                    if ($stopOnClosingSymbols)
                     {
                         $s = S_END;
                         $useToken = PARSER_LEAVE;
@@ -1315,7 +1313,7 @@ class Parser
                 case ',':
                 case ':':
                 case ']':
-                    if ($stopOnWhitespaceAndClosingSymbols && !$squareBracketOpen)
+                    if ($stopOnClosingSymbols && !$squareBracketOpen)
                     {
                         $s = S_END;
                         $useToken = PARSER_LEAVE;
@@ -1328,7 +1326,7 @@ class Parser
                     break;
 
                 case T_WHITESPACE:
-                    if ($stopOnWhitespaceAndClosingSymbols || (preg_match('/^[^\n\s]*\n/', $t[2]) != 0))
+                    if ($stopOnWhitespace || (preg_match('/^[^\n\s]*\n/', $t[2]) != 0))
                     {
                         $s = S_END;
                         $useToken = PARSER_LEAVE;
@@ -1351,7 +1349,7 @@ class Parser
 
                 case T_OPEN_TAG:
                 case T_CLOSE_TAG:
-                    if (!$stopOnWhitespaceAndClosingSymbols)
+                    if (!$stopOnClosingSymbols)
                     {
                         $s = S_END;
                         $code .= $t[2];
@@ -1370,6 +1368,17 @@ class Parser
                     $useToken = PARSER_USE;
                     break;
 
+                case T_STRING:
+                    if ($stopOnParameter)
+                    {
+                        $next = $this->tokens->peekToken();
+                        if ($next[0] == ':')
+                        {
+                            $s = S_END;
+                            $useToken = PARSER_LEAVE;
+                            break;
+                        }
+                    }
                 default:
                     $s = S_FIRST;
                     $code .= $t[2];
@@ -1429,13 +1438,13 @@ class Parser
                     }
                     else if ($s == S_FIRST)
                     {
-                        $receiver = array('type'=>'e', 'value'=>$this->ruleExpression($t, true, $convertSelf, $convertThis));
+                        $receiver = array('type'=>'e', 'value'=>$this->ruleExpression($t, true, true, true, $convertSelf, $convertThis));
                         $s = 2;
                         $useToken = PARSER_LEAVE;
                     }
                     else if ($s == 4)
                     {
-                        $labelParamsList[] = array('type'=>'p', 'value'=>$this->ruleExpression($t, true, $convertSelf, $convertThis));
+                        $labelParamsList[] = array('type'=>'p', 'value'=>$this->ruleExpression($t, false, true, true, $convertSelf, $convertThis));
                         $s = 5;
                         $useToken = PARSER_LEAVE;
                     }
@@ -1468,14 +1477,14 @@ class Parser
                                        || $t[0] == T_OBJPHP_SELF
                                        || $t[0] == T_OBJPHP_THIS))
                     {
-                        $receiver = array('type'=>'e','value'=>$this->ruleExpression($t, true, $convertSelf, $convertThis));
+                        $receiver = array('type'=>'e','value'=>$this->ruleExpression($t, true, true, true, $convertSelf, $convertThis));
                         $s = 2;
                         $useToken = PARSER_LEAVE;
                     }
                     else if ($s == 10)
                     {
                         // string plus the rest of the expression
-                        $receiver = array('type'=>'e','value'=>$receiver['value'].$this->ruleExpression($t, true, $convertSelf, $convertThis));
+                        $receiver = array('type'=>'e','value'=>$receiver['value'].$this->ruleExpression($t, true, true, true, $convertSelf, $convertThis));
                         $s = 2;
                         $useToken = PARSER_LEAVE;
                     }
@@ -1508,7 +1517,7 @@ class Parser
                     else if ($s == 4)
                     {
                         // A parameter from expression
-                        $labelParamsList[] = array('type'=>'p', 'value'=>$this->ruleExpression($t, true, $convertSelf, $convertThis));
+                        $labelParamsList[] = array('type'=>'p', 'value'=>$this->ruleExpression($t, false, true, true, $convertSelf, $convertThis));
                         $s = 5;
                         $useToken = PARSER_LEAVE;
                     }
@@ -1605,7 +1614,7 @@ class Parser
                     // Dynamic imports are ALWAYS full (not relative to include paths) (is no < >)
                     if ($s == S_FIRST)
                     {
-                        $fileName .= $this->ruleExpression($t, true, $convertSelf, $convertThis);
+                        $fileName .= $this->ruleExpression($t, true, true, false, $convertSelf, $convertThis);
                         $dynamicImport = true;
                         $s = S_END;
                         $useToken = PARSER_LEAVE;
@@ -1846,7 +1855,7 @@ class Parser
                     if ($s == S_FIRST && $expressions)
                     {
                         $s = 2;
-                        $source .= $this->ruleExpression($t, true);
+                        $source .= $this->ruleExpression($t, false, true);
                         $useToken = PARSER_LEAVE;
                     }
                     break;
