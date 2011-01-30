@@ -520,7 +520,7 @@ class Parser
                             $this->reflectionClassAdd($className);
                         }
                         $methodInfo = $this->ruleMethodDeclaration('class', $t, $className);
-                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), true, true, $methodInfo);
+                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), true, true, $className, $methodInfo);
                         $this->reflectionClassAddMethod($className, $methodInfo, $methodSource, _METHOD_CLASS);
                         $s = 20;
                         $useToken = PARSER_LEAVE;
@@ -537,7 +537,7 @@ class Parser
                             $this->reflectionClassAdd($className);
                         }
                         $methodInfo = $this->ruleMethodDeclaration('class', $t, $className);
-                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), false, true, $methodInfo);
+                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), false, true, $className, $methodInfo);
                         $this->reflectionClassAddMethod($className, $methodInfo, $methodSource, _METHOD_CLASS);
                         $s = 20;
                         $useToken = PARSER_LEAVE;
@@ -842,7 +842,7 @@ class Parser
                     if ($s == 3 || $s == 4)
                     {
                         $methodInfo = $this->ruleMethodDeclaration('category', $t, $catName);
-                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), true, true, $methodInfo);
+                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), true, true, $className, $methodInfo);
                         $this->reflectionClassCategoryAddMethod($className, $catName, $methodInfo, $methodSource, _METHOD_CAT);
 
                         $s = 4;
@@ -854,7 +854,7 @@ class Parser
                     if ($s == 3 || $s == 4)
                     {
                         $methodInfo = $this->ruleMethodDeclaration('category', $t, $catName);
-                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), false, true, $methodInfo);
+                        $methodSource = $this->ruleFunctionBlock($this->tokens->current(), false, true, $className, $methodInfo);
                         $this->reflectionClassCategoryAddMethod($className, $catName, $methodInfo, $methodSource, _METHOD_CAT);
 
                         $s = 4;
@@ -904,7 +904,7 @@ class Parser
     }
 
     // Parse anything between { and }
-    private function ruleFunctionBlock($firstToken, $convertSelf = false,$convertThis = false, $methodInfo = null)
+    private function ruleFunctionBlock($firstToken, $convertSelf = false, $convertThis = false, $className = null, $methodInfo = null)
     {
         $s = S_START;
 
@@ -938,7 +938,7 @@ class Parser
                     }
                     else
                     {
-                        $function .= $this->ruleFunctionBlock($t, $convertSelf, $convertThis);
+                        $function .= $this->ruleFunctionBlock($t, $convertSelf, $convertThis, $className);
                         $useToken = PARSER_LEAVE;
                     }
                     break;
@@ -962,7 +962,7 @@ class Parser
 
                 default:
                     $s = S_FIRST;
-                    $function .= $this->ruleExpression($t, false, $convertSelf,$convertThis);
+                    $function .= $this->ruleExpression($t, false, $convertSelf, $convertThis, $className);
                     $useToken = PARSER_LEAVE;
             }
 
@@ -971,7 +971,7 @@ class Parser
             else if ($useToken == PARSER_LEAVE)
                 $t = $this->tokens->current();
             else
-                $this->syntaxError($t, "Unexpected character in function block ".(($methodInfo)?("in method '".$methodInfo['name']."'"):(""))." in state $s: ",PARSE_ERR_UNEX_CHAR);
+                $this->syntaxError($t, "Unexpected character in function block ".(($methodInfo)?("in method '".$methodInfo['name']."' of class '$className'"):(""))." in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
         while( $s < S_END && $t);
 
@@ -1189,7 +1189,7 @@ class Parser
     // expression
     // FIXME: The stop on whitespace and symbols needs a refactor. prob
     // to be stop on whitespace and stop on symbols seperately
-    private function ruleExpression($firstToken, $stopOnWhitespaceAndClosingSymbols=false, $convertSelf=false, $convertThis=false)
+    private function ruleExpression($firstToken, $stopOnWhitespaceAndClosingSymbols=false, $convertSelf=false, $convertThis=false, $className=null)
     {
         $s = S_START;
 
@@ -1248,7 +1248,7 @@ class Parser
                     break;
 
                 case '{':
-                    $code .= $this->ruleFunctionBlock($t,$convertSelf, $convertThis);
+                    $code .= $this->ruleFunctionBlock($t, $convertSelf, $convertThis, $className);
                     $useToken = PARSER_LEAVE;
                     $s = S_FIRST;
                     break;
@@ -1262,7 +1262,7 @@ class Parser
                     }
                     else
                     {
-                        $code .= $this->ruleExpression($t, false, $convertSelf, $convertThis);
+                        $code .= $this->ruleExpression($t, false, $convertSelf, $convertThis, $className);
                         $useToken = PARSER_LEAVE;
                         $s = S_FIRST;
                     }
@@ -1359,6 +1359,17 @@ class Parser
                     }
                     break;
 
+                case T_VARIABLE:
+                    $ivars = $this->reflectionClassProperties($className);
+                    if ($className && $ivars && array_key_exists(substr($t[2],1), $ivars))
+                        $code .= PARSER_CLASSTHISREFNAME.'->'.substr($t[2],1);
+                    else
+                        $code .= $t[2];
+
+                    $s = S_FIRST;
+                    $useToken = PARSER_USE;
+                    break;
+
                 default:
                     $s = S_FIRST;
                     $code .= $t[2];
@@ -1418,7 +1429,7 @@ class Parser
                     }
                     else if ($s == S_FIRST)
                     {
-                        $receiver = array('type'=>'e', 'value'=>$this->ruleExpression($t, true,$convertSelf,$convertThis));
+                        $receiver = array('type'=>'e', 'value'=>$this->ruleExpression($t, true, $convertSelf, $convertThis));
                         $s = 2;
                         $useToken = PARSER_LEAVE;
                     }
@@ -1457,14 +1468,14 @@ class Parser
                                        || $t[0] == T_OBJPHP_SELF
                                        || $t[0] == T_OBJPHP_THIS))
                     {
-                        $receiver = array('type'=>'e','value'=>$this->ruleExpression($t, true,$convertSelf,$convertThis));
+                        $receiver = array('type'=>'e','value'=>$this->ruleExpression($t, true, $convertSelf, $convertThis));
                         $s = 2;
                         $useToken = PARSER_LEAVE;
                     }
                     else if ($s == 10)
                     {
                         // string plus the rest of the expression
-                        $receiver = array('type'=>'e','value'=>$receiver['value'].$this->ruleExpression($t, true,$convertSelf,$convertThis));
+                        $receiver = array('type'=>'e','value'=>$receiver['value'].$this->ruleExpression($t, true, $convertSelf, $convertThis));
                         $s = 2;
                         $useToken = PARSER_LEAVE;
                     }
@@ -1497,7 +1508,7 @@ class Parser
                     else if ($s == 4)
                     {
                         // A parameter from expression
-                        $labelParamsList[] = array('type'=>'p', 'value'=>$this->ruleExpression($t, true,$convertSelf,$convertThis));
+                        $labelParamsList[] = array('type'=>'p', 'value'=>$this->ruleExpression($t, true, $convertSelf, $convertThis));
                         $s = 5;
                         $useToken = PARSER_LEAVE;
                     }
