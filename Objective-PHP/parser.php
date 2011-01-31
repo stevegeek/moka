@@ -219,9 +219,31 @@ class Parser
                 $this->syntaxError($t, "Unexpected character in expression in state $s: ",PARSE_ERR_UNEX_CHAR);
 
         }
-        while($t != false);
+        while ($t != false);
 
-        // TODO: php -l file on result? php_check_syntax was deprecated
+        // PHP Lint result: php -l file on result
+        $descriptorspec = array(
+           0 => array("pipe", "r"),
+           1 => array("pipe", "w")
+        );
+
+        $process = proc_open('php -l ', $descriptorspec, $pipes, NULL, NULL);
+
+        if (is_resource($process))
+        {
+            fwrite($pipes[0], $source);
+            fclose($pipes[0]);
+
+            $lintOp = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+
+            $return_value = proc_close($process);
+
+            if (strpos($lintOp, "No syntax errors detected in") === false)
+            {
+                throw new \ObjPHP\CountableException("PHP Lint failed on the Objective-PHP parser output. Lint returned '$lintOp' ($return_value)\n");
+            }
+        }
 
         $this->stopTimer();
 
