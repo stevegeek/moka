@@ -335,6 +335,19 @@ class Parser
                         // category
                         return $this->ruleCategory($t,$className);
                     }
+                    else if ($s == 50)
+                    {
+                        $s = 51;
+                        $useToken = PARSER_USE;
+                    }
+                    break;
+
+                case ')':
+                    if ($s == 52)
+                    {
+                        $s = 60;
+                        $useToken = PARSER_USE;
+                    }
                     break;
 
                 case '{':
@@ -392,6 +405,51 @@ class Parser
                         $s = 44;
                         $useToken = PARSER_USE;
                     }
+                    else if ($s == 51 && ($t[2] == 'readonly' || $t[2] == 'readwrite' || $t[2] == 'copy'))
+                    {
+                        $s = 52;
+                        switch ($t[2])
+                        {
+                            case 'readwrite':
+                                $iVarAccessors['setter'] = true;
+                            case 'readonly':
+                                $iVarAccessors['getter'] = true;
+                                break;
+                            case 'copy':
+                                $iVarAccessors['copy'] = true;
+                                break;
+                        }
+                        $useToken = PARSER_USE;
+                    }
+                    else if ($s == 51 && ($t[2] == 'setter' || $t[2] == 'getter'))
+                    {
+                        switch ($t[2])
+                        {
+                            case 'setter':
+                                if (!isset($iVarAccessors['setter']) || $iVarAccessors['setter'] == false)
+                                    $this->syntaxError($t, "'setter' cannot be defined with 'readonly' for accessor for ivar '$iVarName'", PARSE_ERR_UNEX_STRING);
+                                $s = 54;
+                                break;
+                            case 'getter':
+                                $s = 55;
+                                break;
+                        }
+                        $useToken = PARSER_USE;
+                    }
+                    else if ($s == 56)
+                    {
+                        if (!isset($iVarAccessors['setter']) || $iVarAccessors['setter'] == false)
+                            $this->syntaxError($t, "'setter' name cannot be set with 'readonly' for accessor for ivar '$iVarName'", PARSE_ERR_UNEX_STRING);
+                        $iVarAccessors['setter'] = $t[2];
+                        $s = 52;
+                        $useToken = PARSER_USE;
+                    }
+                    else if ($s == 57)
+                    {
+                        $iVarAccessors['getter'] = $t[2];
+                        $s = 52;
+                        $useToken = PARSER_USE;
+                    }
                     break;
 
                 case T_OBJPHP_PUBLIC:
@@ -424,8 +482,7 @@ class Parser
                 case T_OBJPHP_ACCESSORS:
                     if ($s == 42 || $s == 44 || $s == 46)
                     {
-                        $iVarAccessors = true;
-                        $s = 45;
+                        $s = 50;
                         $useToken = PARSER_USE;
                     }
                     break;
@@ -512,15 +569,25 @@ class Parser
                         $s = 43;
                         $useToken = PARSER_USE;
                     }
+                    if ($s == 54)
+                    {
+                        $s = 56;
+                        $useToken = PARSER_USE;
+                    }
+                    if ($s == 55)
+                    {
+                        $s = 57;
+                        $useToken = PARSER_USE;
+                    }
                     break;
 
                 case ';':
-                    if ($s == 42 || $s == 44 || $s == 45 || $s == 46)
+                    if ($s == 42 || $s == 44 || $s == 45 || $s == 46 || $s == 50  || $s == 60)
                     {
                         // end of ivar
 
                         // FIXME: accessors are currently always both get and set.
-                        $this->reflectionClassAddProperty($className, $iVarName, $iVarVis, $iVarType, $iVarInitialValue, $iVarAccessors, $iVarAccessors);
+                        $this->reflectionClassAddProperty($className, $iVarName, $iVarVis, $iVarType, $iVarInitialValue, $iVarAccessors);
 
                         $iVarVis = false;
                         $iVarName = false;
@@ -587,6 +654,11 @@ class Parser
                         $s = 41;
                         $useToken = PARSER_USE;
                     }
+                    else if ($s == 52)
+                    {
+                        $s = 51;
+                        $useToken = PARSER_USE;
+                    }
                     break;
 
                 case T_OBJPHP_END:
@@ -615,7 +687,6 @@ class Parser
                         $s = 42;
                         $useToken = PARSER_USE;
                     }
-
                 default:
                     if (($s == 40 || $s == 41) && $this->terminalIsPHPKeyword($t))
                     {
@@ -2203,20 +2274,26 @@ class Parser
     }
 
     // *********************
-    private function generateGetAccessor($className, $iVarName)
+    private function generateGetAccessor($className, $iVarName, $iVarAccessor)
     {
-        $label[0] = array('type'=>'l', 'value'=>$iVarName);
+        $label[0] = array('type'=>'l', 'value'=>(isset($iVarAccessor['getter']) && !is_bool($iVarAccessor['getter']))?($iVarAccessor['getter']):($iVarName));
         $methodInfo = $this->reflectionCreateMethodInfo('i', $label);
         $this->reflectionClassAddMethod($className, $methodInfo, "return ".PARSER_CLASSTHISREFNAME."->$iVarName;\n}", _METHOD_CLASS);
     }
 
-    private function generateSetAccessor($className, $iVarName)
+    private function generateSetAccessor($className, $iVarName, $iVarAccessor)
     {
 
-        $label[0] = array('type'=>'l', 'value'=>'set'.ucfirst($iVarName));
+        $label[0] = array('type'=>'l', 'value'=>(isset($iVarAccessor['setter']) && !is_bool($iVarAccessor['setter']))?($iVarAccessor['setter']):('set'.ucfirst($iVarName)));
         $label[1] = array('type'=>'p', 'value'=>'obj');
         $methodInfo = $this->reflectionCreateMethodInfo('i', $label);
-        $this->reflectionClassAddMethod($className, $methodInfo, PARSER_CLASSTHISREFNAME."->$iVarName = \$obj;\n}", _METHOD_CLASS);
+
+        if (isset($iVarAccessor['copy']) && $iVarAccessor['copy'] == true)
+            $source = PARSER_CLASSTHISREFNAME."->$iVarName = \ObjPHP\objphp_msgSend(\$obj, \ObjPHP\methodNameFromSelector('copy'), array());\n}";
+        else
+            $source = PARSER_CLASSTHISREFNAME."->$iVarName = \$obj;\n}";
+
+        $this->reflectionClassAddMethod($className, $methodInfo, $source, _METHOD_CLASS);
     }
 
     private function generateDynamicImport($fileName)
@@ -2651,7 +2728,7 @@ class Parser
         return array_key_exists($methodName, $this->classes[$className]['methods']['i']);
     }
 
-    private function reflectionClassAddProperty($className, $iVarName, $iVarVis, $iVarType, $iVarInitialValue, $iVarGetAccessor = false, $iVarSetAccessor = false)
+    private function reflectionClassAddProperty($className, $iVarName, $iVarVis, $iVarType, $iVarInitialValue, $iVarAccessor = false)
     {
         // ivar name, if no Vis is set default is protected
         if (!$iVarVis)
@@ -2661,13 +2738,12 @@ class Parser
         $this->classes[$className]['properties'][$iVarName]['type'] = $iVarType;
         $this->classes[$className]['properties'][$iVarName]['value'] = $iVarInitialValue;
 
-        if ($iVarSetAccessor)
+        if (is_array($iVarAccessor))
         {
-            $this->generateSetAccessor($className, $iVarName);
-        }
-        if ($iVarGetAccessor)
-        {
-            $this->generateGetAccessor($className, $iVarName);
+            if (array_key_exists("setter", $iVarAccessor))
+                $this->generateSetAccessor($className, $iVarName, $iVarAccessor);
+            if (array_key_exists("getter", $iVarAccessor))
+                $this->generateGetAccessor($className, $iVarName, $iVarAccessor);
         }
     }
 
