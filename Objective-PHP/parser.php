@@ -585,8 +585,6 @@ class Parser
                     if ($s == 42 || $s == 44 || $s == 45 || $s == 46 || $s == 50  || $s == 60)
                     {
                         // end of ivar
-
-                        // FIXME: accessors are currently always both get and set.
                         $this->reflectionClassAddProperty($className, $iVarName, $iVarVis, $iVarType, $iVarInitialValue, $iVarAccessors);
 
                         $iVarVis = false;
