@@ -69,15 +69,15 @@ function copyr($dirsource, $dirdest, $silence = false)
     String    appFile           @accessors;
 }
 
-- (id)initWithPath:path andPlist:plist
+- (id)initWithPath:aPath andPlist:aPList
 {
     if ($self = [super init])
     {
-        $self->path                 = $path;
-        $self->filePath             = $path.'/files';
+        $self->path                 = $aPath;
+        $self->filePath             = $aPath.'/files';
 
         // FIXME: plist support does exist yet, here use simple and horrible hack
-        $self->pList = simplexml_load_file($plist);
+        $self->pList = simplexml_load_file($aPList);
 
         $self->renameBootstrap      = (isset($self->pList->dict->true))?(true):(false);
         $self->name                 = (string)$self->pList->dict->string[0];
