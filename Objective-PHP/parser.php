@@ -249,6 +249,8 @@ class Parser
 
         $source = $source . "//Generated: ".date('l jS \of F Y h:i:s A')." - Parse time: ".$this->getTime()."\n";
 
+        //file_put_contents("gensource.php", $source, FILE_APPEND);
+
         return $source;
     }
 
@@ -412,7 +414,10 @@ class Parser
                         {
                             case 'readwrite':
                                 $iVarAccessors['setter'] = true;
+                                $iVarAccessors['getter'] = true;
+                                break;
                             case 'readonly':
+                                $iVarAccessors['setter'] = false;
                                 $iVarAccessors['getter'] = true;
                                 break;
                             case 'copy':
@@ -482,6 +487,8 @@ class Parser
                 case T_OBJPHP_ACCESSORS:
                     if ($s == 42 || $s == 44 || $s == 46)
                     {
+                        $iVarAccessors['setter'] = true;
+                        $iVarAccessors['getter'] = true;
                         $s = 50;
                         $useToken = PARSER_USE;
                     }
