@@ -53,13 +53,12 @@ const T_OBJPHP_DEFS             = 10016; // @defs
 const T_OBJPHP_ENCODE           = 10017; // @encode
 const T_OBJPHP_PHP              = 10018; // @php
 const T_OBJPHP_CMD              = 10019; // $_cmd
-const T_OBJPHP_SUPER            = 10020; // $super
-const T_OBJPHP_SELF             = 10021; // $self: (Note: self (no $) is reserved)
-const T_OBJPHP_NIL              = 10022; // nil
-const T_OBJPHP_OBJNIL           = 10023; // Nil
-const T_OBJPHP_THIS             = 10024; // $this: (In instance methods this is replaced by $_op_receiver)
-const T_OBJPHP_YES              = 10025; // YES
-const T_OBJPHP_NO               = 10026; // NO
+const T_OBJPHP_SELF             = 10020; // $self: (Note: self (no $) is reserved)
+const T_OBJPHP_NIL              = 10021; // nil
+const T_OBJPHP_OBJNIL           = 10022; // Nil
+const T_OBJPHP_THIS             = 10023; // $this: (In instance methods this is replaced by $_op_receiver)
+const T_OBJPHP_YES              = 10024; // YES
+const T_OBJPHP_NO               = 10025; // NO
 
 // Tokenizer
 class Tokenizer
