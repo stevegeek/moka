@@ -541,7 +541,13 @@ class Parser
 
                 // = array( ... ) is valid initial
                 case T_ARRAY:
-                    if ($s == 43)
+                    if ($s == 40 || $s == 41)
+                    {
+                        $iVarType = $t[2];
+                        $s = 42;
+                        $useToken = PARSER_USE;
+                    }
+                    else if ($s == 43)
                     {
                         // initial as number
                         $iVarInitialValue = $this->ruleExpression($t, true, true, false, false, false);
@@ -2735,6 +2741,9 @@ class Parser
 
     private function reflectionClassAddProperty($className, $iVarName, $iVarVis, $iVarType, $iVarInitialValue, $iVarAccessor = false)
     {
+        if (!$iVarName || !strlen($iVarName))
+            $this->syntaxError(false, "Ivar in '$className' can not have no name.", PARSE_ERR_UNEX_STRING);
+
         // ivar name, if no Vis is set default is protected
         if (!$iVarVis)
             $iVarVis = 'protected';
