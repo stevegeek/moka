@@ -64,7 +64,7 @@ class _objphp_class
         try
         {
             $sel = _objphp_methodNameFromSelector('description');
-            if ($this->isa->hasMethod($sel))
+            if ($this->isa->hasMethodWithMethodName($sel))
                 return objphp_msgSend($this, $sel, array());
         }
         catch (Exception $e)
@@ -145,7 +145,7 @@ class _objphp_runtimeclass extends _objphp_class
         try
         {
             $sel = _objphp_methodNameFromSelector('description');
-            if ($this->hasMethod($sel))
+            if ($this->hasMethodWithMethodName($sel))
                 return objphp_msgSend($this, $sel, array());
         }
         catch (Exception $e)
@@ -305,7 +305,6 @@ function _objphp_methodNameFromSelector($sel)
 }
 
 function _objphp_selectorFromMethodName($methodName) // MKStringFromSelector
-
 {
     return str_replace("_", ":", substr($methodName,2));
 }
