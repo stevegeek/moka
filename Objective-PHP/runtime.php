@@ -30,8 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace ObjPHP;
-
 include_once "Objective-PHP/tokenizer.php";
 include_once "Objective-PHP/parser.php";
 
@@ -53,7 +51,7 @@ $_objphp_preprocessor = null;
 
 // Note: for the root class see Moka/Object.php
 // The base runtime class for instance objects
-class _class
+class _objphp_class
 {
     public $isa;
     public $uid;
@@ -68,9 +66,9 @@ class _class
     {
         try
         {
-            $sel = methodNameFromSelector('description');
+            $sel = _objphp_methodNameFromSelector('description');
             if ($this->isa->hasMethod($sel))
-                return obj_msgSend($this, $sel, array());
+                return objphp_msgSend($this, $sel, array());
         }
         catch (Exception $e)
         {
@@ -80,7 +78,7 @@ class _class
 }
 
 // The base runtime class for class and metaclasses
-class _runtimeclass extends _class
+class _objphp_runtimeclass extends _objphp_class
 {
     public $super_class     = null;
     public $name            = "";
@@ -106,7 +104,7 @@ class _runtimeclass extends _class
 
     public function addMethod($sel, $func)
     {
-        $this->dispatchTable[methodNameFromSelector($sel)] = $func;
+        $this->dispatchTable[_objphp_methodNameFromSelector($sel)] = $func;
     }
     public function addMethodWithMethodName($methodName, $func)
     {
@@ -118,7 +116,7 @@ class _runtimeclass extends _class
     public function hasMethod($sel)
     {
         // FIXME: optimise away this call
-        $methodName = methodNameFromSelector($sel);
+        $methodName = _objphp_methodNameFromSelector($sel);
 
         if (array_key_exists($methodName,$this->dispatchTable))
             return $this->dispatchTable[$methodName]['dispatchmethod'];
@@ -136,7 +134,7 @@ class _runtimeclass extends _class
 
     public function getMethodFromDispatchTable($sel)
     {
-        return $this->dispatchTable[methodNameFromSelector($sel)]['pointer'];
+        return $this->dispatchTable[_objphp_methodNameFromSelector($sel)]['pointer'];
     }
     public function getMethodFromDispatchTableWithMethodName($methodName)
     {
@@ -149,9 +147,9 @@ class _runtimeclass extends _class
     {
         try
         {
-            $sel = methodNameFromSelector('description');
+            $sel = _objphp_methodNameFromSelector('description');
             if ($this->hasMethod($sel))
-                return obj_msgSend($this, $sel, array());
+                return objphp_msgSend($this, $sel, array());
         }
         catch (Exception $e)
         {
@@ -166,7 +164,7 @@ class _runtimeclass extends _class
 }
 
 // The base protocol object, a singleton version of an instance class
-class _protocol extends _class
+class _objphp_protocol extends _objphp_class
 {
     private function __clone() {}
 
@@ -192,7 +190,7 @@ function objphp_log()
 {
     $argv = func_get_args();
 
-    _objphp_log(call_user_func_array("\ObjPHP\objphp_sprintf",$argv));
+    _objphp_log(call_user_func_array("objphp_sprintf",$argv));
 }
 
 function objphp_logCurrentTimeStamp()
@@ -281,7 +279,7 @@ function objphp_msgSend( $receiver, $methodName, $params, $withSuper=false )
     if ($methodName === "m_forward__")
     {
         // even forward wasnt found in whole hierarchy, throw runtime exception
-        throw new RuntimeException("A message forward '".$params[0]."' failed as 'forward::' was not delivered anywhere on the object hierarchy, are you sure you have implemented 'forward::' in your root Object?");
+        throw new _objphp_RuntimeException("A message forward '".$params[0]."' failed as 'forward::' was not delivered anywhere on the object hierarchy, are you sure you have implemented 'forward::' in your root Object?");
     }
     else
         return objphp_msgSend( $receiver, "m_forward__", array($methodName,$params));
@@ -289,7 +287,7 @@ function objphp_msgSend( $receiver, $methodName, $params, $withSuper=false )
 
 function objphp_msgSendWithSelector( $receiver, $sel, $params)
 {
-    return objphp_msgSend( $receiver, methodNameFromSelector($sel), $params);
+    return objphp_msgSend( $receiver, _objphp_methodNameFromSelector($sel), $params);
 }
 
 // Super Versions
@@ -300,23 +298,23 @@ function objphp_msgSendSuper( $receiver, $methodName, $params)
 
 function objphp_msgSendSuperWithSelector( $receiver, $sel, $params)
 {
-    return objphp_msgSend( $receiver, methodNameFromSelector($sel), $params, true);
+    return objphp_msgSend( $receiver, _objphp_methodNameFromSelector($sel), $params, true);
 }
 
 // @selector is compile time and MKSelectorFromString is at runtime
-function methodNameFromSelector($sel)
+function _objphp_methodNameFromSelector($sel)
 {
     return 'm_'.str_replace(":", "_", $sel);
 }
 
-function selectorFromMethodName($methodName) // MKStringFromSelector
+function _objphp_selectorFromMethodName($methodName) // MKStringFromSelector
 
 {
     return str_replace("_", ":", substr($methodName,2));
 }
 
 // The PreProcessor object
-class PreProcessor
+class _objphp_PreProcessor
 {
     private $tokenizer;
     private $parser;
@@ -333,7 +331,7 @@ class PreProcessor
         if ($parser)
             $this->parser = $parser;
         else
-            $this->parser = new Parser($this->tokenizer);
+            $this->parser = new _objphp_Parser($this->tokenizer);
 
 
         global $_objphp_preprocessor;
@@ -347,14 +345,14 @@ class PreProcessor
             $this->tokenizer->addTokensAndReset($code);
             return $this->parser->parse();
         }
-        catch(\ObjPHP\ParseException $e)
+        catch(_objphp_ParseException $e)
         {
-            \ObjPHP\_objphp_log("Failed\n---\n".$e->getFormattedError()."\n");
+            _objphp_log("Failed\n---\n".$e->getFormattedError()."\n");
             return false;
         }
-        catch(\ObjPHP\CountableException $e)
+        catch(_objphp_CountableException $e)
         {
-            \ObjPHP\_objphp_log("Failed\n---\n".$e->getMessage()."\n");
+            _objphp_log("Failed\n---\n".$e->getMessage()."\n");
             return false;
         }
     }
@@ -366,11 +364,11 @@ class PreProcessor
             $this->tokenizer->addTokensAndReset( $this->parser->readImport($fileName, $rel) );
             return $this->parser->parse(null, $runtimeimport);
         }
-        catch(\ObjPHP\ParseException $e)
+        catch(_objphp_ParseException $e)
         {
             objphp_log("Failed\n---\n".$e->getFormattedError()."\n");
         }
-        catch(\ObjPHP\CountableException $e)
+        catch(_objphp_CountableException $e)
         {
             objphp_log("Failed\n---\n".$e->getMessage()."\n");
         }
@@ -384,11 +382,11 @@ class PreProcessor
             $this->tokenizer->addTokens( $this->parser->readImport($fileName, $rel) );
             return $this->parser->parse(null, $runtimeimport);
         }
-        catch(\ObjPHP\ParseException $e)
+        catch(_objphp_ParseException $e)
         {
             objphp_log("Failed\n---\n".$e->getFormattedError()."\n");
         }
-        catch(\ObjPHP\CountableException $e)
+        catch(_objphp_CountableException $e)
         {
             objphp_log("Failed\n---\n".$e->getMessage()."\n");
         }
@@ -408,17 +406,17 @@ class PreProcessor
             // file
             $ret = eval($source);
         }
-        catch(\ObjPHP\ParseException $e)
+        catch(_objphp_ParseException $e)
         {
             objphp_log("Failed with Parse Error\n---\n".$e->getFormattedError()."\n");
             return false;
         }
-        catch(\ObjPHP\RuntimeException $e)
+        catch(_objphp_RuntimeException $e)
         {
             objphp_log("Failed with Runtime Error\n---\nR".$e->getMessage()."\n");
             return false;
         }
-        catch(\ObjPHP\CountableException $e)
+        catch(_objphp_CountableException $e)
         {
             objphp_log("Failed\n---\n".$e->getMessage()."\n");
             return false;
@@ -460,7 +458,7 @@ class PreProcessor
 }
 
 // Exception classes
-class CountableException extends \Exception
+class _objphp_CountableException extends Exception
 {
     public function __construct($message=null, $code=-1, $previous = null)
     {
@@ -483,7 +481,7 @@ class CountableException extends \Exception
 
 }
 
-class ParseException extends CountableException
+class _objphp_ParseException extends _objphp_CountableException
 {
 
     protected $token;
@@ -505,7 +503,7 @@ class ParseException extends CountableException
     }
 }
 
-class RuntimeException extends CountableException
+class _objphp_RuntimeException extends _objphp_CountableException
 {
     public function __construct($message=null, $code=-1, $previous = null)
     {
@@ -513,7 +511,7 @@ class RuntimeException extends CountableException
     }
 }
 
-class NotImplementedException extends CountableException
+class _objphp_NotImplementedException extends _objphp_CountableException
 {
     public function __construct($sel)
     {

@@ -20,6 +20,6 @@ set_include_path( OBJPHP_INCLUDE_PATH . PATH_SEPARATOR . OBJPHP_INCLUDE_PATH."/M
 include_once 'Objective-PHP/runtime.php';
 
 // Create a runtime and bootstrap by loading AppController.op
-$pp = new ObjPHP\PreProcessor();
+$pp = new _objphp_PreProcessor();
 if( $source = $pp->loadObjPHPFile("AppController.op") )
     $pp->run($source);

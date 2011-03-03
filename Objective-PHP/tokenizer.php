@@ -30,8 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace ObjPHP;
-
 // Tokens, includes possible future tokens which are currently not used
 const T_OBJPHP_IMPORT           = 10000; // @import -- # is a php comment
 const T_OBJPHP_IMPLEMENTATION   = 10001; // @implementation

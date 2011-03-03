@@ -30,8 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace ObjPHP;
-
 // State Constants
 const S_END                     = 1000;
 const S_FIRST                   = 1;
@@ -62,10 +60,10 @@ const PARSER_PROTOCOLINST_PREFIX        = '_opProtocol_';
 const PARSER_CATEGORYMETHOD_PREFIX      = '_opCat_';
 const PARSER_ROOTOBJECT_NAME            = 'MKObject';
 const PARSER_ROOTPROTOCOLOBJECT_NAME    = 'Protocol';
-const PARSER_BASERUNTIMECLASS           = '\ObjPHP\_runtimeclass';
-const PARSER_BASECLASS                  = '\ObjPHP\_class';
-const PARSER_BASERUNTIMEPROTOCOLCLASS   = '\ObjPHP\_runtimeclass';
-const PARSER_BASEPROTOCOLCLASS          = '\ObjPHP\_protocol';
+const PARSER_BASERUNTIMECLASS           = '_objphp_runtimeclass';
+const PARSER_BASECLASS                  = '_objphp_class';
+const PARSER_BASERUNTIMEPROTOCOLCLASS   = '_objphp_runtimeclass';
+const PARSER_BASEPROTOCOLCLASS          = '_objphp_protocol';
 const PARSER_CLASSTHISREFNAME           = '$_op_obj';
 const PARSER_CLASSPARAMOBJNAME          = '$_op_params';
 
@@ -79,7 +77,7 @@ const PARSER_PROTOCOL           = 2;
 const PARSER_BRACKETSYNTAX      = 3;
 
 // Parser
-class Parser
+class _objphp_Parser
 {
     private $lastErrorCode;
     private $lastError = "";
@@ -119,7 +117,7 @@ class Parser
         $this->lastError = "Parser Error: $msg";
         if(defined('_DEBUG_'))
             _objphp_print_trace();
-        throw new \ObjPHP\ParseException(null, $msg, $code);
+        throw new _objphp_ParseException(null, $msg, $code);
     }
 
     public function syntaxError($t, $msg="", $code=-1)
@@ -128,7 +126,7 @@ class Parser
         $this->lastError = "Syntax Error: $msg (Line: ".$t[3]." token: '".$t[1]."' '".$t[2]."')";
         if(defined('_DEBUG_'))
             _objphp_print_trace();
-        throw new \ObjPHP\ParseException($t, $msg, $code, null);
+        throw new _objphp_ParseException($t, $msg, $code, null);
     }
 
     public function readImport($filename, $rel)
@@ -183,7 +181,7 @@ class Parser
             $this->importTable[$unique] = true;
 
         if ($file===false)
-            throw new \ObjPHP\CountableException("File to load '$filename' (with path '$filenameWithPath') could not be found. ".(($rel)?("The search path was relative to working directory."):("The search path absolute or the include paths.")));
+            throw new _objphp_CountableException("File to load '$filename' (with path '$filenameWithPath') could not be found. ".(($rel)?("The search path was relative to working directory."):("The search path absolute or the include paths.")));
 
         // ******************************************** PUSH CURRENT PATH?
         array_push($this->currentFileStack, dirname($filenameWithPath));
@@ -285,7 +283,7 @@ class Parser
 
             if (strpos($lintOp, "No syntax errors detected in") === false)
             {
-                throw new \ObjPHP\CountableException("PHP Lint failed on the Objective-PHP parser output. Lint returned '$lintOp' ($return_value)\n");
+                throw new _objphp_CountableException("PHP Lint failed on the Objective-PHP parser output. Lint returned '$lintOp' ($return_value)\n");
             }
         }
 
@@ -774,7 +772,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in @implementation  of '$className' in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ( $s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing @implementation of '$className': ",PARSE_ERR_UNEX_EOF);
@@ -912,7 +910,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in @protocol of '$protocolName' in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ( $s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing @protocol: ",PARSE_ERR_UNEX_EOF);
@@ -1041,7 +1039,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in category @implementation in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ($s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing category @implementation: ",PARSE_ERR_UNEX_EOF);
@@ -1121,7 +1119,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in function block ".(($methodInfo)?("in method '".$methodInfo['name']."' of class '$className'"):(""))." in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ($s < S_END && $t);
 
         return $function;
     }
@@ -1254,7 +1252,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in ".(($method['type']=='c')?("class"):("instance"))." method in $structureType '$name' in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ($s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing ".(($method['type']=='c')?("class"):("instance"))." method in $structureType '$name': ",PARSE_ERR_UNEX_EOF);
@@ -1320,7 +1318,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in method label in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ($s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing method label: ",PARSE_ERR_UNEX_EOF);
@@ -1542,7 +1540,7 @@ class Parser
                 $this->syntaxError($t, "Unexpected character in expression in state $s: ",PARSE_ERR_UNEX_CHAR);
 
         }
-        while( $s < S_END && $t);
+        while ($s < S_END && $t);
 
         return $code;
     }
@@ -1678,7 +1676,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in square bracket syntax in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ( $s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($startToken, "Unexpected end of file while parsing square bracket syntax: ",PARSE_ERR_UNEX_EOF);
@@ -1784,7 +1782,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in @import in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ( $s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing @import: ",PARSE_ERR_UNEX_EOF);
@@ -1852,7 +1850,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in @php in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ( $s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing @php: ",PARSE_ERR_UNEX_EOF);
@@ -1938,7 +1936,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in @selector in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ( $s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($startToken, "Unexpected end of file while parsing @selector: ",PARSE_ERR_UNEX_EOF);
@@ -2016,7 +2014,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in comma separated list in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ( $s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing in comma separated list: ",PARSE_ERR_UNEX_EOF);
@@ -2127,7 +2125,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in ".(($methodType=='c')?("class"):("instance"))." method in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while( $s < S_END && $t);
+        while ($s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing ".(($methodType=='c')?("class"):("instance"))." method: ",PARSE_ERR_UNEX_EOF);
@@ -2270,7 +2268,7 @@ class Parser
             else
                 $this->syntaxError($t, "Unexpected character in ".(($methodType=='c')?("class"):("instance"))." method in state $s: ",PARSE_ERR_UNEX_CHAR);
         }
-        while($s < S_END && $t);
+        while ($s < S_END && $t);
 
         if ($s < S_END && !$t)
             $this->syntaxError($firstToken, "Unexpected end of file while parsing ".(($methodType=='c')?("class"):("instance"))." method: ",PARSE_ERR_UNEX_EOF);
@@ -2305,7 +2303,7 @@ class Parser
                         return true;
                     $c = $this->reflectionClassParent($c);
                 }
-                $this->syntaxError(null, (($catName)?("Category '$catName' of "):(""))."Class '$className' does not obey protocol '$protocolName'. Missing instance method with signature '".\ObjPHP\selectorFromMethodName($pMethodName)."'",PARSE_ERR_PROTOCOL_CONFORMANCE);
+                $this->syntaxError(null, (($catName)?("Category '$catName' of "):(""))."Class '$className' does not obey protocol '$protocolName'. Missing instance method with signature '"._objphp_selectorFromMethodName($pMethodName)."'",PARSE_ERR_PROTOCOL_CONFORMANCE);
                 return false;
             }
         }
@@ -2320,7 +2318,7 @@ class Parser
                         break 2;
                     $c = $this->reflectionClassParent($c);
                 }
-                $this->syntaxError(null, (($catName)?("Category '$catName' of "):(""))."Class '$className' does not obey protocol '$protocolName'. Missing instance method with signature '".\ObjPHP\selectorFromMethodName($pmethod['name'])."'",PARSE_ERR_PROTOCOL_CONFORMANCE);
+                $this->syntaxError(null, (($catName)?("Category '$catName' of "):(""))."Class '$className' does not obey protocol '$protocolName'. Missing instance method with signature '"._objphp_selectorFromMethodName($pmethod['name'])."'",PARSE_ERR_PROTOCOL_CONFORMANCE);
                 return false;
             }
         }
@@ -2344,7 +2342,7 @@ class Parser
         $methodInfo = $this->reflectionCreateMethodInfo('i', $label);
 
         if (isset($iVarAccessor['copy']) && $iVarAccessor['copy'] == true)
-            $source = PARSER_CLASSTHISREFNAME."->$iVarName = \ObjPHP\objphp_msgSend(\$obj, \ObjPHP\methodNameFromSelector('copy'), array());\n}";
+            $source = PARSER_CLASSTHISREFNAME."->$iVarName = objphp_msgSend(\$obj, _objphp_methodNameFromSelector('copy'), array());\n}";
         else
             $source = PARSER_CLASSTHISREFNAME."->$iVarName = \$obj;\n}";
 
@@ -2355,8 +2353,8 @@ class Parser
     {
         // below tokenizes and adds tokens to end of chain, then parses it
         $source = "global \$_objphp_preprocessor; \$_objphp_importSource = \$_objphp_preprocessor->loadObjPHPFileWithoutReset($fileName, true, true);\n";
-        $source .= "if (\$_objphp_importSource === false) throw new \ObjPHP\ParseException(null, 'Parser error in runtime import.', ".RUNTIME_IMPORTPARSER_ERROR.");";
-        $source .= "if (\$_objphp_preprocessor->run(\$_objphp_importSource, \$_op_obj) === false) throw new \ObjPHP\RuntimeException('Runtime error in import at runtime.', ".RUNTIME_ERROR.");";
+        $source .= "if (\$_objphp_importSource === false) throw new _objphp_ParseException(null, 'Parser error in runtime import.', ".RUNTIME_IMPORTPARSER_ERROR.");";
+        $source .= "if (\$_objphp_preprocessor->run(\$_objphp_importSource, \$_op_obj) === false) throw new _objphp_RuntimeException('Runtime error in import at runtime.', ".RUNTIME_ERROR.");";
         return $source;
     }
 
@@ -2473,8 +2471,8 @@ class Parser
             $protocolListSource
             $instMethodDTable
         self::\$_instance->setUID();
-        \ObjPHP\objphp_msgSend(self::\$_instance, \"m_initialize\", array());
-        self::\$_instance->name = \ObjPHP\objphp_msgSend(self::\$_instance, \"m_name\", array());
+        objphp_msgSend(self::\$_instance, \"m_initialize\", array());
+        self::\$_instance->name = objphp_msgSend(self::\$_instance, \"m_name\", array());
     }
     return self::\$_instance;
 }\n";
@@ -2613,19 +2611,19 @@ class Parser
 
         if ($receiver['type'] == 'e')
         {
-            $source = '\ObjPHP\objphp_msgSend';
+            $source = 'objphp_msgSend';
             $rec = $receiver['value'];
         }
         else if ($receiver['type'] == 's')
         {
             if ($receiver['value'] == 'super')
             {
-                $source = '\ObjPHP\objphp_msgSendSuper';
+                $source = 'objphp_msgSendSuper';
                 $rec = PARSER_CLASSTHISREFNAME;
             }
             else
             {
-                $source = '\ObjPHP\objphp_msgSend';
+                $source = 'objphp_msgSend';
                 $rec = PARSER_CLASSCLASS_PREFIX.$receiver['value']."::getInstance()";
             }
         }
