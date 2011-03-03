@@ -84,6 +84,7 @@ class Parser
     private $lastErrorCode;
     private $lastError = "";
 
+    private $currentFileStack = array();
     private $importTable = array();
 
     private $tokens;
@@ -130,11 +131,51 @@ class Parser
         throw new \ObjPHP\ParseException($t, $msg, $code, null);
     }
 
-    public function readImport($fileName, $rel)
+    public function readImport($filename, $rel)
     {
-        // check if already imported
-        $mode = ($rel)?(FILE_TEXT):(FILE_USE_INCLUDE_PATH | FILE_TEXT);
-        $file = @file_get_contents($fileName, $mode);
+        // check if already imported ************
+        echo "Import : $filename  \n";
+
+        // Try get absolute path
+        if ($rel)
+        {
+            if (!$filenameWithPath = realpath($filename))
+            {
+                // Not absolute so is relative to current import
+                $filenameWithPath = end($this->currentFileStack).DIRECTORY_SEPARATOR.$filename;
+                
+                
+                echo "Not absolute - $filenameWithPath \n"; //*********
+            }
+        }
+        else
+        {
+            // search on include path
+            $paths = explode(PATH_SEPARATOR, get_include_path());
+            foreach ($paths as $path)
+            {
+                if (substr($path, -1) == DIRECTORY_SEPARATOR)
+                {
+                    $fullpath = $path.$filename;
+                }
+                else
+                {
+                    $fullpath = $path.DIRECTORY_SEPARATOR.$filename;
+                }
+                echo $fullpath;
+                if (file_exists($fullpath))
+                {
+                    echo " : FOUND"; //***********************************
+                    $filenameWithPath = $fullpath;
+                }
+                echo "\n"; //***********************************
+            }
+        }
+
+        //$mode = ($rel)?(FILE_TEXT):(FILE_USE_INCLUDE_PATH | FILE_TEXT);
+        //$file = file_get_contents($filename, $mode);
+        $file = file_get_contents($filenameWithPath, FILE_TEXT);
+
         $unique = sha1($file);
         if (array_key_exists($unique, $this->importTable))
             return false;
@@ -142,7 +183,10 @@ class Parser
             $this->importTable[$unique] = true;
 
         if ($file===false)
-            throw new \ObjPHP\CountableException("File to load '$fileName' could not be found. ".(($rel)?("The search path was relative to working directory."):("The search path absolute or the include paths.")));
+            throw new \ObjPHP\CountableException("File to load '$filename' (with path '$filenameWithPath') could not be found. ".(($rel)?("The search path was relative to working directory."):("The search path absolute or the include paths.")));
+
+        // ******************************************** PUSH CURRENT PATH?
+        array_push($this->currentFileStack, dirname($filenameWithPath));
 
         // Add close tag as by default enviroment is in HTML mode
         return "?>".$file;
