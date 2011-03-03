@@ -46,9 +46,6 @@ define("_CLS_META",     1);
 define("_CLS_CLASS",    2);
 define("_CLS_PROTOCOL", 4);
 
-// FIXME: DO AWAY WITH THIS ... simply at compile time pass the preprocessor to each method?
-$_objphp_preprocessor = null;
-
 // Note: for the root class see Moka/Object.php
 // The base runtime class for instance objects
 class _objphp_class
@@ -322,6 +319,8 @@ class _objphp_PreProcessor
     private $startExecTime;
     private $endExecTime;
 
+    protected static $instance = NULL;
+
     public function __construct($tokenizer = null, $parser = null)
     {
         if ($tokenizer)
@@ -333,9 +332,7 @@ class _objphp_PreProcessor
         else
             $this->parser = new _objphp_Parser($this->tokenizer);
 
-
-        global $_objphp_preprocessor;
-        $_objphp_preprocessor = $this;
+        static::$instance = $this;
     }
 
     public function loadObjPHPString($code)
@@ -398,7 +395,6 @@ class _objphp_PreProcessor
         $this->startExecutionTimer();
         try
         {
-            global $_objphp_preprocessor;
             $_op_obj = $scopePtr;
             // Eval assumes the code is already in PHP mode. So you cannot
             // lead with HTML which is annoying, so intead we close php mode
