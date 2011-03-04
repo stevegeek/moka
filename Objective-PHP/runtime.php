@@ -319,8 +319,9 @@ class _objphp_PreProcessor
     private $endExecTime;
 
     protected static $instance = NULL;
+    private function __clone() { }
 
-    public function __construct($tokenizer = null, $parser = null)
+    private function __construct($tokenizer = null, $parser = null)
     {
         if ($tokenizer)
             $this->tokenizer = $tokenizer;
@@ -332,6 +333,14 @@ class _objphp_PreProcessor
             $this->parser = new _objphp_Parser($this->tokenizer);
 
         static::$instance = $this;
+    }
+
+    public static function getInstance($tokenizer = null, $parser = null)
+    {
+        if (!static::$instance)
+            static::$instance = new _objphp_PreProcessor($tokenizer, $parser);
+
+        return static::$instance;
     }
 
     public function loadObjPHPString($code)

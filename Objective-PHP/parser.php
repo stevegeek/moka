@@ -2353,9 +2353,9 @@ class _objphp_Parser
     private function generateDynamicImport($fileName)
     {
         // below tokenizes and adds tokens to end of chain, then parses it
-        $source = "\$_objphp_importSource = _objphp_PreProcessor::\$instance->loadObjPHPFileWithoutReset($fileName, true, true);\n";
+        $source = "\$_objphp_importSource = _objphp_PreProcessor::getInstance()->loadObjPHPFileWithoutReset($fileName, true, true);\n";
         $source .= "if (\$_objphp_importSource === false) throw new _objphp_ParseException(null, 'Parser error in runtime import.', ".RUNTIME_IMPORTPARSER_ERROR.");";
-        $source .= "if (_objphp_PreProcessor::\$instance->run(\$_objphp_importSource, \$_op_obj) === false) throw new _objphp_RuntimeException('Runtime error in import at runtime.', ".RUNTIME_ERROR.");";
+        $source .= "if (_objphp_PreProcessor::getInstance()->run(\$_objphp_importSource, \$_op_obj) === false) throw new _objphp_RuntimeException('Runtime error in import at runtime.', ".RUNTIME_ERROR.");";
         return $source;
     }
 
