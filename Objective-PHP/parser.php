@@ -66,6 +66,7 @@ const PARSER_BASERUNTIMEPROTOCOLCLASS   = '_objphp_runtimeclass';
 const PARSER_BASEPROTOCOLCLASS          = '_objphp_protocol';
 const PARSER_CLASSTHISREFNAME           = '$_op_obj';
 const PARSER_CLASSPARAMOBJNAME          = '$_op_params';
+const PARSER_METHOD_COLON_REPLACEMENT   = 'OP0x3A';
 
 const PARSER_USE                = 1;
 const PARSER_LEAVE              = 2;
@@ -1907,7 +1908,7 @@ class _objphp_Parser
                 case ':':
                     if ($s == 3)
                     {
-                        $methodName .= '_';
+                        $methodName .= PARSER_METHOD_COLON_REPLACEMENT;
                         $useToken = PARSER_USE;
                     }
                     break;
@@ -2657,7 +2658,7 @@ class _objphp_Parser
             {
                 $params[$cnt]['value'] = $labelparamList[$i]['value'];
                 $params[$cnt]['hint'] = $labelparamList[$i]['hint'];
-                $methodDecl .= '_';
+                $methodDecl .= PARSER_METHOD_COLON_REPLACEMENT;
                 $sel .= ":";
                 $cnt++;
             }

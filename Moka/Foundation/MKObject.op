@@ -216,12 +216,12 @@ zone*/
 
 + conformsTo:protocolObject
 {
-    \ObjPHP\_objphp_log("~ ".__METHOD__." unimplemented!");
+    _objphp_log("~ ".__METHOD__." unimplemented!");
 }
 
 - (void)forward:(SEL)aSelector :(marg_list)args
 {
-    \ObjPHP\_objphp_log( "'".\ObjPHP\selectorFromMethodName($aSelector)."' could not be delivered on '".[$self name]."'" );
+    _objphp_log( "'"._objphp_selectorFromMethodName($aSelector)."' could not be delivered on '".[$self name]."'" );
 }
 
 @end

@@ -273,13 +273,13 @@ function objphp_msgSend( $receiver, $methodName, $params, $withSuper=false )
     // if here the method was not found at all
     // call -forward:: which is on Object thus eventhough its an instance method can be called
     // even on class objects
-    if ($methodName === "m_forward__")
+    if ($methodName === _objphp_methodNameFromSelector("forward::"))
     {
         // even forward wasnt found in whole hierarchy, throw runtime exception
         throw new _objphp_RuntimeException("A message forward '".$params[0]."' failed as 'forward::' was not delivered anywhere on the object hierarchy, are you sure you have implemented 'forward::' in your root Object?");
     }
     else
-        return objphp_msgSend( $receiver, "m_forward__", array($methodName,$params));
+        return objphp_msgSend( $receiver, _objphp_methodNameFromSelector("forward::"), array($methodName,$params));
 }
 
 function objphp_msgSendWithSelector( $receiver, $sel, $params)
@@ -301,12 +301,12 @@ function objphp_msgSendSuperWithSelector( $receiver, $sel, $params)
 // @selector is compile time and MKSelectorFromString is at runtime
 function _objphp_methodNameFromSelector($sel)
 {
-    return 'm_'.str_replace(":", "_", $sel);
+    return 'm_'.str_replace(":", PARSER_METHOD_COLON_REPLACEMENT, $sel);
 }
 
 function _objphp_selectorFromMethodName($methodName) // MKStringFromSelector
 {
-    return str_replace("_", ":", substr($methodName,2));
+    return str_replace(PARSER_METHOD_COLON_REPLACEMENT, ":", substr($methodName,2));
 }
 
 // The PreProcessor object

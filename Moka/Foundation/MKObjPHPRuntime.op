@@ -33,12 +33,12 @@ const MKOrderedAscending  = -1,
 // So the following function converts from a SEL to a string of the method name.
 function MKStringFromSelector($methodName)
 {
-    return \ObjPHP\selectorFromMethodName($methodName);
+    return _objphp_selectorFromMethodName($methodName);
 }
 // and vice versa
 function MKSelectorFromString($sel) // return method name from a selector string
 {
-    return \ObjPHP\methodNameFromSelector($sel);
+    return _objphp_methodNameFromSelector($sel);
 }
 /*
 function CPClassFromString(aClassName)
